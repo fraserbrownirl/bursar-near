@@ -9,7 +9,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "test": "tsx --test test/check.test.ts test/quote.test.ts",
+    "test": "tsx --test test/check.test.ts test/quote.test.ts test/signer.test.ts test/intents-dec.test.ts test/pay.test.ts",
     "test:live": "tsx --test test/live.test.ts",
     "demo": "tsx src/demo.ts",
     "bursar": "tsx src/cli.ts"
@@ -19,6 +19,7 @@
   },
   "license": "MIT",
   "dependencies": {
+    "@defuse-protocol/intents-sdk": "^0.95.0",
     "@defuse-protocol/one-click-sdk-typescript": "0.1.26"
   },
   "devDependencies": {

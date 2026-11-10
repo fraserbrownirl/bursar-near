@@ -23,8 +23,13 @@ export type SignedQuote = {
     destinationAsset: string;
     deadline: string;
     depositType?: string;
+    refundType?: string;
+    swapType?: string;
     insured?: boolean;
     appFees?: AppFee[];
+    customRecipientMsg?: string | null;
+    virtualChainRecipient?: string | null;
+    virtualChainRefundRecipient?: string | null;
   };
   quote: {
     depositAddress?: string;
@@ -104,6 +109,11 @@ export function referenceCheck(response: SignedQuote, request: BursarRequest, no
   if (asked.dry !== false) fails.push("dry");
   if (!got.depositAddress) fails.push("deposit");
   if (asked.depositType !== "INTENTS") fails.push("deposit_type");
+  if (asked.refundType !== "INTENTS") fails.push("refund_type");
+  for (const field of ["customRecipientMsg", "virtualChainRecipient", "virtualChainRefundRecipient"] as const) {
+    const value = asked[field];
+    if (value != null && value !== "") fails.push(field);
+  }
   if (asked.recipient !== request.recipient) fails.push("recipient");
   if (asked.refundTo !== request.refundTo) fails.push("refund");
   if (asked.destinationAsset !== request.destinationAsset) fails.push("asset");
@@ -111,7 +121,11 @@ export function referenceCheck(response: SignedQuote, request: BursarRequest, no
   if (asked.deadline !== request.deadline) fails.push("request_deadline");
   const amount = normInt(got.amountIn);
   const wanted = normInt(request.amount);
+  const signedAmount = normInt(asked.amount);
   if (amount === null || wanted === null || cmp(amount, wanted) !== 0) fails.push("amount");
+  if ((asked.swapType ?? "EXACT_INPUT") === "EXACT_INPUT" && (amount === null || signedAmount === null || cmp(amount, signedAmount) !== 0)) {
+    if (!fails.includes("amount")) fails.push("amount");
+  }
   const minOut = normInt(got.minAmountOut);
   const minWanted = normInt(request.minAmountOut);
   if (minOut === null || minWanted === null || cmp(minOut, minWanted) < 0) fails.push("min_out");

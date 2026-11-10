@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { decide, type ChainFacts } from "./decide.js";
-import { expectedTransfer, inspectIntent } from "./intent.js";
+import { inspectIntent, type IntentRecord } from "./intent.js";
 import { payeeOf, requestFromQuote, reviewQuote, type BursarRequest, type SignedQuote } from "./quote.js";
 
 export type Attack = { name: string; line: string; expect: RegExp };
@@ -88,15 +88,26 @@ export function attacks(): Attack[] {
     expect: /^STOP: deadline$/,
   });
 
+  const dry = fixture("quote-dry.json");
+  out.push({
+    name: "dry quote used for payment",
+    line: reviewQuote(dry, requestFromQuote(dry), now) ?? "ok",
+    expect: /^STOP: dry/,
+  });
+
   const fee = structuredClone(live);
   fee.quoteRequest.appFees = [{ recipient: "evil.near", fee: 300 }];
   out.push({
-    name: "unknown app fee",
+    name: "unsigned fee field edited",
     line: reviewQuote(fee, asked, now) ?? "ok",
     expect: /^STOP: app fee 300 bps to evil\.near$/,
   });
 
-  const transfer = expectedTransfer(live);
+  const generated = JSON.parse(readFileSync(new URL("../test/fixtures/generate-intent.json", import.meta.url), "utf8")) as {
+    intent: { payload: { message: string } };
+  };
+  const message = JSON.parse(generated.intent.payload.message) as { intents: IntentRecord[] };
+  const transfer = message.intents[0]!;
   out.push({
     name: "drainer bundle",
     line: inspectIntent({ intents: [transfer, { intent: "add_public_key", public_key: "ed25519:x" }] }, live) ?? "ok",

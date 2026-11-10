@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import { attacks, demoReport } from "../src/demo.js";
 import { inspectIntent, expectedTransfer } from "../src/intent.js";
-import { ONECLICK_FEE_RECIPIENT, feeCapBps, payeeOf, signatureOk, type SignedQuote } from "../src/quote.js";
+import { ONECLICK_FEE_RECIPIENT, feeCapBps, payeeOf, reviewQuote, requestFromQuote, signatureOk, type SignedQuote } from "../src/quote.js";
 
 function load(name: string): SignedQuote {
   return JSON.parse(readFileSync(new URL(`./fixtures/${name}`, import.meta.url), "utf8")) as SignedQuote;
@@ -20,6 +20,14 @@ test("captured quotes verify, and the fee recipient is the observed account at 2
       destinationAsset: quote.quoteRequest.destinationAsset,
     }));
   }
+});
+
+test("editing appFees leaves the 1Click signature valid", () => {
+  const quote = load("quote-live.json");
+  quote.quoteRequest.appFees = [{ recipient: "evil.near", fee: 300 }];
+  assert.equal(signatureOk(quote), true);
+  const now = Math.floor(Date.parse(quote.quote.deadline ?? "") / 1000) - 60;
+  assert.equal(reviewQuote(quote, requestFromQuote(load("quote-live.json")), now), "STOP: app fee 300 bps to evil.near");
 });
 
 test("bursar pay checks the recipient, not the deposit address", () => {
@@ -41,7 +49,8 @@ test("npm run demo stops every attack", () => {
     "foreign refundTo",
     "low minAmountOut",
     "expired deadline",
-    "unknown app fee",
+    "dry quote used for payment",
+    "unsigned fee field edited",
     "drainer bundle",
     "hidden notification",
     "transfer to another account",

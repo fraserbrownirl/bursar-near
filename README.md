@@ -84,9 +84,19 @@ An `intents.near` key has full account control — the [account-abstraction docs
 
 The signature check is `verifyQuoteSignature` from `@defuse-protocol/one-click-sdk-typescript`. An invalid signature is `STOP: bad signature`. The field comparison is the TypeScript reference of firmware `1click check` (recipient, refundTo, amount, destination asset, minAmountOut, deadline, memo, dry, deposit address), plus `originAsset` and `depositType: INTENTS`, which that command does not take. With `BURSAR_MODEL_URL` set and the server answering, the same `1click check` line is labelled `live (model, Mac)`.
 
-App fees: Bursar sends none. The quote's `appFees` may contain only 1Click's own fee, at or under the documented rate. From [Fees](https://docs.near-intents.org/resources/fees): 25 bps without an API key, 20 bps with one, and 1 bp for stablecoin pairs (USDC, USDT, DAI) and same-asset transfers. From the quote-request schema: `insured: true` adds 2 bps (0.02%). The [fee-config page](https://docs.near-intents.org/integration/distribution-channels/1click-api/fee-config) says that with no API key, 1Click adds 25 bps on top of any fee you submit, and that omitting `appFees` still charges 25 bps, all to 1Click. The docs do not name 1Click's fee recipient. Both captured quotes put 20 bps on `5880ad2b362620fadf759cbceb1cd5737ce8c6ed7fb8e9942881e6731f9247dd`. That account is `ONECLICK_FEE_RECIPIENT` in `src/quote.ts`, with a comment that it was observed, not documented. Any other recipient, or a fee above the cap, is `STOP: app fee <n> bps to <account>`.
+`appFees` is not covered by the 1Click signature. `buildSignedQuoteRequest` in `@defuse-protocol/one-click-sdk-typescript` `src/quote-signature.ts` sets `appFees` to `undefined` before hashing (published as `appFees: void 0` in `dist/index.mjs`). Editing that field on a captured quote leaves `verifyQuoteSignature` true. The fee rule is a consistency check. The fee protection is the signed amounts: for `EXACT_INPUT`, `amountIn` equals `amount`, and `minAmountOut` is at least the requested output. A changed amount fails the signature.
+
+Bursar sends no `appFees`. If the field is present, it may contain only 1Click's own fee, at or under the documented rate. From [Fees](https://docs.near-intents.org/resources/fees): 25 bps without an API key, 20 bps with one, and 1 bp for stablecoin pairs (USDC, USDT, DAI) and same-asset transfers. `insured: true` adds 2 bps. The [fee-config page](https://docs.near-intents.org/integration/distribution-channels/1click-api/fee-config) says that with no API key, 1Click adds 25 bps on top of any fee you submit. The docs do not name 1Click's fee recipient. Both captured quotes put 20 bps on `5880ad2b362620fadf759cbceb1cd5737ce8c6ed7fb8e9942881e6731f9247dd`. That account is `ONECLICK_FEE_RECIPIENT` in `src/quote.ts`, with a comment that it was observed, not documented. Any other recipient, or a fee above the cap, is `STOP: app fee <n> bps to <account>`.
+
+`customRecipientMsg`, `virtualChainRecipient`, and `virtualChainRefundRecipient` must be absent. A payment requires `dry: false`, `depositType: INTENTS`, and `refundType: INTENTS` with `refundTo` equal to our account.
 
 ## Intent
+
+`test/fixtures/generate-intent.json` is a real `OneClickService.generateIntent({type: "swap_transfer", standard: "nep413", signerId, depositAddress})` response captured 2026-11-10. Its NEP-413 `recipient` is `intents.near`. The message JSON keys are `deadline`, `intents`, and `signer_id`. The TypeScript reference of firmware `intents dec` on that message returned `error (bad intents)` and is labelled `reference (TypeScript)`. The model was not called. The firmware also requires `verifying_contract` and `nonce`, which are on the NEP-413 envelope (`recipient` and `nonce`), not in the message. The demo's intent attacks replace the `intents` array of this response.
+
+`BursarGuardedSigner` implements `IIntentSigner`. It requires the NEP-413 recipient (`verifying_contract`) to be `intents.near`, `signer_id` to be our account, the deadline to be within 5 minutes, an unused nonce, and the one-shape rule. It then calls `createIntentSignerNearKeyPair`. `signerFromSecret` is the only function that reads the secret. The captured intent's deadline is `2026-11-14T12:00:00.000Z`, which is outside 5 minutes, so `signIntent` stops before the inner signer.
+
+The wallet is an implicit account, the hex of the ed25519 public key. `intents.near` `has_public_key` authorises that key without `add_public_key` when the account is not yet stored: `account_id == public_key.to_implicit_account_id()` ([state.rs](https://github.com/near/intents/blob/main/contracts/defuse/src/contract/intents/state.rs)). Balance is `mt_batch_balance_of`. On 2026-11-10 that call for this account returned `0` for `nep141:wrap.near` and `nep141:usdt.tether-token.near`. No mainnet payment was submitted.
 
 The payload Bursar will sign has one intent. The allowed shape is `transfer`, `receiver_id` equal to the quote's `depositAddress`, `tokens` holding exactly one entry (`originAsset` → `amountIn`), no `msg` and no `min_gas`, and `memo` equal to `depositMemo` when the quote has one, otherwise absent. Anything else STOPs and names what differed. The eleven intent types, from [near/intents `intents/mod.rs`](https://github.com/near/intents/blob/main/contracts/defuse/core/src/intents/mod.rs), are `add_public_key`, `remove_public_key`, `transfer`, `ft_withdraw`, `nft_withdraw`, `mt_withdraw`, `native_withdraw`, `storage_deposit`, `token_diff`, `set_auth_by_predecessor_id`, and `auth_call`. The quote must use `depositType: INTENTS`.
 
@@ -97,7 +107,8 @@ The payload Bursar will sign has one intent. The allowed shape is `transfer`, `r
 - a prompt-injected payment to a blocklisted account → `block`
 - a tampered quote → `STOP: bad signature`
 - the wrong recipient, a foreign `refundTo`, a low `minAmountOut`, an expired deadline
-- an extra 300 bps app fee to an unknown recipient
+- unsigned fee field edited (300 bps to an unknown recipient; the signature still verifies)
+- a dry quote used for payment
 - a drainer bundle (a transfer plus `add_public_key`)
 - a transfer with a `msg`
 - a transfer whose `receiver_id` is not `depositAddress`
@@ -115,6 +126,7 @@ The copied guards do not call a chain. Bursar-9B is not in this repository. The 
 Runtime dependency, pinned in `package-lock.json`:
 
 - `@defuse-protocol/one-click-sdk-typescript` 0.1.26, which depends on `@noble/hashes`, `@scure/base`, `axios`, `form-data`, `json-stable-stringify`, and `tweetnacl`
+- `@defuse-protocol/intents-sdk` 0.95.0 (`near-api-js` comes with it; `KeyPair` is used only inside `signerFromSecret`)
 
 Development dependencies:
 
