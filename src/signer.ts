@@ -30,7 +30,11 @@ export class BursarGuardedSigner implements IIntentSigner {
     }
     const now = this.options.now?.() ?? Date.now();
     const deadline = Date.parse(intent.deadline);
-    if (Number.isNaN(deadline) || deadline <= now || deadline > now + FIVE_MINUTES_MS) {
+    const quoteDeadline = Date.parse(this.options.quote.quote.deadline ?? "");
+    if (Number.isNaN(deadline) || Number.isNaN(quoteDeadline) || deadline !== quoteDeadline) {
+      throw new Error("STOP: deadline");
+    }
+    if (deadline <= now || deadline > now + FIVE_MINUTES_MS) {
       throw new Error("STOP: deadline");
     }
     if (this.usedNonces.has(intent.nonce)) throw new Error("STOP: nonce");

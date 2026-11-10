@@ -1,6 +1,6 @@
 import type { IIntentSigner, IntentPayload } from "@defuse-protocol/intents-sdk";
 import { inspectIntent } from "./intent.js";
-import { payeeOf, reviewQuote, requestFromQuote, type SignedQuote } from "./quote.js";
+import { reviewQuote, type BursarRequest, type SignedQuote } from "./quote.js";
 
 export type GeneratedIntent = {
   intent: {
@@ -18,14 +18,15 @@ export type GeneratedIntent = {
  */
 export async function settle(options: {
   quote: SignedQuote;
+  request: BursarRequest;
   accountId: string;
   nowSec: number;
   signer: IIntentSigner;
   generateIntent: (depositAddress: string, signerId: string) => Promise<GeneratedIntent>;
   submitIntent?: (signed: Awaited<ReturnType<IIntentSigner["signIntent"]>>) => Promise<unknown>;
 }): Promise<string> {
-  if (options.quote.quoteRequest.refundTo !== options.accountId) return "STOP: refund";
-  const quoteStop = reviewQuote(options.quote, requestFromQuote(options.quote), options.nowSec);
+  if (options.request.refundTo !== options.accountId) return "STOP: refund";
+  const quoteStop = reviewQuote(options.quote, options.request, options.nowSec);
   if (quoteStop) return quoteStop;
   const deposit = options.quote.quote.depositAddress;
   if (!deposit) return "STOP: deposit";
@@ -37,7 +38,6 @@ export async function settle(options: {
   };
   const shape = inspectIntent({ intents: message.intents as never }, options.quote);
   if (shape) return shape;
-  if (payeeOf(options.quote) === deposit) return "STOP: recipient";
   try {
     const signed = await options.signer.signIntent({
       verifying_contract: generated.intent.payload.recipient,

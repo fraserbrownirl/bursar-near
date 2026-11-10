@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { decide, type ChainFacts } from "./decide.js";
 import { inspectIntent, type IntentRecord } from "./intent.js";
-import { payeeOf, requestFromQuote, reviewQuote, type BursarRequest, type SignedQuote } from "./quote.js";
+import { payeeOf, reviewQuote, type BursarRequest, type SignedQuote } from "./quote.js";
 
 export type Attack = { name: string; line: string; expect: RegExp };
 
@@ -36,11 +36,19 @@ export function attacks(): Attack[] {
   process.env.BURSAR_HOME = home;
   const live = fixture("quote-live.json");
   const now = beforeDeadline(live);
-  const asked = requestFromQuote(live);
+  const asked: BursarRequest = {
+    recipient: live.quoteRequest.recipient,
+    refundTo: live.quoteRequest.refundTo,
+    amount: live.quoteRequest.amount,
+    originAsset: live.quoteRequest.originAsset,
+    destinationAsset: live.quoteRequest.destinationAsset,
+    deadline: live.quoteRequest.deadline,
+    minAmountOut: live.quote.minAmountOut,
+  };
   const out: Attack[] = [];
 
   writeFileSync(join(home, "blocklist.json"), JSON.stringify({
-    accounts: { [payeeOf(live)]: { reason: "reported", evidence_hash: "abc" } },
+    accounts: { [payeeOf(live)]: [{ reporter: "reporter.testnet", reason: "reported", evidence_hash: "abc" }] },
   }));
   process.env.BURSAR_BLOCKLIST = join(home, "blocklist.json");
   const blocked = decide({
@@ -91,7 +99,15 @@ export function attacks(): Attack[] {
   const dry = fixture("quote-dry.json");
   out.push({
     name: "dry quote used for payment",
-    line: reviewQuote(dry, requestFromQuote(dry), now) ?? "ok",
+    line: reviewQuote(dry, {
+      recipient: dry.quoteRequest.recipient,
+      refundTo: dry.quoteRequest.refundTo,
+      amount: dry.quoteRequest.amount,
+      originAsset: dry.quoteRequest.originAsset,
+      destinationAsset: dry.quoteRequest.destinationAsset,
+      deadline: dry.quoteRequest.deadline,
+      minAmountOut: dry.quote.minAmountOut,
+    }, now) ?? "ok",
     expect: /^STOP: dry/,
   });
 

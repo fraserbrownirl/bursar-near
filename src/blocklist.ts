@@ -2,13 +2,25 @@ import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-export type BlocklistEntry = { reason: string; evidenceHash: string };
+export type BlocklistReport = {
+  reporter: string;
+  reason: string;
+  evidenceHash: string;
+  blockHeight?: string;
+};
+
+export function trustedReporters(): string[] {
+  return (process.env.BURSAR_TRUSTED_REPORTERS ?? "")
+    .split(",")
+    .map((item) => item.trim())
+    .filter((item) => item !== "");
+}
 
 const bundled = join(dirname(fileURLToPath(import.meta.url)), "../fixtures/blocklist.json");
 
 /**
  * When set, `get` is a view call on this testnet contract.
- * Deployed 2026-11-10 as `bursar-bl-0db1ecc7.testnet`.
+ * Deployed 2026-11-10 as `bursar-rep-7f1d8a2b.testnet`.
  * Unset, the check uses the fixture file so tests make no network call.
  */
 export function blocklistContract(): string | undefined {
@@ -25,23 +37,29 @@ export function blocklistPath(): string {
  * The file is the source until a testnet contract account is set.
  * A missing file is a failed read, not an empty list.
  */
-export function readBlocklist(path = blocklistPath()): { path: string; accounts: Record<string, BlocklistEntry>; missing: boolean } {
-  if (!existsSync(path)) return { path, accounts: {}, missing: true };
-  const parsed = JSON.parse(readFileSync(path, "utf8")) as {
-    accounts?: Record<string, { reason?: string; evidence_hash?: string }>;
-  };
-  const accounts: Record<string, BlocklistEntry> = {};
-  for (const [account, entry] of Object.entries(parsed.accounts ?? {})) {
-    accounts[account] = {
-      reason: entry.reason ?? "listed",
-      evidenceHash: entry.evidence_hash ?? "",
+function asReports(value: unknown): BlocklistReport[] {
+  const list = Array.isArray(value) ? value : value ? [value] : [];
+  return list.map((entry) => {
+    const row = entry as { reporter?: string; reason?: string; evidence_hash?: string; evidenceHash?: string; block_height?: number | string; blockHeight?: string };
+    return {
+      reporter: row.reporter ?? "",
+      reason: row.reason ?? "listed",
+      evidenceHash: row.evidence_hash ?? row.evidenceHash ?? "",
+      blockHeight: row.block_height === undefined ? row.blockHeight : String(row.block_height),
     };
-  }
+  });
+}
+
+export function readBlocklist(path = blocklistPath()): { path: string; accounts: Record<string, BlocklistReport[]>; missing: boolean } {
+  if (!existsSync(path)) return { path, accounts: {}, missing: true };
+  const parsed = JSON.parse(readFileSync(path, "utf8")) as { accounts?: Record<string, unknown> };
+  const accounts: Record<string, BlocklistReport[]> = {};
+  for (const [account, entry] of Object.entries(parsed.accounts ?? {})) accounts[account] = asReports(entry);
   return { path, accounts, missing: false };
 }
 
 /** Fixture file, or one `get` on the testnet contract when `BURSAR_BLOCKLIST_CONTRACT` is set. */
-export async function loadBlocklist(receiver: string): Promise<{ path: string; accounts: Record<string, BlocklistEntry>; missing: boolean }> {
+export async function loadBlocklist(receiver: string): Promise<{ path: string; accounts: Record<string, BlocklistReport[]>; missing: boolean }> {
   const contract = blocklistContract();
   if (!contract) return readBlocklist();
   const rpc = process.env.NEAR_TESTNET_RPC ?? "https://rpc.testnet.near.org";
@@ -67,15 +85,8 @@ export async function loadBlocklist(receiver: string): Promise<{ path: string; a
     const bytes = body.result?.result;
     if (!bytes) return { path: contract, accounts: {}, missing: true };
     const text = Buffer.from(bytes).toString("utf8");
-    if (text === "null") return { path: contract, accounts: {}, missing: false };
-    const report = JSON.parse(text) as { reason?: string; evidence_hash?: string };
-    return {
-      path: contract,
-      accounts: {
-        [receiver]: { reason: report.reason ?? "listed", evidenceHash: report.evidence_hash ?? "" },
-      },
-      missing: false,
-    };
+    if (text === "null" || text === "[]") return { path: contract, accounts: {}, missing: false };
+    return { path: contract, accounts: { [receiver]: asReports(JSON.parse(text)) }, missing: false };
   } catch {
     return { path: contract, accounts: {}, missing: true };
   }

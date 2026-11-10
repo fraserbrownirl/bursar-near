@@ -16,6 +16,15 @@ test("the captured generate-intent deadline stops before submitIntent", async ()
   };
   const line = await settle({
     quote,
+    request: {
+      recipient: quote.quoteRequest.recipient,
+      refundTo: quote.quoteRequest.refundTo,
+      amount: quote.quoteRequest.amount,
+      originAsset: quote.quoteRequest.originAsset,
+      destinationAsset: quote.quoteRequest.destinationAsset,
+      deadline: quote.quoteRequest.deadline,
+      minAmountOut: quote.quote.minAmountOut,
+    },
     accountId: quote.quoteRequest.refundTo,
     nowSec: Math.floor(Date.parse(quote.quote.deadline ?? "") / 1000) - 60,
     signer,

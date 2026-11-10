@@ -1,5 +1,5 @@
 import { isNearAccount } from "./account.js";
-import { readBlocklist, type BlocklistEntry } from "./blocklist.js";
+import { readBlocklist, trustedReporters, type BlocklistReport } from "./blocklist.js";
 import { scanForInstructions, stringsOf, injectionReason } from "./guard/injection.js";
 import { append, readLedger } from "./guard/ledger.js";
 import { knownHostile, lookalikeOf, remember } from "./guard/memory.js";
@@ -36,7 +36,7 @@ export type CheckInput = {
   request?: string;
   facts: ChainFacts;
   payees?: Readonly<Record<string, string>>;
-  blocklist?: { path: string; accounts: Readonly<Record<string, BlocklistEntry>>; missing: boolean };
+  blocklist?: { path: string; accounts: Readonly<Record<string, readonly BlocklistReport[]>>; missing: boolean };
 };
 
 export type Signal = {
@@ -124,34 +124,38 @@ export function decide(input: CheckInput): CheckResult {
     reason: findings.length > 0 ? injectionReason(findings) : null,
   });
 
-  const listed = blocklist.accounts[input.receiver];
+  const listed = blocklist.accounts[input.receiver] ?? [];
+  const trusted = new Set(trustedReporters());
   if (blocklist.missing) {
     signals.push({
       name: "blocklist",
       value: "file missing",
       source: blocklist.path,
-      by: "blocklist fixture",
+      by: "blocklist",
       effect: "block",
       reason: "blocklist file missing",
     });
-  } else if (listed) {
-    signals.push({
-      name: "blocklist",
-      value: listed.evidenceHash || listed.reason,
-      source: `${blocklist.path} get(${input.receiver})`,
-      by: "blocklist fixture",
-      effect: "block",
-      reason: `blocklist: ${listed.reason}`,
-    });
-  } else {
+  } else if (listed.length === 0) {
     signals.push({
       name: "blocklist",
       value: "not listed",
       source: `${blocklist.path} get(${input.receiver})`,
-      by: "blocklist fixture",
+      by: "blocklist",
       effect: "evidence",
       reason: null,
     });
+  } else {
+    for (const report of listed) {
+      const fromTrusted = report.reporter !== "" && trusted.has(report.reporter);
+      signals.push({
+        name: "blocklist",
+        value: `${report.reporter} ${report.evidenceHash}`,
+        source: `${blocklist.path} get(${input.receiver})`,
+        by: "blocklist",
+        effect: fromTrusted ? "block" : "evidence",
+        reason: fromTrusted ? `reported by ${report.reporter}, evidence ${report.evidenceHash}` : null,
+      });
+    }
   }
 
   if (!isNearAccount(input.receiver)) {

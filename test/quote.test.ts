@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import { attacks, demoReport } from "../src/demo.js";
 import { inspectIntent, expectedTransfer } from "../src/intent.js";
-import { ONECLICK_FEE_RECIPIENT, feeCapBps, payeeOf, reviewQuote, requestFromQuote, signatureOk, type SignedQuote } from "../src/quote.js";
+import { ONECLICK_FEE_RECIPIENT, feeCapBps, payeeOf, reviewQuote, signatureOk, type BursarRequest, type SignedQuote } from "../src/quote.js";
 
 function load(name: string): SignedQuote {
   return JSON.parse(readFileSync(new URL(`./fixtures/${name}`, import.meta.url), "utf8")) as SignedQuote;
@@ -27,7 +27,33 @@ test("editing appFees leaves the 1Click signature valid", () => {
   quote.quoteRequest.appFees = [{ recipient: "evil.near", fee: 300 }];
   assert.equal(signatureOk(quote), true);
   const now = Math.floor(Date.parse(quote.quote.deadline ?? "") / 1000) - 60;
-  assert.equal(reviewQuote(quote, requestFromQuote(load("quote-live.json")), now), "STOP: app fee 300 bps to evil.near");
+  const original = load("quote-live.json");
+  const asked: BursarRequest = {
+    recipient: original.quoteRequest.recipient,
+    refundTo: original.quoteRequest.refundTo,
+    amount: original.quoteRequest.amount,
+    originAsset: original.quoteRequest.originAsset,
+    destinationAsset: original.quoteRequest.destinationAsset,
+    deadline: original.quoteRequest.deadline,
+    minAmountOut: original.quote.minAmountOut,
+  };
+  assert.equal(reviewQuote(quote, asked, now), "STOP: app fee 300 bps to evil.near");
+});
+
+test("a signed quote whose recipient differs from --to stops", () => {
+  const quote = load("quote-live.json");
+  const now = Math.floor(Date.parse(quote.quote.deadline ?? "") / 1000) - 60;
+  const asked: BursarRequest = {
+    recipient: "other.near",
+    refundTo: quote.quoteRequest.refundTo,
+    amount: quote.quoteRequest.amount,
+    originAsset: quote.quoteRequest.originAsset,
+    destinationAsset: quote.quoteRequest.destinationAsset,
+    deadline: quote.quoteRequest.deadline,
+    minAmountOut: quote.quote.minAmountOut,
+  };
+  assert.equal(signatureOk(quote), true);
+  assert.equal(reviewQuote(quote, asked, now), "STOP: recipient");
 });
 
 test("bursar pay checks the recipient, not the deposit address", () => {

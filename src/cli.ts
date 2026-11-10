@@ -1,13 +1,15 @@
 import { readFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
+import { OneClickService } from "@defuse-protocol/one-click-sdk-typescript";
 import { isNearAccount } from "./account.js";
 import { loadBlocklist } from "./blocklist.js";
 import { decide, formatCheck, type ChainFacts } from "./decide.js";
-import { expectedTransfer, inspectIntent } from "./intent.js";
 import { loadFacts } from "./load.js";
-import { live1click } from "./model.js";
+import { plainAmounts } from "./model.js";
 import { readPayeeMap } from "./payees.js";
-import { feeCapBps, feeStop, payeeOf, referenceCheck, requestFromQuote, signatureOk, type SignedQuote } from "./quote.js";
+import { settle } from "./pay.js";
+import { reviewQuote, type BursarRequest, type SignedQuote } from "./quote.js";
+import { signerFromSecret } from "./signer.js";
 
 function emptyFacts(): ChainFacts {
   return { codeHash: null, createdNs: null, outgoingCount: null, latestDeployNs: null, errors: {} };
@@ -25,7 +27,7 @@ export class UsageError extends Error {}
 function usage(): never {
   throw new UsageError(
     "bursar check <receiver> [--amount <amount>] [--token <token>] [--request <text>]\n"
-    + "bursar pay --fixture <quote.json> [--request <text>]\n"
+    + "bursar pay --to <recipient> --amount <atomic> --origin <assetId> --dest <assetId> [--min-out <atomic>] [--fixture <quote.json>] [--request <text>]\n"
     + "bursar demo",
   );
 }
@@ -45,59 +47,94 @@ export function parseArgs(argv: readonly string[]): Args {
   return args;
 }
 
+function flagValue(argv: readonly string[], name: string): string | undefined {
+  const index = argv.indexOf(name);
+  const value = index >= 0 ? argv[index + 1] : undefined;
+  if (index >= 0 && (!value || value.startsWith("--"))) usage();
+  return value;
+}
+
 async function pay(argv: readonly string[]): Promise<void> {
-  let fixture = "";
-  let requestText: string | undefined;
-  for (let i = 0; i < argv.length; i += 2) {
-    const flag = argv[i];
-    const value = argv[i + 1];
-    if (!flag || !value || value.startsWith("--")) usage();
-    if (flag === "--fixture") fixture = value;
-    else if (flag === "--request") requestText = value;
-    else usage();
-  }
-  if (!fixture) usage();
-  const response = JSON.parse(readFileSync(fixture, "utf8")) as SignedQuote;
-  const nowSec = Math.floor(Date.now() / 1000);
-  const asked = requestFromQuote(response);
-  const fee = feeStop(response.quoteRequest.appFees, feeCapBps(asked));
-  if (fee) {
-    process.stdout.write(fee + "\n");
+  const to = flagValue(argv, "--to");
+  const amount = flagValue(argv, "--amount");
+  const origin = flagValue(argv, "--origin");
+  const dest = flagValue(argv, "--dest");
+  const minOut = flagValue(argv, "--min-out") ?? "0";
+  const fixture = flagValue(argv, "--fixture");
+  const requestText = flagValue(argv, "--request");
+  if (!to || !amount || !origin || !dest) usage();
+  const accountId = process.env.BURSAR_NEAR_ACCOUNT;
+  const secret = process.env.BURSAR_NEAR_SECRET;
+  if (!accountId) throw new Error("BURSAR_NEAR_ACCOUNT is required");
+  const nowMs = Date.now();
+  const request: BursarRequest = {
+    recipient: to,
+    refundTo: accountId,
+    amount,
+    originAsset: origin,
+    destinationAsset: dest,
+    deadline: new Date(nowMs + 4 * 60 * 1000).toISOString(),
+    minAmountOut: minOut,
+  };
+  const response = fixture
+    ? JSON.parse(readFileSync(fixture, "utf8")) as SignedQuote
+    : await OneClickService.getQuote({
+      dry: false,
+      swapType: "EXACT_INPUT",
+      depositType: "INTENTS",
+      slippageTolerance: 100,
+      originAsset: origin,
+      destinationAsset: dest,
+      amount,
+      recipient: to,
+      recipientType: isNearAccount(to) ? "INTENTS" : "DESTINATION_CHAIN",
+      refundTo: accountId,
+      refundType: "INTENTS",
+      deadline: request.deadline,
+    } as never) as SignedQuote;
+  const nowSec = Math.floor(nowMs / 1000);
+  const quoteStop = reviewQuote(response, request, nowSec);
+  if (quoteStop) {
+    process.stdout.write(quoteStop + "\n");
     return;
   }
-  if (!signatureOk(response)) {
-    process.stdout.write("STOP: bad signature\n");
-    return;
-  }
-  const live = await live1click(response, asked, nowSec);
-  const label = live ? "live (model, Mac)" : "reference (TypeScript)";
-  const fails = live
-    ? (live.startsWith("ok") ? [] : [live.replace(/^fail\s*/, "").trim()])
-    : referenceCheck(response, asked, nowSec);
-  if (asked.originAsset !== response.quoteRequest.originAsset) fails.push("origin");
-  if (fails.length > 0) {
-    process.stdout.write(`STOP: ${fails.join(" ")}\n${label}\n`);
-    return;
-  }
-  const receiver = payeeOf(response);
-  process.stdout.write(`receiver: ${receiver}\n`);
-  const facts = isNearAccount(receiver) ? await loadFacts(receiver) : emptyFacts();
+  process.stdout.write(await plainAmounts(request, response.quote.minAmountOut) + "\n");
+  const facts = isNearAccount(to) ? await loadFacts(to) : emptyFacts();
   const check = decide({
-    receiver,
-    nowNs: BigInt(Date.now()) * 1_000_000n,
+    receiver: to,
+    nowNs: BigInt(nowMs) * 1_000_000n,
+    amount,
+    token: dest,
     request: requestText,
     facts,
     payees: readPayeeMap(),
-    blocklist: await loadBlocklist(receiver),
+    blocklist: await loadBlocklist(to),
   });
   process.stdout.write(formatCheck(check) + "\n");
-  if (check.verdict !== "allow") return;
-  const shape = inspectIntent({ intents: [expectedTransfer(response)] }, response);
-  if (shape) {
-    process.stdout.write(shape + "\n");
+  if (check.verdict !== "allow") {
+    process.stdout.write("STOP\n");
     return;
   }
-  process.stdout.write(`allow\n${label}\nintent: one transfer to the quote depositAddress\nnot submitted\n`);
+  if (fixture || !secret) {
+    process.stdout.write("fixture replay: not submitted\n");
+    return;
+  }
+  const signer = signerFromSecret(secret, accountId, response, () => nowMs);
+  const line = await settle({
+    quote: response,
+    request,
+    accountId,
+    nowSec,
+    signer,
+    generateIntent: async (depositAddress, signerId) => OneClickService.generateIntent({
+      type: "swap_transfer",
+      standard: "nep413",
+      signerId,
+      depositAddress,
+    } as never) as Promise<{ intent: { payload: { message: string; nonce: string; recipient: string } } }>,
+    submitIntent: async (signed) => OneClickService.submitIntent({ type: "swap_transfer", signedData: signed } as never),
+  });
+  process.stdout.write(line + "\n");
 }
 
 async function main(): Promise<void> {

@@ -162,18 +162,24 @@ test("a source error warns instead of allow", () => {
   assert.equal(result.reasons[0], "outgoing activity unavailable");
 });
 
-test("a blocklist hit blocks and is remembered", () => {
+test("a blocklist hit from a trusted reporter blocks and is remembered", () => {
   home();
+  const previous = process.env.BURSAR_TRUSTED_REPORTERS;
+  process.env.BURSAR_TRUSTED_REPORTERS = "reporter.testnet";
   const result = run({
     receiver: "known-bad.near",
     blocklist: {
       path: "fixtures/blocklist.json",
       missing: false,
-      accounts: { "known-bad.near": { reason: "reported", evidenceHash: "abc" } },
+      accounts: {
+        "known-bad.near": [{ reporter: "reporter.testnet", reason: "reported", evidenceHash: "abc" }],
+      },
     },
   });
+  if (previous === undefined) delete process.env.BURSAR_TRUSTED_REPORTERS;
+  else process.env.BURSAR_TRUSTED_REPORTERS = previous;
   assert.equal(result.verdict, "block");
-  assert.deepEqual(result.reasons, ["blocklist: reported"]);
+  assert.deepEqual(result.reasons, ["reported by reporter.testnet, evidence abc"]);
   assert.equal(hostileList()[0]?.value, "known-bad.near");
   const again = run({
     receiver: "known-bad.near",
@@ -182,6 +188,25 @@ test("a blocklist hit blocks and is remembered", () => {
   });
   assert.equal(again.verdict, "block");
   assert.match(again.reasons[0]!, /known hostile address/);
+});
+
+test("a report from an untrusted account is evidence", () => {
+  home();
+  const previous = process.env.BURSAR_TRUSTED_REPORTERS;
+  delete process.env.BURSAR_TRUSTED_REPORTERS;
+  const result = run({
+    receiver: "known-bad.near",
+    blocklist: {
+      path: "fixtures/blocklist.json",
+      missing: false,
+      accounts: {
+        "known-bad.near": [{ reporter: "stranger.testnet", reason: "reported", evidenceHash: "abc" }],
+      },
+    },
+  });
+  if (previous !== undefined) process.env.BURSAR_TRUSTED_REPORTERS = previous;
+  assert.equal(result.verdict, "allow");
+  assert.equal(result.signals.find((signal) => signal.name === "blocklist")?.effect, "evidence");
 });
 
 test("a missing blocklist file blocks", () => {

@@ -153,20 +153,6 @@ export function payeeOf(response: SignedQuote): string {
   return response.quoteRequest.recipient;
 }
 
-export function requestFromQuote(response: SignedQuote): BursarRequest {
-  return {
-    recipient: response.quoteRequest.recipient,
-    refundTo: response.quoteRequest.refundTo,
-    amount: response.quoteRequest.amount,
-    originAsset: response.quoteRequest.originAsset,
-    destinationAsset: response.quoteRequest.destinationAsset,
-    deadline: response.quoteRequest.deadline,
-    minAmountOut: response.quote.minAmountOut,
-    memo: response.quote.depositMemo || undefined,
-    insured: response.quoteRequest.insured,
-  };
-}
-
 /**
  * Signature, then the field comparison, then the fee cap.
  * Returns a STOP line, or null when the quote may proceed to `bursar check`.
