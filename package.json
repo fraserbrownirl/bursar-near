@@ -9,13 +9,18 @@
   },
   "scripts": {
     "build": "tsc",
-    "test": "tsx --test test/check.test.ts",
+    "test": "tsx --test test/check.test.ts test/quote.test.ts",
+    "test:live": "tsx --test test/live.test.ts",
+    "demo": "tsx src/demo.ts",
     "bursar": "tsx src/cli.ts"
   },
   "engines": {
     "node": ">=20"
   },
   "license": "MIT",
+  "dependencies": {
+    "@defuse-protocol/one-click-sdk-typescript": "0.1.26"
+  },
   "devDependencies": {
     "@types/node": "^24.0.0",
     "tsx": "^4.20.0",

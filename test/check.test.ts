@@ -118,11 +118,41 @@ test("an old code hash does not warn", () => {
   assert.equal(result.verdict, "allow");
 });
 
-test("no outgoing activity warns", () => {
+test("zero outgoing transactions are evidence and not a warn", () => {
   home();
   const result = run({ facts: facts({ outgoingCount: "0" }) });
-  assert.equal(result.verdict, "warn");
-  assert.deepEqual(result.reasons, ["no outgoing activity"]);
+  assert.equal(result.verdict, "allow");
+  const activity = result.signals.find((signal) => signal.name === "activity");
+  assert.equal(activity?.value, "0 outgoing");
+  assert.equal(activity?.effect, "evidence");
+});
+
+test("a non-NEAR recipient skips chain reads and does not warn when those reads failed", () => {
+  home();
+  const result = run({
+    receiver: "0x2527d02599ba641c19fea793cd0f167589a0f10d",
+    facts: facts({
+      codeHash: null,
+      createdNs: null,
+      outgoingCount: null,
+      errors: { codeHash: "HTTP 500", created: "HTTP 500", outgoing: "HTTP 500", deploy: "HTTP 500" },
+    }),
+  });
+  assert.equal(result.verdict, "allow");
+  const chain = result.signals.find((signal) => signal.name === "chain");
+  assert.equal(chain?.value, "not a NEAR account: on-chain age and activity not checked");
+  assert.equal(chain?.effect, "evidence");
+  assert.equal(result.signals.some((signal) => signal.name === "account-age"), false);
+});
+
+test("a Solana address is not a NEAR account", () => {
+  home();
+  const result = run({ receiver: "13QkxhNMrTPxoCkRdYdJ65tFuwXPhL5gLS2Z5Nr6gjRK" });
+  assert.equal(result.verdict, "allow");
+  assert.equal(
+    result.signals.find((signal) => signal.name === "chain")?.value,
+    "not a NEAR account: on-chain age and activity not checked",
+  );
 });
 
 test("a source error warns instead of allow", () => {
@@ -210,7 +240,7 @@ test("parseArgs reads the check command", () => {
     token: "usdc",
     request: "hello",
   });
-  assert.throws(() => parseArgs(["pay", "alice.near"]), UsageError);
+  assert.throws(() => parseArgs(["nope", "alice.near"]), UsageError);
 });
 
 test("loadFacts asks the RPC and NearBlocks and does not use the network when given a fetcher", async () => {

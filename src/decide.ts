@@ -1,3 +1,4 @@
+import { isNearAccount } from "./account.js";
 import { readBlocklist, type BlocklistEntry } from "./blocklist.js";
 import { scanForInstructions, stringsOf, injectionReason } from "./guard/injection.js";
 import { append, readLedger } from "./guard/ledger.js";
@@ -153,7 +154,16 @@ export function decide(input: CheckInput): CheckResult {
     });
   }
 
-  if (input.facts.errors.codeHash || input.facts.codeHash === null) {
+  if (!isNearAccount(input.receiver)) {
+    signals.push({
+      name: "chain",
+      value: "not a NEAR account: on-chain age and activity not checked",
+      source: "account id shape",
+      by: "local",
+      effect: "evidence",
+      reason: null,
+    });
+  } else if (input.facts.errors.codeHash || input.facts.codeHash === null) {
     signals.push({
       name: "contract",
       value: input.facts.errors.codeHash ?? "no code_hash",
@@ -174,7 +184,7 @@ export function decide(input: CheckInput): CheckResult {
     });
   }
 
-  if (input.facts.errors.created) {
+  if (isNearAccount(input.receiver) && input.facts.errors.created) {
     signals.push({
       name: "account-age",
       value: input.facts.errors.created,
@@ -183,7 +193,7 @@ export function decide(input: CheckInput): CheckResult {
       effect: "warn",
       reason: "account age unavailable",
     });
-  } else if (input.facts.createdNs === null) {
+  } else if (isNearAccount(input.receiver) && input.facts.createdNs === null) {
     signals.push({
       name: "account-age",
       value: "no creation record",
@@ -192,7 +202,7 @@ export function decide(input: CheckInput): CheckResult {
       effect: "warn",
       reason: "no creation record for the account",
     });
-  } else {
+  } else if (isNearAccount(input.receiver) && input.facts.createdNs !== null) {
     const age = input.nowNs - BigInt(input.facts.createdNs);
     const young = age < RECENT_NS;
     signals.push({
@@ -205,9 +215,11 @@ export function decide(input: CheckInput): CheckResult {
     });
   }
 
-  const codeKnown = input.facts.codeHash !== null && !input.facts.errors.codeHash;
+  const codeKnown = isNearAccount(input.receiver) && input.facts.codeHash !== null && !input.facts.errors.codeHash;
   const isContract = codeKnown && input.facts.codeHash !== EMPTY_CODE_HASH;
-  if (!codeKnown) {
+  if (!isNearAccount(input.receiver)) {
+    // The chain line above is the only on-chain evidence for this receiver.
+  } else if (!codeKnown) {
     signals.push({
       name: "code-change",
       value: input.facts.errors.codeHash ?? "no code_hash",
@@ -256,7 +268,9 @@ export function decide(input: CheckInput): CheckResult {
     });
   }
 
-  if (input.facts.errors.outgoing || input.facts.outgoingCount === null) {
+  if (!isNearAccount(input.receiver)) {
+    // Activity is part of the chain line above.
+  } else if (input.facts.errors.outgoing || input.facts.outgoingCount === null) {
     signals.push({
       name: "activity",
       value: input.facts.errors.outgoing ?? "no count",
@@ -266,15 +280,13 @@ export function decide(input: CheckInput): CheckResult {
       reason: "outgoing activity unavailable",
     });
   } else {
-    const outgoing = BigInt(input.facts.outgoingCount);
-    const none = outgoing === 0n;
     signals.push({
       name: "activity",
       value: `${input.facts.outgoingCount} outgoing`,
       source: `${accountUrl(input.receiver, "/txns-only/count")}?from=${input.receiver} txns[0].count`,
       by: "NearBlocks",
-      effect: none ? "warn" : "evidence",
-      reason: none ? "no outgoing activity" : null,
+      effect: "evidence",
+      reason: null,
     });
   }
 
