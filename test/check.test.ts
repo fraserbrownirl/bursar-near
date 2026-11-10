@@ -165,21 +165,21 @@ test("a source error warns instead of allow", () => {
 test("a blocklist hit from a trusted reporter blocks and is remembered", () => {
   home();
   const previous = process.env.BURSAR_TRUSTED_REPORTERS;
-  process.env.BURSAR_TRUSTED_REPORTERS = "reporter.testnet";
+  process.env.BURSAR_TRUSTED_REPORTERS = "reporter.near";
   const result = run({
     receiver: "known-bad.near",
     blocklist: {
       path: "fixtures/blocklist.json",
       missing: false,
       accounts: {
-        "known-bad.near": [{ reporter: "reporter.testnet", reason: "reported", evidenceHash: "abc" }],
+        "known-bad.near": [{ reporter: "reporter.near", reason: "reported", evidenceHash: "abc" }],
       },
     },
   });
   if (previous === undefined) delete process.env.BURSAR_TRUSTED_REPORTERS;
   else process.env.BURSAR_TRUSTED_REPORTERS = previous;
   assert.equal(result.verdict, "block");
-  assert.deepEqual(result.reasons, ["reported by reporter.testnet, evidence abc"]);
+  assert.deepEqual(result.reasons, ["reported by reporter.near, evidence abc"]);
   assert.equal(hostileList()[0]?.value, "known-bad.near");
   const again = run({
     receiver: "known-bad.near",
@@ -200,7 +200,7 @@ test("a report from an untrusted account is evidence", () => {
       path: "fixtures/blocklist.json",
       missing: false,
       accounts: {
-        "known-bad.near": [{ reporter: "stranger.testnet", reason: "reported", evidenceHash: "abc" }],
+        "known-bad.near": [{ reporter: "stranger.near", reason: "reported", evidenceHash: "abc" }],
       },
     },
   });

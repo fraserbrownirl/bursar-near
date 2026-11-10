@@ -1,5 +1,6 @@
 import { isNearAccount } from "./account.js";
 import { readBlocklist, trustedReporters, type BlocklistReport } from "./blocklist.js";
+import { env } from "./env.js";
 import { scanForInstructions, stringsOf, injectionReason } from "./guard/injection.js";
 import { append, readLedger } from "./guard/ledger.js";
 import { knownHostile, lookalikeOf, remember } from "./guard/memory.js";
@@ -12,8 +13,8 @@ export const EMPTY_CODE_HASH = "11111111111111111111111111111111";
 /** Warn when age or the latest code deploy is under this many nanoseconds. */
 export const RECENT_NS = 14n * 24n * 60n * 60n * 1_000_000_000n;
 
-export const NEAR_RPC = process.env.NEAR_RPC_URL ?? "https://rpc.mainnet.near.org";
-export const NEARBLOCKS = process.env.NEARBLOCKS_URL ?? "https://api.nearblocks.io/v1/account";
+export const NEAR_RPC = env("NEAR_RPC_URL") ?? "https://rpc.mainnet.near.org";
+export const NEARBLOCKS = env("NEARBLOCKS_URL") ?? "https://api.nearblocks.io/v1/account";
 
 export type ChainFacts = {
   codeHash: string | null;
@@ -342,11 +343,13 @@ export function decide(input: CheckInput): CheckResult {
   return { verdict, reasons, signals, ledgerHash: entry.hash };
 }
 
-export function formatCheck(result: CheckResult): string {
+export function formatCheck(result: CheckResult, recordedOn?: (signal: Signal) => string | null): string {
   const lines: string[] = [result.verdict];
   for (const reason of result.reasons) lines.push(`reason: ${reason}`);
   for (const signal of result.signals) {
-    lines.push(`evidence ${signal.name}: ${signal.value} ← ${signal.source} [${signal.by}]`);
+    const date = recordedOn?.(signal);
+    const mark = date ? ` recorded ${date}` : "";
+    lines.push(`evidence ${signal.name}: ${signal.value} ← ${signal.source} [${signal.by}]${mark}`);
   }
   lines.push(`ledger: ${result.ledgerHash}`);
   return lines.join("\n");

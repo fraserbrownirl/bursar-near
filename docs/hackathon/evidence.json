@@ -1,0 +1,74 @@
+{
+  "audits": {
+    "npm_audit_omit_dev": {
+      "date": "2026-11-10",
+      "command": "npm audit --omit=dev",
+      "exit": 1,
+      "summary": "52 vulnerabilities (17 low, 10 moderate, 25 high)",
+      "note": "npm audit fix --force would install @defuse-protocol/intents-sdk 0.17.0. That downgrade was not applied."
+    },
+    "gk_audit": {
+      "date": "2026-11-10",
+      "command": "gk audit --json",
+      "gatekeeper": "072210e91b19e3174d4afecefe1464acb0ca2c25",
+      "exit": 0,
+      "packages": 550,
+      "install_scripts": 9,
+      "findings": [],
+      "severe": false
+    }
+  },
+  "sources": [
+    {"repo": "bursar-near", "commits": ["14b88e4", "1029669", "66a9037", "0595974", "81c4e24", "10c1dff"], "date": "2026-11-10"},
+    {"repo": "bursar-solana", "commit": "a73932b", "date": "2026-11-08"},
+    {"repo": "ethereus-mac", "branch": "serve-all9b", "commits": ["a657bc5", "f1ed92d", "d78a6c9"], "dates": ["2026-11-05", "2026-11-08", "2026-11-10"]},
+    {"repo": "ethereus-mac", "commit": "7c38f56", "date": "2026-10-12", "note": "Locals 0.2.0, before 2026-10-19"},
+    {"repo": "ethereus-internal", "commits": ["6ae9003", "0da27b3", "5425dc2", "ab930ae", "573a671", "9f6081c", "199ec06", "4af0911", "632ff16", "ce9c136", "80526dd", "33fd3be", "2f10c38"], "note": "commit hashes cited as text; repository is not linked"}
+  ],
+  "transactions": [
+    {"date": "2026-11-10", "kind": "create-account", "account": "bursar-reports.near", "amount": "1.6 NEAR", "id": "C12N4A7vPip2DY1nnJrF2VgfwUo6Mjuc7gcBvWxuNrWB", "url": "https://nearblocks.io/txns/C12N4A7vPip2DY1nnJrF2VgfwUo6Mjuc7gcBvWxuNrWB"},
+    {"date": "2026-11-10", "kind": "deploy", "account": "bursar-reports.near", "method": "new", "id": "GBrPAhSGRP2YnqEp5bWvR6DgNDyUJi6ha8J7Tn5KwQKj", "url": "https://nearblocks.io/txns/GBrPAhSGRP2YnqEp5bWvR6DgNDyUJi6ha8J7Tn5KwQKj"},
+    {"date": "2026-11-10", "kind": "transfer", "to": "a45c2058b1503457935861504bf71359397f305648fb8f7c9e563ac12d3cab14", "amount": "0.1 NEAR", "id": "HW2icJkQNkQkmej5T2VEEFQGKg181zhJTp3bixKo7rxD", "url": "https://nearblocks.io/txns/HW2icJkQNkQkmej5T2VEEFQGKg181zhJTp3bixKo7rxD"},
+    {"date": "2026-11-10", "kind": "storage_deposit", "account": "bursar-reports.near", "deposit": "0.05 NEAR", "signer": "a45c2058b1503457935861504bf71359397f305648fb8f7c9e563ac12d3cab14", "id": "8aQptjNus43Yy8ECcobyGmYDLohTh5wAzTsmS8bK5PpP", "url": "https://nearblocks.io/txns/8aQptjNus43Yy8ECcobyGmYDLohTh5wAzTsmS8bK5PpP"},
+    {"date": "2026-11-10", "kind": "add-key", "account": "a45c2058b1503457935861504bf71359397f305648fb8f7c9e563ac12d3cab14", "methods": ["report", "anchor"], "allowance": "0.05 NEAR", "public_key": "ed25519:3ZT5JJHHiZ2emPicC32Y9LzwYADU4W1avvFiysbbe4z7", "id": "7VWsx2Z5p8H96cdLJRAix1ExnT4t4YYkqHZ5ywyUC2rz", "url": "https://nearblocks.io/txns/7VWsx2Z5p8H96cdLJRAix1ExnT4t4YYkqHZ5ywyUC2rz"},
+    {"date": "2026-11-10", "kind": "report", "account": "bad1794304962694.near", "signer": "a45c2058b1503457935861504bf71359397f305648fb8f7c9e563ac12d3cab14", "public_key": "ed25519:C4bLgu8wupagUZFCXKgLnNusLnfFDXJEQ6AXUWJePoa3", "evidence_hash": "13cfb0baf872fa2ed72d01fc1b7bc4813663db3b929f3a0182b7595464c2953a", "id": "BvySKjNJ3rvqM5xQL5q4gke49oCfhRd2uCDVQeWvhyjC", "url": "https://nearblocks.io/txns/BvySKjNJ3rvqM5xQL5q4gke49oCfhRd2uCDVQeWvhyjC", "note": "full-access key; this call wrote the stored report"},
+    {"date": "2026-11-10", "kind": "report", "account": "bad1794304962694.near", "signer": "a45c2058b1503457935861504bf71359397f305648fb8f7c9e563ac12d3cab14", "public_key": "ed25519:3ZT5JJHHiZ2emPicC32Y9LzwYADU4W1avvFiysbbe4z7", "evidence_hash": "13cfb0baf872fa2ed72d01fc1b7bc4813663db3b929f3a0182b7595464c2953a", "id": "8Y9JSyJdSZvMRrWWG1HV9j5K319Y5dJvefhHi1QbEQWu", "url": "https://nearblocks.io/txns/8Y9JSyJdSZvMRrWWG1HV9j5K319Y5dJvefhHi1QbEQWu", "note": "function-call key; the contract already had this reporter, so the stored list stayed one row"},
+    {"date": "2026-11-10", "kind": "anchor", "account": "bursar-reports.near", "signer": "a45c2058b1503457935861504bf71359397f305648fb8f7c9e563ac12d3cab14", "public_key": "ed25519:3ZT5JJHHiZ2emPicC32Y9LzwYADU4W1avvFiysbbe4z7", "head": "13cfb0baf872fa2ed72d01fc1b7bc4813663db3b929f3a0182b7595464c2953a", "block_height": 223922998, "id": "Ds99qAExPLWfowBnChqU9NrsvzqkgabUbTpjHgtZDngp", "url": "https://nearblocks.io/txns/Ds99qAExPLWfowBnChqU9NrsvzqkgabUbTpjHgtZDngp"},
+    {"date": "2026-11-10", "kind": "ft_transfer_call", "token": "17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1", "to": "intents.near", "amount": "300000", "owner": "515ead208df187f146f2ae5f7e24522cf2ca977df95bdee7bb5f957bbe142c54", "id": "FUYorSoEYsNdYsZcGUdv1JGqSCSdeSEJ4d48k8F69cPs", "url": "https://nearblocks.io/txns/FUYorSoEYsNdYsZcGUdv1JGqSCSdeSEJ4d48k8F69cPs"}
+  ],
+  "runs": [
+    {"kind": "receipt", "date": "2026-11-10", "file": "receipts/bf724a2f86e6b619ac7a55f432bad29459157a0ea8fee474cad5e24994e09f76.json", "wall_ms": 3880},
+    {"kind": "check", "date": "2026-11-10", "command": "npm run bursar -- check bad1794304962694.near", "verdict": "block", "reason": "reported by a45c2058b1503457935861504bf71359397f305648fb8f7c9e563ac12d3cab14, evidence 13cfb0baf872fa2ed72d01fc1b7bc4813663db3b929f3a0182b7595464c2953a", "ledger": "f092be2e022e1e7df4492eb8a7e5f9374360202aea8bccb927d175888837e15f"},
+    {"kind": "eth-evals", "date": "2026-11-06", "file": "ext-untrained-qwenputer-syntax-tools-fw3782ed2b.json", "timestamp": "2026-11-06 18:50:58", "overall": 19.2},
+    {"kind": "mmlu", "date": "2026-11-02", "file": "q9-store-rv-ft1b/mmlu.json", "accuracy": 78.6, "n": 500},
+    {"kind": "mmlu", "date": "2026-11-02", "file": "mmlu-stock.json", "accuracy": 78.0, "n": 500},
+    {"kind": "kl", "date": "2026-11-02", "file": "ft1b-gates.log", "line": "FT_KL_GATE PASS 0.007834141299099429 cap 0.05"}
+  ],
+  "cited": [
+    "https://explorer.solana.com/tx/2MSFP4BiqvhsxmwJUE9S2iqB8k2sZFAV7fK7rPCDKnxbPeSwfkFFQPp7QYuTHDtbiUNuBmT4aXtecxaMuQ3hiCGo",
+    "https://nearblocks.io/txns/CxgvYrbHuXs8Qx9FfGG2or5ApB97VAQcvVad4dTwdc3U",
+    "https://nearblocks.io/txns/4xtccqLAv25JU4F9HPRdKAeByGpjzA94GZcXY75cNM4",
+    "https://nearblocks.io/txns/C12N4A7vPip2DY1nnJrF2VgfwUo6Mjuc7gcBvWxuNrWB",
+    "https://nearblocks.io/txns/GBrPAhSGRP2YnqEp5bWvR6DgNDyUJi6ha8J7Tn5KwQKj",
+    "https://nearblocks.io/txns/HW2icJkQNkQkmej5T2VEEFQGKg181zhJTp3bixKo7rxD",
+    "https://nearblocks.io/txns/8aQptjNus43Yy8ECcobyGmYDLohTh5wAzTsmS8bK5PpP",
+    "https://nearblocks.io/txns/7VWsx2Z5p8H96cdLJRAix1ExnT4t4YYkqHZ5ywyUC2rz",
+    "e9324c1ef20faf5fa39e92abe1d5477abd111e90bb4dfac83465c954a6ff3f49",
+    "3bc277a53d1ac9cc359201997281e9eb363665915533628dfe198e3b92609ddd",
+    "7d756fd40e9b6c4bd36ec3f4afea44f2d04d7269c27bc841e6f4aff96007a216",
+    "6d4827eb18025c05ed19a22fa792856cd058e7cc4b3a275e555046815acd9a07",
+    "bf724a2f86e6b619ac7a55f432bad29459157a0ea8fee474cad5e24994e09f76",
+    "13cfb0baf872fa2ed72d01fc1b7bc4813663db3b929f3a0182b7595464c2953a",
+    "5880ad2b362620fadf759cbceb1cd5737ce8c6ed7fb8e9942881e6731f9247dd",
+    "17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1",
+    "frol.near",
+    "wrap.near",
+    "intents.near",
+    "usdt.tether-token.near",
+    "evil.near",
+    "not-the-deposit.near",
+    "test.near",
+    "bursar-reports.near",
+    "bad1794304962694.near"
+  ]
+}

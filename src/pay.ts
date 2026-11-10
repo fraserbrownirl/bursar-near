@@ -23,6 +23,8 @@ export async function settle(options: {
   nowSec: number;
   signer: IIntentSigner;
   generateIntent: (depositAddress: string, signerId: string) => Promise<GeneratedIntent>;
+  /** Runs `intents dec` in the model. A string result is a STOP line. */
+  checkIntent?: (generated: GeneratedIntent) => Promise<string | null>;
   submitIntent?: (signed: Awaited<ReturnType<IIntentSigner["signIntent"]>>) => Promise<unknown>;
 }): Promise<string> {
   if (options.request.refundTo !== options.accountId) return "STOP: refund";
@@ -31,6 +33,10 @@ export async function settle(options: {
   const deposit = options.quote.quote.depositAddress;
   if (!deposit) return "STOP: deposit";
   const generated = await options.generateIntent(deposit, options.accountId);
+  if (options.checkIntent) {
+    const intentStop = await options.checkIntent(generated);
+    if (intentStop) return intentStop;
+  }
   const message = JSON.parse(generated.intent.payload.message) as {
     deadline: string;
     signer_id: string;

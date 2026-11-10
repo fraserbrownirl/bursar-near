@@ -1,0 +1,12 @@
+{
+  "cmd": "sol ui 250000 6",
+  "inputs": {},
+  "firmware_elf_sha256": "3bc277a53d1ac9cc359201997281e9eb363665915533628dfe198e3b92609ddd",
+  "chip_weights_sha256": "7d756fd40e9b6c4bd36ec3f4afea44f2d04d7269c27bc841e6f4aff96007a216",
+  "output": "0.25",
+  "trace_tokens": 5541,
+  "trace_sha256": "4dd11638f851a6b5c7684baeef41f12b42be22d9353f49d838672f6ce5a346d7",
+  "wall_ms": 1426,
+  "runtime": "locals-mac",
+  "date": "2026-11-10"
+}

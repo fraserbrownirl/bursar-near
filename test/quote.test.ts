@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import { attacks, demoReport } from "../src/demo.js";
 import { inspectIntent, expectedTransfer } from "../src/intent.js";
+import { quoteCheckLine } from "../src/reference.js";
 import { ONECLICK_FEE_RECIPIENT, feeCapBps, payeeOf, reviewQuote, signatureOk, type BursarRequest, type SignedQuote } from "../src/quote.js";
 
 function load(name: string): SignedQuote {
@@ -80,6 +81,21 @@ test("npm run demo stops every attack", () => {
     "drainer bundle",
     "hidden notification",
     "intent deadline differs from the signed quote",
+    "injected agent",
     "transfer to another account",
   ]);
+});
+
+test("1click check uses the caller's recipient, not the quote's", () => {
+  const quote = load("quote-live.json");
+  const now = Math.floor(Date.parse(quote.quote.deadline ?? "") / 1000) - 60;
+  const expected = {
+    recipient: quote.quoteRequest.recipient,
+    refundTo: quote.quoteRequest.refundTo,
+    destinationAsset: quote.quoteRequest.destinationAsset,
+    amount: quote.quoteRequest.amount,
+    minAmountOut: quote.quote.minAmountOut,
+  };
+  assert.equal(quoteCheckLine(quote, expected, now), "ok");
+  assert.equal(quoteCheckLine(quote, { ...expected, recipient: "someone-else.near" }, now), "fail recipient");
 });

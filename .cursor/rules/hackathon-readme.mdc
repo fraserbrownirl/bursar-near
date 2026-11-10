@@ -1,0 +1,80 @@
+---
+description: Keep README.md compliant with the NEAR Hackathon rules (HACKATHON.md) and true to the code
+alwaysApply: true
+---
+
+# README and NEAR Hackathon rules
+
+## Source of truth
+
+- The rules are https://nearhackathon.com/HACKATHON.md. The submission checklist is https://github.com/nearai/near-hackathon-prompt-examples/blob/main/SUBMITTING.md.
+- Keep a snapshot at `docs/hackathon/HACKATHON.md` and `docs/hackathon/SUBMITTING.md`, each preceded by a header line: `fetched <ISO date UTC> sha256 <hash of the fetched body>`.
+- Re-fetch both at the start of every session, before any README edit, and before any submission step. If the hash differs from the snapshot:
+  1. Save the new version over the snapshot.
+  2. Report the changed lines to Fraser, quoted.
+  3. Update `docs/hackathon/compliance.md` and the README to match before doing other work.
+- When the snapshot and this file disagree, the snapshot wins. Report the disagreement.
+
+## Compliance map
+
+`docs/hackathon/compliance.md` is a table with one row per rule in the snapshot (each FAQ entry Q-000 to Q-017, the submission fields, the "never without confirmation" list, the SUBMITTING.md checklist). Columns: rule id, rule text quoted, what this repo does, file or command that proves it, status (`met`, `open`, `n/a` with reason). Keep every row current. An `open` row is reported in each status update.
+
+Rules this repo must keep met (re-check them against the snapshot):
+
+- **Q-001 / Q-003 / Q-004:** work counts from 2026-10-19. Tags `pre-hackathon` and `hackathon-submission`. The README links the diff `pre-hackathon...hackathon-submission` (until tagged, `pre-hackathon...main`).
+- **Q-002:** the README discloses every part that is not NEAR.
+- **Q-005:** the README lists every library with its version, and which code was written with AI tools (Claude Code, Cursor).
+- **Q-012:** public repo, a reproducible README, an X post with a video. The hosted demo link is in the Links section. Snapshot Q-012: a hosted demo is a plus; keep it up to 2026-11-18, ideally 2026-11-25.
+- **Q-014:** a LICENSE file. The repo stays public through judging.
+- **Q-015:** bursar-solana was built for the Solana hackathon and is not a second NEAR Hackathon entry. This row is n/a.
+- **Q-017:** AI judges run a reproducibility check and feature verification. Every claim must pass both (see Claims).
+
+## README structure, in this order
+
+1. Name and one sentence: what it is.
+2. Links: hosted demo, demo video, mainnet transactions, model.
+3. **Verify the computer in the weights yourself**: the three levels, their commands, what each proves and does not prove, and the time each takes.
+4. **Why on-device, and why verifiable**: no inference provider; a compromised model cannot sign; verification without trusted hardware; detection.
+5. What is real and what is simulated (a table).
+6. The problem.
+7. Do X, see Y: numbered steps from a fresh clone. Each step names the exact command and the exact output to expect.
+8. Tracks: `security`, `agents`, `realworld`, `privacy`. A table mapping each phrase of each track's description to the file or command that implements it. TEE and NEAR AI Cloud are n/a. TEE attestation maps to verifiable computation.
+9. How it works, and keys (what each key can and cannot do).
+10. Demo attacks: each attack and its expected STOP line.
+11. What is not NEAR.
+12. Hackathon diff.
+13. Libraries.
+14. Code written with AI.
+15. **Build log and roadmap**.
+16. Licence.
+
+## Claims
+
+- Every factual sentence in the README is backed by a test, a command, a file, a receipt or a transaction link in the same section. If it isn't, delete the sentence or mark it `planned`.
+- Every number (timings, test counts, amounts, hashes, transaction ids) is copied from a real run. Re-run before changing it. Never round or estimate.
+- Labels are exact: `live (model, Mac)`, `replayed (model, recorded <date>)`, `reference (TypeScript)`, `firmware check (emulator)`. A step that did not run says `not run`.
+- No marketing words. Plain statements a machine reader can check.
+
+## Sync with the code
+
+- Any commit that changes behaviour, a command, an output line, a fixture, a contract address or a dependency updates the README and `docs/hackathon/compliance.md` in the same commit.
+- `npm run check:readme` (script in `scripts/check-readme.mjs`) must pass before every commit. It fails when:
+  - a required README section is missing or out of order;
+  - a command shown in "Do X, see Y" is not a script in `package.json` or a valid `npm run bursar --` subcommand;
+  - an expected output line in "Do X, see Y" or the demo attacks list does not appear in a fresh run of that command;
+  - a contract account, transaction id or receipt hash in the README is absent from `docs/hackathon/evidence.json`;
+  - `LICENSE` is missing;
+  - the snapshot header is older than 24 hours.
+- `docs/hackathon/evidence.json` records every transaction link, receipt hash, contract account and recorded run cited anywhere, with its date.
+
+## Never without Fraser's confirmation
+
+From the snapshot, quoted exactly in `compliance.md`: sending the submission, posting on X, making a repository public, pushing code, signing transactions, spending tokens, committing secrets. Show the exact payload or command and wait for a yes. Keys never go into the repo or its history.
+
+## Deadline
+
+Development and submission close 2026-11-14 23:59 UTC. Before submitting:
+1. Run the SUBMITTING.md checklist from the snapshot; every item is `met` in `compliance.md`.
+2. `npm install && npm test && npm run demo && npm run verify && npm run check:readme` pass on a fresh clone.
+3. Tag `hackathon-submission`; update the diff link.
+4. Show Fraser the full submission payload (name, lead, email, team size, tracks, payout account, repository link, demo post link, description of 20–2,000 characters) and wait for a yes.

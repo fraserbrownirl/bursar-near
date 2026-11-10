@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 import { OneClickService } from "@defuse-protocol/one-click-sdk-typescript";
 import { isNearAccount } from "./account.js";
@@ -7,10 +7,11 @@ import { decide, formatCheck, type ChainFacts } from "./decide.js";
 import { loadFacts } from "./load.js";
 import { decimalsFor, loadTokens } from "./decimals.js";
 import { plainAmounts } from "./model.js";
+import { checkIntentInModel, checkQuoteInModel } from "./model-checks.js";
 import { readPayeeMap } from "./payees.js";
 import { settle } from "./pay.js";
 import { reviewQuote, type BursarRequest, type SignedQuote } from "./quote.js";
-import { signerFromSecret } from "./signer.js";
+import { secretFromKeychain, signerFromSecret } from "./signer.js";
 
 function emptyFacts(): ChainFacts {
   return { codeHash: null, createdNs: null, outgoingCount: null, latestDeployNs: null, errors: {} };
@@ -29,7 +30,9 @@ function usage(): never {
   throw new UsageError(
     "bursar check <receiver> [--amount <amount>] [--token <token>] [--request <text>]\n"
     + "bursar pay --to <recipient> --amount <atomic> --origin <assetId> --dest <assetId> [--min-out <atomic>] [--fixture <quote.json>] [--request <text>]\n"
-    + "bursar fund --origin <assetId> --amount <atomic>\n"
+    +     "bursar fund --origin <assetId> --amount <atomic>\n"
+    + "bursar anchor\n"
+    + "bursar agent \"<request>\"\n"
     + "bursar demo",
   );
 }
@@ -79,7 +82,6 @@ async function pay(argv: readonly string[]): Promise<void> {
   const requestText = flagValue(argv, "--request");
   if (!to || !amount || !origin || !dest) usage();
   const accountId = process.env.BURSAR_NEAR_ACCOUNT;
-  const secret = process.env.BURSAR_NEAR_SECRET;
   if (!accountId) throw new Error("BURSAR_NEAR_ACCOUNT is required");
   const nowMs = Date.now();
   const request: BursarRequest = {
@@ -115,7 +117,14 @@ async function pay(argv: readonly string[]): Promise<void> {
     process.stdout.write(quoteStop + "\n");
     return;
   }
-  process.stdout.write(await printAmounts(request, response.quote.minAmountOut));
+  const quoteCheck = await checkQuoteInModel(response, request, nowSec);
+  process.stdout.write(quoteCheck.lines + "\n");
+  if (quoteCheck.stop) {
+    process.stdout.write(quoteCheck.stop + "\n");
+    return;
+  }
+  const plain = await printAmounts(request, response.quote.minAmountOut);
+  process.stdout.write(plain);
   const facts = isNearAccount(to) ? await loadFacts(to) : emptyFacts();
   const check = decide({
     receiver: to,
@@ -128,21 +137,34 @@ async function pay(argv: readonly string[]): Promise<void> {
     blocklist: await loadBlocklist(to),
   });
   process.stdout.write(formatCheck(check) + "\n");
-  if (check.verdict !== "allow") {
+  if (check.verdict === "block") {
     process.stdout.write("STOP\n");
     return;
   }
-  if (fixture || !secret) {
+  if (check.verdict === "warn") {
+    const { askApprove } = await import("./agent.js");
+    const yes = await askApprove(check.reasons, plain);
+    if (!yes) {
+      process.stdout.write("STOP\n");
+      return;
+    }
+  }
+  process.stdout.write(`depositAddress: ${response.quote.depositAddress ?? ""}\n`);
+  if (fixture) {
     process.stdout.write("fixture replay: not submitted\n");
     return;
   }
-  const signer = signerFromSecret(secret, accountId, response, () => nowMs);
+  const signer = signerFromSecret(secretFromKeychain(accountId), accountId, response, () => nowMs);
   const line = await settle({
     quote: response,
     request,
     accountId,
     nowSec,
     signer,
+    checkIntent: (generated) => checkIntentInModel(generated, accountId).then((result) => {
+      process.stdout.write(result.lines + "\n");
+      return result.stop;
+    }),
     generateIntent: async (depositAddress, signerId) => OneClickService.generateIntent({
       type: "swap_transfer",
       standard: "nep413",
@@ -206,6 +228,21 @@ async function main(): Promise<void> {
     await pay(argv.slice(1));
     return;
   }
+  if (argv[0] === "anchor") {
+    const { anchorLedger } = await import("./anchor.js");
+    const sent = await anchorLedger();
+    process.stdout.write(`${sent.url}\n`);
+    return;
+  }
+  if (argv[0] === "agent") {
+    const text = argv.slice(1).join(" ").trim();
+    const { runAgent } = await import("./agent.js");
+    const accountId = process.env.BURSAR_NEAR_ACCOUNT;
+    if (!accountId) throw new Error("BURSAR_NEAR_ACCOUNT is required");
+    const report = await runAgent(text, accountId);
+    process.stdout.write(report.text + "\n");
+    process.exit(report.code);
+  }
   if (argv[0] === "demo") {
     const { demoReport } = await import("./demo.js");
     const report = demoReport();
@@ -227,8 +264,22 @@ async function main(): Promise<void> {
   process.stdout.write(formatCheck(result) + "\n");
 }
 
+function loadDotEnv(): void {
+  const path = new URL("../.env", import.meta.url);
+  if (!existsSync(path)) return;
+  for (const line of readFileSync(path, "utf8").split("\n")) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("#") || !trimmed.includes("=")) continue;
+    const index = trimmed.indexOf("=");
+    const key = trimmed.slice(0, index).trim();
+    const value = trimmed.slice(index + 1).trim();
+    if (process.env[key] === undefined) process.env[key] = value;
+  }
+}
+
 const isDirect = process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href;
 if (isDirect) {
+  loadDotEnv();
   main().catch((error: unknown) => {
     const message = error instanceof Error ? error.message : String(error);
     process.stderr.write(`${message}\n`);

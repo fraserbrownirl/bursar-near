@@ -1,20 +1,11 @@
+import { execFileSync } from "node:child_process";
 import { createIntentSignerNearKeyPair, type IIntentSigner, type IntentPayload } from "@defuse-protocol/intents-sdk";
 import { KeyPair } from "near-api-js";
+import { deadlineProblem } from "./deadline.js";
 import { inspectIntent, type IntentRecord } from "./intent.js";
 import type { SignedQuote } from "./quote.js";
 
-const HOURS_72_MS = 72 * 60 * 60 * 1000;
-
-/** Intent deadline equals the signed quote deadline, that deadline is the request plus 72 hours, and it is still in the future. */
-export function deadlineProblem(intentDeadline: string, quote: SignedQuote, now: number): string | null {
-  const deadline = Date.parse(intentDeadline);
-  const signed = Date.parse(quote.quote.deadline ?? "");
-  const requested = Date.parse(quote.quoteRequest.deadline);
-  if (Number.isNaN(deadline) || Number.isNaN(signed) || Number.isNaN(requested) || signed !== requested + HOURS_72_MS || deadline !== signed || deadline <= now) {
-    return "STOP: deadline";
-  }
-  return null;
-}
+export { deadlineProblem };
 
 export class BursarGuardedSigner implements IIntentSigner {
   private readonly usedNonces = new Set<string>();
@@ -49,6 +40,18 @@ export class BursarGuardedSigner implements IIntentSigner {
     this.usedNonces.add(intent.nonce);
     return signed;
   }
+}
+
+/** The signer key saved by `near account import-account … save-to-keychain`. */
+export function secretFromKeychain(accountId: string): string {
+  const raw = execFileSync("security", ["find-generic-password", "-s", `near-mainnet-${accountId}`, "-w"], {
+    encoding: "utf8",
+  }).trim();
+  if (raw.startsWith("ed25519:") || raw.startsWith("secp256k1:")) return raw;
+  const parsed = JSON.parse(raw) as Record<string, unknown>;
+  const secret = parsed.secret_keypair_str ?? parsed.private_key ?? parsed.secret_key;
+  if (typeof secret !== "string" || secret.length === 0) throw new Error("keychain entry has no secret");
+  return secret;
 }
 
 /** The only function that receives the secret and passes it to the keypair signer. */

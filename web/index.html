@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bursar NEAR</title>
+    <link rel="stylesheet" href="./style.css">
+    <script type="module" src="./main.ts"></script>
+  </head>
+  <body>
+    <header>
+      <p class="kicker">Bursar NEAR</p>
+      <h1>The check runs in this page.</h1>
+      <p>Same modules as the CLI. The signed fixtures are the captured 1Click responses. This page has no key.</p>
+      <nav>
+        <a href="#verify">Verify a receipt</a>
+        <a href="#attacks">Attacks</a>
+        <a href="#quote">Quote</a>
+        <a href="#check">Check an account</a>
+        <a href="#agents">Two agents</a>
+        <a href="#model">Model runs</a>
+      </nav>
+    </header>
+    <main>
+      <section id="verify">
+        <h2>Verify a receipt</h2>
+        <p>Level 1 runs here on every <code>sol ui</code> receipt: the page turns the atomic amount into a decimal and compares it with the receipt. <code>npm run verify</code> does that too, and it also runs the 1Click signature, the field rules, and the NEP-413 hash. None of this shows where the output was computed.</p>
+        <div id="receipt-list"></div>
+        <h3>Level 2 and level 3</h3>
+        <pre id="verify-commands">npm run verify:firmware
+npm run verify:weights
+npm run verify:weights -- "sol ui 5000 6"</pre>
+        <p>Level 2 builds the firmware and runs the command in an RV32IM emulator. Level 3 runs the computer layers from the chip pack on CPU. Neither shows that the language model chose the call. The transcripts are under Model runs, and the video is at the bottom of this page.</p>
+      </section>
+      <section id="attacks">
+        <h2>Attacks</h2>
+        <p>Each one runs here, on the signed fixtures. The line is the STOP or the block. Under it is the evidence the function used.</p>
+        <div id="attack-list"></div>
+      </section>
+      <section id="quote">
+        <h2>Quote</h2>
+        <p>This is <code>test/fixtures/quote-live.json</code>, captured 2026-11-10. <code>reviewQuote</code> compares it with the request below. Editing the JSON runs <code>verifyQuoteSignature</code> and <code>reviewQuote</code> again. <code>appFees</code> is outside the signature.</p>
+        <h3>What Bursar asked</h3>
+        <pre id="asked"></pre>
+        <label for="quote-json">Quote JSON</label>
+        <textarea id="quote-json" spellcheck="false"></textarea>
+        <pre id="quote-result"></pre>
+      </section>
+      <section id="check">
+        <h2>Check an account</h2>
+        <p>A live <code>bursar check</code>. Account code comes from <code>rpc.mainnet.near.org</code>. Age, outgoing count, and deployments come from NearBlocks. The blocklist is <code>get</code> on <code>bursar-rep-7f1d8a2b.testnet</code>. A report blocks only from <code>bursar-rep-7f1d8a2b.testnet</code>. If a source refuses the browser, the line uses the capture and is marked <code>recorded 2026-11-10</code>.</p>
+        <form id="check-form">
+          <label>Account <input name="account" value="wrap.near" autocomplete="off" required></label>
+          <label>Amount <input name="amount" autocomplete="off"></label>
+          <label>Token <input name="token" autocomplete="off"></label>
+          <label>Request <input name="request" autocomplete="off"></label>
+          <div class="row">
+            <button type="submit">Check</button>
+            <button type="button" data-account="wrap.near">wrap.near</button>
+            <button type="button" data-account="frol.near">frol.near</button>
+          </div>
+        </form>
+        <pre id="check-result">Checking wrap.near…</pre>
+      </section>
+      <section id="agents">
+        <h2>Two agents</h2>
+        <p>Agent A reported <code>bad1794304962694.near</code> on testnet. The transaction is <a href="https://testnet.nearblocks.io/txns/4wMw8G674PfmmyGrtERCGr36DWnfFnmimZSimLNqsf8q">4wMw8G674PfmmyGrtERCGr36DWnfFnmimZSimLNqsf8q</a>. The evidence hash on that report is <code>9766ad071b88e505dad7418a95d0aa157fec8c9e9517a763b674689ef45bb992</code>. Agent B reads the contract and blocks.</p>
+        <pre id="agent-result">Reading the testnet report…</pre>
+      </section>
+      <section id="model">
+        <h2>Model runs</h2>
+        <p>Bursar-9B ran these calls on a Mac. The page does not call the model. The transcripts are <code>recorded 2026-11-08</code>. Lines inside them that say <code>live (model, Mac)</code> are the label from that run.</p>
+        <h3>recorded 2026-11-08 · model on Mac</h3>
+        <h3>Paying citable.run</h3>
+        <pre id="pay-run"></pre>
+        <h3>Three attacks</h3>
+        <pre id="attack-run"></pre>
+        <h3>Mainnet</h3>
+        <ul>
+          <li>Solana payment from that run: <a href="https://explorer.solana.com/tx/2MSFP4BiqvhsxmwJUE9S2iqB8k2sZFAV7fK7rPCDKnxbPeSwfkFFQPp7QYuTHDtbiUNuBmT4aXtecxaMuQ3hiCGo">2MSFP4Bi…aXtecxaMuQ3hiCGo</a></li>
+          <li><code>wrap.near</code> created, recorded 2026-11-10: <a href="https://nearblocks.io/txns/CxgvYrbHuXs8Qx9FfGG2or5ApB97VAQcvVad4dTwdc3U">CxgvYrbHuXs8Qx9FfGG2or5ApB97VAQcvVad4dTwdc3U</a></li>
+          <li><code>wrap.near</code> latest deploy, recorded 2026-11-10: <a href="https://nearblocks.io/txns/4xtccqLAv25JU4F9HPRdKAeByGpjzA94GZcXY75cNM4">4xtccqLAv25JU4F9HPRdKAeByGpjzA94GZcXY75cNM4</a></li>
+        </ul>
+        <h3>Video</h3>
+        <p>The recorded demo. The payment in it is the Solana transaction above.</p>
+        <video id="demo-video" controls playsinline></video>
+      </section>
+    </main>
+  </body>
+</html>

@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { env } from "./env.js";
 
 export type BlocklistReport = {
   reporter: string;
@@ -10,7 +11,7 @@ export type BlocklistReport = {
 };
 
 export function trustedReporters(): string[] {
-  return (process.env.BURSAR_TRUSTED_REPORTERS ?? "")
+  return (env("BURSAR_TRUSTED_REPORTERS") ?? "")
     .split(",")
     .map((item) => item.trim())
     .filter((item) => item !== "");
@@ -19,22 +20,21 @@ export function trustedReporters(): string[] {
 const bundled = join(dirname(fileURLToPath(import.meta.url)), "../fixtures/blocklist.json");
 
 /**
- * When set, `get` is a view call on this testnet contract.
- * Deployed 2026-11-10 as `bursar-rep-7f1d8a2b.testnet`.
+ * When set, `get` is a view call on this mainnet contract.
  * Unset, the check uses the fixture file so tests make no network call.
  */
 export function blocklistContract(): string | undefined {
-  return process.env.BURSAR_BLOCKLIST_CONTRACT;
+  return env("BURSAR_BLOCKLIST_CONTRACT");
 }
 
 /** Path of the blocklist fixture. `BURSAR_BLOCKLIST` overrides the bundled file. */
 export function blocklistPath(): string {
-  return process.env.BURSAR_BLOCKLIST ?? bundled;
+  return env("BURSAR_BLOCKLIST") ?? bundled;
 }
 
 /**
  * `get(account)` against the fixture file.
- * The file is the source until a testnet contract account is set.
+ * The file is the source until a mainnet contract account is set.
  * A missing file is a failed read, not an empty list.
  */
 function asReports(value: unknown): BlocklistReport[] {
@@ -58,14 +58,26 @@ export function readBlocklist(path = blocklistPath()): { path: string; accounts:
   return { path, accounts, missing: false };
 }
 
-/** Fixture file, or one `get` on the testnet contract when `BURSAR_BLOCKLIST_CONTRACT` is set. */
-export async function loadBlocklist(receiver: string): Promise<{ path: string; accounts: Record<string, BlocklistReport[]>; missing: boolean }> {
+function encodeJson(value: unknown): string {
+  const bytes = new TextEncoder().encode(JSON.stringify(value));
+  let binary = "";
+  for (const byte of bytes) binary += String.fromCharCode(byte);
+  return btoa(binary);
+}
+
+/**
+ * Fixture file, or one `get` on the contract when `BURSAR_BLOCKLIST_CONTRACT` is set.
+ * `BURSAR_BLOCKLIST_RPC` overrides the RPC. The default is mainnet.
+ */
+export async function loadBlocklist(
+  receiver: string,
+  fetchImpl: typeof fetch = fetch,
+): Promise<{ path: string; accounts: Record<string, BlocklistReport[]>; missing: boolean }> {
   const contract = blocklistContract();
   if (!contract) return readBlocklist();
-  const rpc = process.env.NEAR_TESTNET_RPC ?? "https://rpc.testnet.near.org";
+  const rpc = env("BURSAR_BLOCKLIST_RPC") ?? env("NEAR_RPC_URL") ?? "https://rpc.mainnet.near.org";
   try {
-    const args = Buffer.from(JSON.stringify({ account: receiver })).toString("base64");
-    const response = await fetch(rpc, {
+    const response = await fetchImpl(rpc, {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({
@@ -77,14 +89,14 @@ export async function loadBlocklist(receiver: string): Promise<{ path: string; a
           finality: "final",
           account_id: contract,
           method_name: "get",
-          args_base64: args,
+          args_base64: encodeJson({ account: receiver }),
         },
       }),
     });
     const body = await response.json() as { result?: { result?: number[] } };
     const bytes = body.result?.result;
     if (!bytes) return { path: contract, accounts: {}, missing: true };
-    const text = Buffer.from(bytes).toString("utf8");
+    const text = new TextDecoder().decode(Uint8Array.from(bytes));
     if (text === "null" || text === "[]") return { path: contract, accounts: {}, missing: false };
     return { path: contract, accounts: { [receiver]: asReports(JSON.parse(text)) }, missing: false };
   } catch {
