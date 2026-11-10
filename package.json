@@ -9,9 +9,15 @@
   },
   "scripts": {
     "build": "tsc",
-    "test": "tsx --test test/check.test.ts test/quote.test.ts test/signer.test.ts test/intents-dec.test.ts test/pay.test.ts test/agents.test.ts test/decimals.test.ts",
+    "test": "tsx --test test/check.test.ts test/quote.test.ts test/signer.test.ts test/intents-dec.test.ts test/pay.test.ts test/agents.test.ts test/decimals.test.ts test/recorded.test.ts test/verify.test.ts",
+    "verify": "tsx src/verify.ts",
+    "verify:firmware": "sh -c '${BURSAR_PYTHON:-../ethereus-mac/.venv/bin/python} scripts/verify_firmware.py'",
+    "verify:weights": "tsx src/verify-weights.ts",
     "test:live": "tsx --test test/live.test.ts",
     "demo": "tsx src/demo.ts",
+    "demo:web": "vite --config web/vite.config.ts",
+    "build:web": "vite build --config web/vite.config.ts",
+    "check:readme": "node scripts/check-readme.mjs",
     "demo:agents": "tsx src/demo-agents.ts",
     "bursar": "tsx src/cli.ts"
   },
@@ -21,11 +27,13 @@
   "license": "MIT",
   "dependencies": {
     "@defuse-protocol/intents-sdk": "^0.95.0",
-    "@defuse-protocol/one-click-sdk-typescript": "0.1.26"
+    "@defuse-protocol/one-click-sdk-typescript": "0.1.26",
+    "near-api-js": "5.1.1"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",
     "tsx": "^4.20.0",
-    "typescript": "^5.9.0"
+    "typescript": "^5.9.0",
+    "vite": "^8.3.7"
   }
 }
