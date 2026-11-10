@@ -38,6 +38,7 @@ export type SignedQuote = {
     amountIn: string;
     minAmountOut: string;
     deadline?: string;
+    withdrawFee?: string | null;
   };
 };
 

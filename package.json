@@ -9,7 +9,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "test": "tsx --test test/check.test.ts test/quote.test.ts test/signer.test.ts test/intents-dec.test.ts test/pay.test.ts test/agents.test.ts test/agent.test.ts test/decimals.test.ts test/recorded.test.ts test/verify.test.ts",
+    "test": "tsx --test test/check.test.ts test/quote.test.ts test/signer.test.ts test/intents-dec.test.ts test/pay.test.ts test/agents.test.ts test/agent.test.ts test/history.test.ts test/decimals.test.ts test/recorded.test.ts test/verify.test.ts",
     "verify": "tsx src/verify.ts",
     "verify:firmware": "sh -c '${BURSAR_PYTHON:-../ethereus-mac/.venv/bin/python} scripts/verify_firmware.py'",
     "verify:weights": "tsx src/verify-weights.ts",

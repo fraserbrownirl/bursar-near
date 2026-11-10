@@ -33,6 +33,7 @@ function usage(): never {
     +     "bursar fund --origin <assetId> --amount <atomic>\n"
     + "bursar anchor\n"
     + "bursar agent \"<request>\"\n"
+    + "bursar history --csv\n"
     + "bursar demo",
   );
 }
@@ -232,6 +233,12 @@ async function main(): Promise<void> {
     const { anchorLedger } = await import("./anchor.js");
     const sent = await anchorLedger();
     process.stdout.write(`${sent.url}\n`);
+    return;
+  }
+  if (argv[0] === "history") {
+    if (argv[1] !== "--csv") usage();
+    const { historyCsv } = await import("./history.js");
+    process.stdout.write(historyCsv());
     return;
   }
   if (argv[0] === "agent") {

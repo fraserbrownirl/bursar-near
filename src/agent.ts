@@ -387,6 +387,17 @@ async function runCall(text: string, call: ModelCall, accountId: string, lines: 
       } as never) as Promise<{ intent: { payload: { message: string; nonce: string; recipient: string } } }>,
       submitIntent: async (signed) => OneClickService.submitIntent({ type: "swap_transfer", signedData: signed } as never),
     });
+    if (settled === "submitted") {
+      append("settled", {
+        recipient: expected.recipient,
+        chain: isNearAccount(expected.recipient) ? "near" : "base",
+        amount: statedPayment(text)?.human ?? expected.amount,
+        fee: quote.quote.withdrawFee ?? "",
+        verdict: chain.verdict,
+        transaction: "",
+        receipts: lines.flatMap((line) => [...line.matchAll(/receipt ([0-9a-f]{64})/g)].map((match) => match[1])),
+      });
+    }
     lines.push(`tool pay: ${settled}`);
     if (settled !== "submitted" || !quote.quote.depositAddress) {
       lines.push(`guard: STOP\nreason: ${settled}`);
