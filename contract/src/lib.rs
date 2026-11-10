@@ -12,7 +12,7 @@ pub struct Report {
 
 #[near(contract_state)]
 pub struct Contract {
-    reports: LookupMap<AccountId, Vec<Report>>,
+    reports: LookupMap<String, Vec<Report>>,
 }
 
 impl Default for Contract {
@@ -32,7 +32,7 @@ impl Contract {
 
     /// One report per reporter. The attached deposit must cover the new storage.
     #[payable]
-    pub fn report(&mut self, account: AccountId, reason: String, evidence_hash: String) -> Promise {
+    pub fn report(&mut self, account: String, reason: String, evidence_hash: String) {
         let reporter = env::predecessor_account_id();
         let before = env::storage_usage();
         let mut list = self.reports.get(&account).cloned().unwrap_or_default();
@@ -53,10 +53,12 @@ impl Contract {
             "insufficient deposit for storage"
         );
         let refund = attached.saturating_sub(required);
-        Promise::new(reporter).transfer(refund)
+        if refund.as_yoctonear() > 0 {
+            Promise::new(reporter).transfer(refund).detach();
+        }
     }
 
-    pub fn get(&self, account: AccountId) -> Vec<Report> {
+    pub fn get(&self, account: String) -> Vec<Report> {
         self.reports.get(&account).cloned().unwrap_or_default()
     }
 }

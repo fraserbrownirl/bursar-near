@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { decide, type ChainFacts } from "./decide.js";
 import { inspectIntent, type IntentRecord } from "./intent.js";
+import { deadlineProblem } from "./signer.js";
 import { payeeOf, reviewQuote, type BursarRequest, type SignedQuote } from "./quote.js";
 
 export type Attack = { name: string; line: string; expect: RegExp };
@@ -134,6 +135,14 @@ export function attacks(): Attack[] {
     line: inspectIntent({ intents: [{ ...transfer, msg: "steal" }] }, live) ?? "ok",
     expect: /^STOP: notification$/,
   });
+  const four = fixture("quote-4min.json");
+  const shifted = new Date(Date.parse(four.quote.deadline ?? "") - 1000).toISOString();
+  out.push({
+    name: "intent deadline differs from the signed quote",
+    line: deadlineProblem(shifted, four, Date.parse(four.quote.deadline ?? "") - 2 * 60 * 1000) ?? "ok",
+    expect: /^STOP: deadline$/,
+  });
+
   out.push({
     name: "transfer to another account",
     line: inspectIntent({ intents: [{ ...transfer, receiver_id: "not-the-deposit.near" }] }, live) ?? "ok",

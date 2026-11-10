@@ -79,6 +79,7 @@ test("npm run demo stops every attack", () => {
     "unsigned fee field edited",
     "drainer bundle",
     "hidden notification",
+    "intent deadline differs from the signed quote",
     "transfer to another account",
   ]);
 });

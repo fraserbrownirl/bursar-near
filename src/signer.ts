@@ -3,7 +3,18 @@ import { KeyPair } from "near-api-js";
 import { inspectIntent, type IntentRecord } from "./intent.js";
 import type { SignedQuote } from "./quote.js";
 
-const FIVE_MINUTES_MS = 5 * 60 * 1000;
+const HOURS_72_MS = 72 * 60 * 60 * 1000;
+
+/** Intent deadline equals the signed quote deadline, that deadline is the request plus 72 hours, and it is still in the future. */
+export function deadlineProblem(intentDeadline: string, quote: SignedQuote, now: number): string | null {
+  const deadline = Date.parse(intentDeadline);
+  const signed = Date.parse(quote.quote.deadline ?? "");
+  const requested = Date.parse(quote.quoteRequest.deadline);
+  if (Number.isNaN(deadline) || Number.isNaN(signed) || Number.isNaN(requested) || signed !== requested + HOURS_72_MS || deadline !== signed || deadline <= now) {
+    return "STOP: deadline";
+  }
+  return null;
+}
 
 export class BursarGuardedSigner implements IIntentSigner {
   private readonly usedNonces = new Set<string>();
@@ -29,14 +40,8 @@ export class BursarGuardedSigner implements IIntentSigner {
       throw new Error(`STOP: signer_id ${String(intent.signer_id)}`);
     }
     const now = this.options.now?.() ?? Date.now();
-    const deadline = Date.parse(intent.deadline);
-    const quoteDeadline = Date.parse(this.options.quote.quote.deadline ?? "");
-    if (Number.isNaN(deadline) || Number.isNaN(quoteDeadline) || deadline !== quoteDeadline) {
-      throw new Error("STOP: deadline");
-    }
-    if (deadline <= now || deadline > now + FIVE_MINUTES_MS) {
-      throw new Error("STOP: deadline");
-    }
+    const deadlineStop = deadlineProblem(intent.deadline, this.options.quote, now);
+    if (deadlineStop) throw new Error(deadlineStop);
     if (this.usedNonces.has(intent.nonce)) throw new Error("STOP: nonce");
     const shape = inspectIntent({ intents: intent.intents as unknown as IntentRecord[] }, this.options.quote);
     if (shape) throw new Error(shape);

@@ -88,7 +88,13 @@ test("a 4-minute quote's intent deadline must equal the signed quote deadline an
   }), /STOP: deadline/);
 });
 
-test("a deadline more than five minutes out never reaches the inner signer", async () => {
+test("intent deadline differs from the signed quote and the inner signer is never called", async () => {
+  const live = JSON.parse(readFileSync(new URL("./fixtures/quote-4min.json", import.meta.url), "utf8")) as SignedQuote;
+  const generated = JSON.parse(readFileSync(new URL("./fixtures/generate-intent-4min.json", import.meta.url), "utf8")) as {
+    intent: { payload: { message: string; nonce: string; recipient: string } };
+  };
+  const message = JSON.parse(generated.intent.payload.message) as { signer_id: string; intents: IntentPayload["intents"] };
+  const now = Date.parse(live.quote.deadline ?? "") - 2 * 60 * 1000;
   let calls = 0;
   const inner: IIntentSigner = {
     async signIntent() {
@@ -96,18 +102,10 @@ test("a deadline more than five minutes out never reaches the inner signer", asy
       throw new Error("inner signer was called");
     },
   };
-  const signer = new BursarGuardedSigner(inner, {
-    accountId: "515ead208df187f146f2ae5f7e24522cf2ca977df95bdee7bb5f957bbe142c54",
-    quote: quote(),
-    now: () => Date.parse("2026-11-10T12:00:00Z"),
-  });
-  const generated = JSON.parse(readFileSync(new URL("./fixtures/generate-intent.json", import.meta.url), "utf8")) as {
-    intent: { payload: { message: string; nonce: string; recipient: string } };
-  };
-  const message = JSON.parse(generated.intent.payload.message) as { deadline: string; signer_id: string; intents: IntentPayload["intents"] };
+  const signer = new BursarGuardedSigner(inner, { accountId: message.signer_id, quote: live, now: () => now });
   await assert.rejects(() => signer.signIntent({
-    verifying_contract: generated.intent.payload.recipient,
-    deadline: message.deadline,
+    verifying_contract: "intents.near",
+    deadline: new Date(Date.parse(live.quote.deadline ?? "") - 1000).toISOString(),
     nonce: generated.intent.payload.nonce,
     signer_id: message.signer_id,
     intents: message.intents,

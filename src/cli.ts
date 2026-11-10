@@ -5,6 +5,7 @@ import { isNearAccount } from "./account.js";
 import { loadBlocklist } from "./blocklist.js";
 import { decide, formatCheck, type ChainFacts } from "./decide.js";
 import { loadFacts } from "./load.js";
+import { decimalsFor, loadTokens } from "./decimals.js";
 import { plainAmounts } from "./model.js";
 import { readPayeeMap } from "./payees.js";
 import { settle } from "./pay.js";
@@ -28,6 +29,7 @@ function usage(): never {
   throw new UsageError(
     "bursar check <receiver> [--amount <amount>] [--token <token>] [--request <text>]\n"
     + "bursar pay --to <recipient> --amount <atomic> --origin <assetId> --dest <assetId> [--min-out <atomic>] [--fixture <quote.json>] [--request <text>]\n"
+    + "bursar fund --origin <assetId> --amount <atomic>\n"
     + "bursar demo",
   );
 }
@@ -45,6 +47,19 @@ export function parseArgs(argv: readonly string[]): Args {
     else usage();
   }
   return args;
+}
+
+async function printAmounts(request: BursarRequest, quotedMin: string): Promise<string> {
+  try {
+    const rows = await loadTokens(false);
+    const origin = decimalsFor(request.originAsset, rows);
+    const dest = decimalsFor(request.destinationAsset, rows);
+    return await plainAmounts(request, quotedMin, origin, dest) + "\n";
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    if (message.startsWith("STOP:")) return message + "\n";
+    throw error;
+  }
 }
 
 function flagValue(argv: readonly string[], name: string): string | undefined {
@@ -75,6 +90,8 @@ async function pay(argv: readonly string[]): Promise<void> {
     destinationAsset: dest,
     deadline: new Date(nowMs + 4 * 60 * 1000).toISOString(),
     minAmountOut: minOut,
+    swapType: "EXACT_INPUT",
+    slippageTolerance: 100,
   };
   const response = fixture
     ? JSON.parse(readFileSync(fixture, "utf8")) as SignedQuote
@@ -98,7 +115,7 @@ async function pay(argv: readonly string[]): Promise<void> {
     process.stdout.write(quoteStop + "\n");
     return;
   }
-  process.stdout.write(await plainAmounts(request, response.quote.minAmountOut) + "\n");
+  process.stdout.write(await printAmounts(request, response.quote.minAmountOut));
   const facts = isNearAccount(to) ? await loadFacts(to) : emptyFacts();
   const check = decide({
     receiver: to,
@@ -137,8 +154,54 @@ async function pay(argv: readonly string[]): Promise<void> {
   process.stdout.write(line + "\n");
 }
 
+async function fund(argv: readonly string[]): Promise<void> {
+  const origin = flagValue(argv, "--origin");
+  const amount = flagValue(argv, "--amount");
+  const accountId = process.env.BURSAR_NEAR_ACCOUNT;
+  if (!origin || !amount) usage();
+  if (!accountId) throw new Error("BURSAR_NEAR_ACCOUNT is required");
+  const nowMs = Date.now();
+  const deadline = new Date(nowMs + 4 * 60 * 1000).toISOString();
+  const request: BursarRequest = {
+    recipient: accountId,
+    refundTo: accountId,
+    amount,
+    originAsset: origin,
+    destinationAsset: origin,
+    deadline,
+    minAmountOut: "0",
+    swapType: "EXACT_INPUT",
+    slippageTolerance: 100,
+  };
+  const response = await OneClickService.getQuote({
+    dry: false,
+    swapType: "EXACT_INPUT",
+    depositType: "INTENTS",
+    slippageTolerance: 100,
+    originAsset: origin,
+    destinationAsset: origin,
+    amount,
+    recipient: accountId,
+    recipientType: "INTENTS",
+    refundTo: accountId,
+    refundType: "INTENTS",
+    deadline,
+  } as never) as SignedQuote;
+  const quoteStop = reviewQuote(response, request, Math.floor(nowMs / 1000));
+  if (quoteStop) {
+    process.stdout.write(quoteStop + "\n");
+    return;
+  }
+  process.stdout.write(`depositAddress: ${response.quote.depositAddress ?? ""}\n`);
+  process.stdout.write(await printAmounts(request, response.quote.minAmountOut));
+}
+
 async function main(): Promise<void> {
   const argv = process.argv.slice(2);
+  if (argv[0] === "fund") {
+    await fund(argv.slice(1));
+    return;
+  }
   if (argv[0] === "pay") {
     await pay(argv.slice(1));
     return;

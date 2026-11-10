@@ -9,7 +9,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "test": "tsx --test test/check.test.ts test/quote.test.ts test/signer.test.ts test/intents-dec.test.ts test/pay.test.ts test/agents.test.ts",
+    "test": "tsx --test test/check.test.ts test/quote.test.ts test/signer.test.ts test/intents-dec.test.ts test/pay.test.ts test/agents.test.ts test/decimals.test.ts",
     "test:live": "tsx --test test/live.test.ts",
     "demo": "tsx src/demo.ts",
     "demo:agents": "tsx src/demo-agents.ts",

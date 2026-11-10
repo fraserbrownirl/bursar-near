@@ -23,8 +23,9 @@ export type SignedQuote = {
     destinationAsset: string;
     deadline: string;
     depositType?: string;
-    refundType?: string;
     swapType?: string;
+    slippageTolerance?: number;
+    refundType?: string;
     insured?: boolean;
     appFees?: AppFee[];
     customRecipientMsg?: string | null;
@@ -49,6 +50,8 @@ export type BursarRequest = {
   destinationAsset: string;
   deadline: string;
   minAmountOut: string;
+  swapType?: string;
+  slippageTolerance?: number;
   memo?: string;
   insured?: boolean;
   hasJwt?: boolean;
@@ -119,6 +122,8 @@ export function referenceCheck(response: SignedQuote, request: BursarRequest, no
   if (asked.destinationAsset !== request.destinationAsset) fails.push("asset");
   if (asked.originAsset !== request.originAsset) fails.push("origin");
   if (asked.deadline !== request.deadline) fails.push("request_deadline");
+  if (asked.swapType !== (request.swapType ?? "EXACT_INPUT")) fails.push("swap_type");
+  if (asked.slippageTolerance !== (request.slippageTolerance ?? 100)) fails.push("slippage");
   const amount = normInt(got.amountIn);
   const wanted = normInt(request.amount);
   const signedAmount = normInt(asked.amount);
