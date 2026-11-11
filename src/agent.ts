@@ -266,19 +266,12 @@ export function contentStops(content: string): string | null {
 
 export type Heard = { to: string; human: string; asset: string; chain: string; purpose: string };
 
-export type Noted = { human: string; asset: string; chain: string };
-
-/** Keep an amount, token, or chain the model already gave. An empty field does not erase one. */
-export function noteFacts(prev: Noted | null, args: { amount?: string; asset?: string; chain?: string }): Noted | null {
-  const human = (args.amount ?? "").trim();
-  const asset = (args.asset ?? "").trim().toUpperCase();
-  const chain = (args.chain ?? "").trim().toLowerCase();
-  if (!human && !asset && !chain) return prev;
-  return {
-    human: human || prev?.human || "",
-    asset: asset || prev?.asset || "",
-    chain: chain || prev?.chain || "",
-  };
+/** The same question from the same tool is said once. The second copy tells the model to say it. */
+export function repeatAsk(previous: string, name: string, outcome: string): { previous: string; outcome: string } {
+  if (!outcome.endsWith("?")) return { previous, outcome };
+  const key = `${name}\n${outcome}`;
+  if (previous === key) return { previous, outcome: "Say that question to the owner. Do not call the tool again." };
+  return { previous: key, outcome };
 }
 
 /** The model's reading. An empty field is a question, not a guess. */
@@ -309,8 +302,8 @@ export class Talk {
   brain: ((messages: unknown[]) => Promise<Turn>) | null = null;
   /** The next reply is dropped when it repeats a deposit address. The deposit line was already shown. */
   depositShown = false;
-  /** Amount, token, and chain already given, even when the recipient was not. */
-  noted: Noted | null = null;
+  /** The last tool question, so a second copy is not another turn. */
+  lastAsk = "";
   readonly messages: unknown[];
 
   constructor() {
@@ -604,6 +597,9 @@ export async function runAgent(text: string, accountId: string, talk: Talk = new
         if (outcome.startsWith("STOP")) reveal(lines, talk, outcome);
       }
       if ((outcome.startsWith("STOP:") || outcome.startsWith("Stopped:")) && !lines.includes(outcome)) reveal(lines, talk, outcome);
+      const asked = repeatAsk(talk.lastAsk, call.name, outcome);
+      talk.lastAsk = asked.previous;
+      outcome = asked.outcome;
       talk.messages.push({ role: "tool", tool_call_id: call.id, content: outcome });
       if (outcome === "submitted" || outcome === "card" || outcome === accountId) submitted = true;
       if (outcome === "submitted" || outcome === "card" || outcome === accountId || outcome === "STOP" || outcome.startsWith("STOP") || outcome.startsWith("Stopped")) finished = true;
@@ -626,14 +622,10 @@ async function runCall(text: string, call: ModelCall, accountId: string, lines: 
   }
   if (call.name === "show_code") return "use receive";
   if (call.name === "receive") {
-    talk.noted = noteFacts(talk.noted, call);
-    const amount = call.amount || talk.noted?.human || "";
-    const asset = call.asset || talk.noted?.asset || "";
-    const chain = call.chain || talk.noted?.chain || "";
-    if (!chain || !asset) return "missing chain or token";
+    if (!call.chain || !call.asset) return "missing chain or token";
     const { receive } = await import("./receive.js");
-    const drawn = await receive({ accountId, chain, token: asset, amount, dir });
-    if (amount && asset) reveal(lines, talk, `${amount} ${asset} on ${drawn.chain}`);
+    const drawn = await receive({ accountId, chain: call.chain, token: call.asset, amount: call.amount, dir });
+    if (call.amount && call.asset) reveal(lines, talk, `${call.amount} ${call.asset} on ${drawn.chain}`);
     revealLinks(lines, talk, drawn.uri);
     talk.depositShown = true;
     return drawn.uri;
@@ -700,7 +692,6 @@ async function runCall(text: string, call: ModelCall, accountId: string, lines: 
     }
   }
   if (call.name === "understand") {
-    talk.noted = noteFacts(talk.noted, call);
     const heard = intentFromArgs(call);
     if (heard.ok) talk.heard = heard.heard;
     return "noted";

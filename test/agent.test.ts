@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
 import { readLedger } from "../src/guard/ledger.js";
-import { INJECTED_PASTE, READY, SYSTEM, TOOLS, Talk, askApprove, atomicAmount, chainNamedIn, contentStops, continuesAfter, injectedAgentDemo, intentFromArgs, noteFacts, refuseNearOnOtherChain, repeatsDeposit, requestStops, runAgent, splitTurn, statedPayment, talkSession } from "../src/agent.js";
+import { INJECTED_PASTE, READY, SYSTEM, TOOLS, Talk, askApprove, atomicAmount, chainNamedIn, contentStops, continuesAfter, injectedAgentDemo, intentFromArgs, refuseNearOnOtherChain, repeatAsk, repeatsDeposit, requestStops, runAgent, splitTurn, statedPayment, talkSession } from "../src/agent.js";
 
 test("0.25 USDC is 250000 atomic units", () => {
   const stated = statedPayment("pay 0.25 USDC to frsrcom.near");
@@ -18,10 +18,12 @@ test("0.25 USDC is 250000 atomic units", () => {
   assert.equal(atomicAmount("0.25", 6), "250000");
 });
 
-test("an amount already given is kept when the next call omits it", () => {
-  const noted = noteFacts(null, { amount: "0.25", asset: "USDC" });
-  assert.deepEqual(noteFacts(noted, { chain: "arbitrum" }), { human: "0.25", asset: "USDC", chain: "arbitrum" });
-  assert.equal(noteFacts(noted, {}), noted);
+test("the same tool question is said once", () => {
+  const first = repeatAsk("", "check", "How much?");
+  assert.equal(first.outcome, "How much?");
+  const second = repeatAsk(first.previous, "check", "How much?");
+  assert.match(second.outcome, /Say that question/);
+  assert.equal(repeatAsk(first.previous, "check", "allow").outcome, "allow");
 });
 
 test("a reply that repeats a deposit address is the one the line already showed", () => {

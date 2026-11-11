@@ -131,6 +131,17 @@ Holdout held at 7/10, so the tool sentence stays. The link replies still do not 
 
 Cause for a deposit line that is only the URI: **code rule**. The amount and token were given on an earlier call, and `receive` left them blank, so the line and the payment request omitted them. An amount, token, or chain already given is kept, and `receive` uses it.
 
+| Set | Passed | Total |
+| --- | --- | --- |
+| Work | 23 | 30 |
+| Holdout | 6 | 10 |
+
+Holdout fell (round 10 was 7/10), so the kept amount is reverted. The two holdout drops did not call `receive`. The receive lines that did were `0.25 USDC on Arbitrum` and `5 USDC on Ethereum`, and the payment request included the amount.
+
+## Round 12
+
+Cause for a turn that ends with no reply: **code rule**. The same tool asked the same question again, and the turns ran out before anything was said. The second copy tells the model to say that question, and not to call the tool again.
+
 Work and holdout scores for this round are filled in when the rerun finishes.
 
 ## Parked 207-case log
