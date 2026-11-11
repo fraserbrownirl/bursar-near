@@ -29,9 +29,22 @@ Cause for the same missing-USDC failures: **prompt**. The sentence was already t
 
 Result: work 9/30, holdout 3/10. Holdout did not improve. The prompt is reverted.
 
-The holdout has now missed two rounds (5/10, then 3/10, then 3/10). Stop.
+The holdout missed two rounds, so that USDC line was left to the model.
 
-The seven cases that never say USDC, after a skill try and a prompt try, are **model**. They stay in `eval/finetune/` as the Claude reference for a later fine-tune. The other 167 cases were not changed.
+## Round 3
+
+Cause for the work failures that pay a NEAR account on another chain: **code rule**. A name ending in `.near` is not a Base, Ethereum, Arbitrum, or Solana account. `quote` and `pay` return that to the model and do not show a card.
+
+| Set | Passed | Total |
+| --- | --- | --- |
+| Work | 16 | 30 |
+| Holdout | 2 | 10 |
+
+Holdout fell (round 0 was 5/10), so the check is reverted. It never ran on those cases. The chain was taken from a sentence that starts with "pay", and these sentences start with "send", and the tool call left the chain empty. Two of the three holdout drops are a judge process that exited with no error text and was scored as a fail (`pay-person-101`, `pay-person-107`). The third, `foreign-16`, paid `wrap.near` with no other chain named.
+
+## Round 4
+
+Cause, same work failures: **code rule**. The chain is the one after "on" in the owner's sentence, including a sentence that starts with "send". When that chain is not NEAR and the recipient is a NEAR account, `quote` and `pay` return the question to the model and do not show a card. A judge process that exits is tried once more, so an empty failure is not a score.
 
 ## Parked 207-case log
 

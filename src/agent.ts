@@ -223,6 +223,18 @@ export type Turn = {
 
 export { atomicAmount } from "./assets.js";
 
+/** A chain the owner named with "on". "with base crypto" is not one. */
+export function chainNamedIn(text: string): string {
+  return (text.match(/\bon\s+(base|arbitrum|arb|ethereum|eth|solana|sol)\b/i)?.[1] ?? "").toLowerCase();
+}
+
+/** A NEAR account is not a destination on another chain. The tool hears this; the owner does not. */
+export function refuseNearOnOtherChain(recipient: string, ownerText: string, toolChain: string): string | null {
+  const named = [chainNamedIn(ownerText), toolChain.toLowerCase()].find((chain) => chain && chain !== "near");
+  if (!named || !isNearAccount(recipient)) return null;
+  return `That account is on NEAR, and the chain named is ${named}. Ask which they mean. Do not pay yet.`;
+}
+
 /** The payment named in the user's words. Later sentences do not replace it. */
 export function statedPayment(text: string): { to: string; human: string; asset: string; amount: string; chain: string } | null {
   const match = text.match(/\bpay\s+([0-9]+(?:\.[0-9]+)?)\s+([A-Za-z]+)\s+to\s+(0x[a-fA-F0-9]{40}|[a-z0-9][a-z0-9._-]*)(?:\s+on\s+([A-Za-z]+))?/i);
@@ -660,8 +672,13 @@ async function runCall(text: string, call: ModelCall, accountId: string, lines: 
   const heard = fromModel.ok ? fromModel.heard : talk.heard;
   if (!heard) return fromModel.ok ? "missing payee" : fromModel.ask;
   if (fromModel.ok) talk.heard = fromModel.heard;
-  const statedChain = statedPayment(splitTurn(text).owner)?.chain ?? "";
+  const ownerLine = splitTurn(text).owner;
+  const statedChain = statedPayment(ownerLine)?.chain || chainNamedIn(ownerLine);
   if (!heard.chain && statedChain) heard.chain = statedChain;
+  if (call.name === "quote" || call.name === "pay") {
+    const refusal = refuseNearOnOtherChain(heard.to, ownerLine, heard.chain || "");
+    if (refusal) return refusal;
+  }
   const chainHint = heard.chain || (isNearAccount(heard.to) ? "near" : "");
   const priced = pricePayment(await rowsFor(heard.asset || "USDC", chainHint), heard);
   if ("ask" in priced) return priced.ask;

@@ -46,16 +46,27 @@ async function grok(system: string, prompt: string): Promise<string> {
 }
 
 async function claudeText(system: string, prompt: string): Promise<string> {
-  const result = spawnSync("claude", [
-    "-p", prompt,
-    "--system-prompt", system,
-    "--model", "sonnet",
-    "--tools", "",
-    "--output-format", "json",
-  ], { encoding: "utf8", timeout: 120_000, maxBuffer: 4_000_000 });
-  if (result.status !== 0) throw new Error((result.stderr || "claude").slice(0, 200));
-  const body = JSON.parse(result.stdout) as { result?: string };
-  return body.result ?? "";
+  let last = "claude";
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    const result = spawnSync("claude", [
+      "-p", prompt,
+      "--system-prompt", system,
+      "--model", "sonnet",
+      "--tools", "",
+      "--output-format", "json",
+    ], { encoding: "utf8", timeout: 120_000, maxBuffer: 4_000_000 });
+    if (result.status === 0) {
+      try {
+        const body = JSON.parse(result.stdout) as { result?: string };
+        if (body.result?.trim()) return body.result;
+        last = "empty judge";
+      } catch (error) {
+        last = error instanceof Error ? error.message : "claude";
+      }
+    } else last = (result.stderr || result.stdout || "claude").slice(0, 200);
+    await new Promise((resolve) => setTimeout(resolve, 2_000));
+  }
+  throw new Error(last);
 }
 
 async function ask(kind: "qwen" | "grok" | "claude", system: string, prompt: string): Promise<string> {
