@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
 import { readLedger } from "../src/guard/ledger.js";
-import { INJECTED_PASTE, READY, SYSTEM, TOOLS, Talk, askApprove, atomicAmount, chainNamedIn, contentStops, continuesAfter, injectedAgentDemo, intentFromArgs, refuseNearOnOtherChain, requestStops, runAgent, splitTurn, statedPayment, talkSession } from "../src/agent.js";
+import { INJECTED_PASTE, READY, SYSTEM, TOOLS, Talk, askApprove, atomicAmount, chainNamedIn, contentStops, continuesAfter, injectedAgentDemo, intentFromArgs, playbookRead, refuseNearOnOtherChain, requestStops, runAgent, splitTurn, statedPayment, talkSession } from "../src/agent.js";
 
 test("0.25 USDC is 250000 atomic units", () => {
   const stated = statedPayment("pay 0.25 USDC to frsrcom.near");
@@ -16,6 +16,14 @@ test("0.25 USDC is 250000 atomic units", () => {
   assert.equal(base?.chain, "base");
   assert.equal(base?.to, "0x1111111111111111111111111111111111111111");
   assert.equal(atomicAmount("0.25", 6), "250000");
+});
+
+test("listing playbook names does not open a payment", () => {
+  const listed = [{ role: "assistant", tool_calls: [{ function: { name: "skills", arguments: "{}" } }] }];
+  const named = [{ role: "assistant", tool_calls: [{ function: { name: "skills", arguments: JSON.stringify({ to: "pay-person" }) } }] }];
+  assert.equal(playbookRead(listed), false);
+  assert.equal(playbookRead(named), true);
+  assert.equal(playbookRead([{ role: "assistant", tool_calls: [{ function: { name: "skills", arguments: JSON.stringify({ name: "receive-merchant" }) } }] }]), true);
 });
 
 test("a NEAR account named with another chain is not quoted", () => {

@@ -46,6 +46,19 @@ Holdout fell (round 0 was 5/10), so the check is reverted. It never ran on those
 
 Cause, same work failures: **code rule**. The chain is the one after "on" in the owner's sentence, including a sentence that starts with "send". When that chain is not NEAR and the recipient is a NEAR account, `quote` and `pay` return the question to the model and do not show a card. A judge process that exits is tried once more, so an empty failure is not a score.
 
+| Set | Passed | Total |
+| --- | --- | --- |
+| Work | 21 | 30 |
+| Holdout | 6 | 10 |
+
+Holdout rose (round 0 was 5/10), so the check stays. A NEAR account named with another chain is asked which chain, and no card is shown.
+
+## Round 5
+
+Cause for a payment that listed the playbook names and then paid: **code rule**. The list call was counted as reading a playbook, so `quote` and `pay` were offered. A playbook counts when `skills` is called with its name. Until then the only tool offered is `skills`.
+
+Work and holdout scores for this round are filled in when the rerun finishes.
+
 ## Parked 207-case log
 
 The set was the 207 playbook cases. 50 were holdout. That run is not this eval.
