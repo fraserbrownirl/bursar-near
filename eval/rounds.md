@@ -118,7 +118,14 @@ Holdout rose (round 8 was 6/10), so the amount stays on the deposit line.
 
 Cause for a link that fails and the reply never says USDC: **tool**. A failed `pay_url` was returned as STOP, and the owner saw that word. The tool now tells the model that nothing was paid and the token is USDC, and that line is not shown to the owner.
 
-Work and holdout scores for this round are filled in when the rerun finishes.
+## Round 10 result
+
+| Set | Passed | Total |
+| --- | --- | --- |
+| Work | 19 | 30 |
+| Holdout | 7 | 10 |
+
+Holdout held at 7/10, so the tool sentence stays. The link replies still do not say USDC. A skill sentence, a prompt sentence, and this tool sentence have all left those replies the same. That cluster is the model.
 
 ## Parked 207-case log
 
