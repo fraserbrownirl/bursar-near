@@ -142,7 +142,14 @@ Holdout fell (round 10 was 7/10), so the kept amount is reverted. The two holdou
 
 Cause for a turn that ends with no reply: **code rule**. The same tool asked the same question again, and the turns ran out before anything was said. The second copy tells the model to say that question, and not to call the tool again.
 
-Work and holdout scores for this round are filled in when the rerun finishes.
+## Round 12 result
+
+| Set | Passed | Total |
+| --- | --- | --- |
+| Work | 20 | 30 |
+| Holdout | 7 | 10 |
+
+Holdout held at 7/10, so a repeated tool question is still said once. One work case that had ended with no reply now passes.
 
 ## Parked 207-case log
 
