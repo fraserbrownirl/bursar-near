@@ -1,16 +1,18 @@
 # Bursar NEAR
 
-A counterparty check for an agent that pays through NEAR Intents. `bursar check <receiver>` prints `allow`, `warn`, or `block` before a key is used.
+A terminal tool and an MCP service that checks a counterparty, then pays through NEAR Intents. `bursar check <receiver>` prints `allow`, `warn`, or `block` before a key is used. The Mac app is planned.
 
 ## Links
 
 - Hosted demo: https://fraserbrownirl.github.io/bursar-near/ . Publishing it is not done. The page in `web/` includes the demo video `web/public/bursar-demo-v4.mp4`.
-- Mainnet transaction, Solana, recorded 2026-11-08: https://explorer.solana.com/tx/2MSFP4BiqvhsxmwJUE9S2iqB8k2sZFAV7fK7rPCDKnxbPeSwfkFFQPp7QYuTHDtbiUNuBmT4aXtecxaMuQ3hiCGo
 - NEAR mainnet observations, recorded 2026-11-10: `wrap.near` created in https://nearblocks.io/txns/CxgvYrbHuXs8Qx9FfGG2or5ApB97VAQcvVad4dTwdc3U and last deployed in https://nearblocks.io/txns/4xtccqLAv25JU4F9HPRdKAeByGpjzA94GZcXY75cNM4
 - Contract `bursar-reports.near`, 2026-11-10. Account created with 1.6 NEAR: https://nearblocks.io/txns/C12N4A7vPip2DY1nnJrF2VgfwUo6Mjuc7gcBvWxuNrWB. Deploy and `new`: https://nearblocks.io/txns/GBrPAhSGRP2YnqEp5bWvR6DgNDyUJi6ha8J7Tn5KwQKj. After that deploy, `get` `{"account":"test.near"}` returned `[]`. Reporter `a45c2058b1503457935861504bf71359397f305648fb8f7c9e563ac12d3cab14` funded with 0.1 NEAR: https://nearblocks.io/txns/HW2icJkQNkQkmej5T2VEEFQGKg181zhJTp3bixKo7rxD. `storage_deposit` of 0.05 NEAR: https://nearblocks.io/txns/8aQptjNus43Yy8ECcobyGmYDLohTh5wAzTsmS8bK5PpP. Function-call key for `report` and `anchor`, allowance 0.05 NEAR: https://nearblocks.io/txns/7VWsx2Z5p8H96cdLJRAix1ExnT4t4YYkqHZ5ywyUC2rz. The same links are in `docs/hackathon/evidence.json`.
 - Report on `bad1794304962694.near`, evidence `13cfb0baf872fa2ed72d01fc1b7bc4813663db3b929f3a0182b7595464c2953a`, reporter `a45c2058b1503457935861504bf71359397f305648fb8f7c9e563ac12d3cab14`. The stored row was written by the full-access key: https://nearblocks.io/txns/BvySKjNJ3rvqM5xQL5q4gke49oCfhRd2uCDVQeWvhyjC. The same call signed by the function-call key `ed25519:3ZT5JJHHiZ2emPicC32Y9LzwYADU4W1avvFiysbbe4z7` is https://nearblocks.io/txns/8Y9JSyJdSZvMRrWWG1HV9j5K319Y5dJvefhHi1QbEQWu. `get` returned one row. `npm run bursar -- check bad1794304962694.near` printed `block` and `reason: reported by a45c2058b1503457935861504bf71359397f305648fb8f7c9e563ac12d3cab14, evidence 13cfb0baf872fa2ed72d01fc1b7bc4813663db3b929f3a0182b7595464c2953a`.
 - `anchor` of ledger head `13cfb0baf872fa2ed72d01fc1b7bc4813663db3b929f3a0182b7595464c2953a`, signed by function-call key `ed25519:3ZT5JJHHiZ2emPicC32Y9LzwYADU4W1avvFiysbbe4z7`: https://nearblocks.io/txns/Ds99qAExPLWfowBnChqU9NrsvzqkgabUbTpjHgtZDngp. `get_anchor` returned that head at block height 223922998. A later `bursar anchor` still needs `BURSAR_ANCHOR_KEY`, which is not set (`src/anchor.ts`).
 - 0.3 USDC (`300000`) deposited to `515ead208df187f146f2ae5f7e24522cf2ca977df95bdee7bb5f957bbe142c54` on `intents.near`: https://nearblocks.io/txns/FUYorSoEYsNdYsZcGUdv1JGqSCSdeSEJ4d48k8F69cPs. `mt_balance_of` returned `300000`.
+- `bursar agent "pay 0.25 USDC to frsrcom.near"` warned because the account was created today. The answer `y` continued. Status `SUCCESS`, 0.25 USDC out: https://nearblocks.io/txns/8iEQeRWP1GTKvdHVUmGTiZvsPrd6DCCitrNCF3CQXYCb. Receipts `1b2437a38474673dc25662f41dcaf40bbcfec35369e896208bad5e4b7dfc1307` (`sol ui 250000 6`), `afcd5ebbced6c6a72b8b21344382c58df00c8d04bea95e5c5d972f71891cfb3d` (`sol ui 247500 6`), `46c477f4fd8b59dc6319d6bf98b16e1773a8ba2867955444cba4346d9c52476f` (`1click check`), `93b52051b20720e817cfc6eeb37dc40c0e779ca2463d741d0ae0310834302ca2` (`intents dec`).
+- MPP catalog, 2026-11-11, `npm run bursar -- find card`: 139 services, payable nearintents 0, tempo 0, evm 0, stripe 0. No catalog service is payable.
+- x402 Bazaar, 2026-11-11, `bursar find weather`: `bazaar 2 payable 2`. `https://x402.tbs-digital.com/weather/current` asks `1000` (0.001) Base USDC, scheme `exact`, network `eip155:8453`. `bursar balance` printed `Intents 0 USDC` and `Base float not created`. The call was not paid. No Base transaction was signed.
 - Model: https://huggingface.co/frsrcom/bursar-9b
 
 ## Verify the computer in the weights yourself
@@ -45,6 +47,7 @@ Context for a compromised inference server: https://near.ai/blog/security-incide
 | Chain age and code | NEAR RPC and NearBlocks, read on 2026-11-10, saved under `test/fixtures/` | Tests replay those files |
 | Blocklist | `get` on the contract in `BURSAR_BLOCKLIST_CONTRACT`, through `https://rpc.mainnet.near.org` when that variable is set | `npm test` and `npm run demo` use `fixtures/blocklist.json` |
 | Payment | The intent is one `transfer` to the quote's `depositAddress` | Nothing is submitted to `intents.near` |
+| MPP catalog | `bursar find` reads https://mpp.dev/api/services and marks a service payable when 1Click can deliver its 402 (`src/catalog.ts`) | The 2026-11-11 run paid nothing |
 
 ## The problem
 
@@ -58,8 +61,8 @@ An agent can be given a receiver that is new, a look-alike of a known payee, a c
 npm test
 ```
 ```output
-ℹ tests 49
-ℹ pass 49
+ℹ tests 81
+ℹ pass 81
 ℹ fail 0
 ```
 
@@ -101,7 +104,7 @@ Phrases are from the snapshot of HACKATHON.md fetched 2026-11-10.
 
 | Track | Phrase | Status | Evidence |
 | --- | --- | --- | --- |
-| security | spending limits | n/a | `amount` does not change the verdict (`src/decide.ts`) |
+| security | spending limits | met | `reviewMpp` stops when the challenge amount is above `1000000` (`src/mpp.ts`, `test/mpp.test.ts`). `amount` does not change the `decide` verdict (`src/decide.ts`) |
 | security | policy engines | met | `src/decide.ts`, `src/quote.ts` |
 | security | sandboxed wallets | met | `src/signer.ts` allows one transfer shape. `src/report.ts` builds a `report` call with deposit 0 |
 | security | reputation | met | `src/blocklist.ts` |
@@ -114,38 +117,64 @@ Phrases are from the snapshot of HACKATHON.md fetched 2026-11-10.
 | agents | spend | met | `src/pay.ts` builds one transfer and does not submit it in `npm test` |
 | agents | negotiate | n/a | no negotiation |
 | agents | hire other agents | n/a | no hiring |
-| agents | pay for APIs, compute or data | n/a | x402 on NEAR is `planned` |
+| agents | pay for APIs, compute or data | n/a | no catalog service is payable (`src/catalog.ts`) |
 | agents | NEAR INTENTS | met | `src/quote.ts`, `src/intent.ts` |
 | agents | CHAIN SIGNATURES | n/a | not used |
 | realworld | payroll | n/a | not built |
 | realworld | invoicing | n/a | not built |
 | realworld | remittances | n/a | not built |
 | realworld | merchant payments | met | one `transfer` to the quote deposit address, `src/pay.ts` |
-| realworld | stablecoin rails | n/a | the captured quote destination is `nep141:usdt.tether-token.near` (`test/fixtures/quote-live.json`). A rail is not built |
+| realworld | stablecoin rails | n/a | 1Click lists Base USDC. No catalog 402 was paid |
 | realworld | Something a normal company could use tomorrow | n/a | not a company product |
 | realworld | STABLECOINS | met | native USDC `nep141:17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1` has 6 decimals (`test/fixtures/tokens.json`) |
 | realworld | NEAR INTENTS | met | `src/quote.ts` |
 | realworld | META TRANSACTIONS | n/a | not used |
 | privacy | confidential computation | n/a | no confidential virtual machine |
 | privacy | private finance | n/a | balances are not hidden |
-| privacy | AI that protects sensitive data | met | the model runs at `http://127.0.0.1:8000/v1/chat/completions` (`src/model.ts`). The key is read only in `signerFromSecret` (`src/signer.ts`) |
+| privacy | AI that protects sensitive data | met | the model runs at `http://127.0.0.1:8000/v1/chat/completions` (`src/model.ts`). The key is read in `secretFromKeychain` and passed to `signerFromSecret` or `sendGuardedUsdc` (`src/signer.ts`) |
 | privacy | Private AI | met | on-device inference, runtime `locals-mac` in the receipt |
 | privacy | TEE | n/a | there is no trusted execution environment. The check is levels 1–3 |
 | privacy | NEAR AI Cloud | n/a | the model is not served there |
+
+### Agent Economy
+
+`npm run bursar -- find card` on 2026-11-11 read https://mpp.dev/api/services. catalog 139. nearintents 0 payable 0. tempo 136 payable 0. evm 1 payable 0. stripe 10 payable 0. No catalog service is payable: 1Click lists no tempo chain, a Tempo push transfer is accepted from whatever account sent it, and the verifier requires an MPP attribution memo bound to the challenge id, and https://laso.finance/get-card returned 503. `npm run bursar -- pay https://laso.finance/get-card` printed `STOP: 503 no 402`. No transaction was signed.
+
+The ready-to-run mainnet demo is the official example in https://github.com/defuse-protocol/nearintents-mpp-sdk at version 0.4.1. `pnpm example:server` listens on `http://localhost:8402`. `GET /premium` asks for USDC on Arbitrum. `GET /premium-btc` asks for native BTC. The merchant receives USDC on NEAR, and the quote is a live 1Click quote. `.env.example` says a blank `ONE_CLICK_JWT` is the 0.2% unauthenticated fee. `bursar pay` does not pay those two routes. Its origin is NEAR USDC (`src/mpp-pay.ts`). The example client pays with an Arbitrum key or a deposit hash the caller already broadcast. `GET https://mpp-near-website.vercel.app/` on 2026-11-11 returned HTML, not a 402. The example server was not started in this run, and no deposit was sent.
 
 ## How it works
 
 Bursar signs the payment (`src/signer.ts`). It reads the merchant's text (`src/guard/injection.ts`). It runs counterparty checks (`src/decide.ts`). It keeps a shared on-chain blocklist (`src/blocklist.ts`). It keeps a persistent ledger (`src/guard/ledger.ts`).
 
+`bursar agent "pay 0.25 USDC to <address> on Base"` reads the chain from the sentence (`statedPayment` in `src/agent.ts`) and asks 1Click for Base USDC with `recipientType` `DESTINATION_CHAIN` (`quoteFor`). A live 0.25 Base payment was not sent. After the NEAR payment, `mt_balance_of` for the payer was `50000`. No Base float key was in the Keychain.
+
+`bursar mcp` speaks MCP on stdio. The tools are `pay`, `check`, `balance`, and `history`. They use the same checks, guards, and guarded signer. A STOP is a tool error (`src/mcp.ts`). `bursar history --csv` prints `date,recipient,chain,amount,fee,verdict,transaction,receipts`.
+
+Claude Desktop, `~/Library/Application Support/Claude/claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "bursar": {
+      "command": "npm",
+      "args": ["run", "bursar", "--", "mcp"],
+      "cwd": "/absolute/path/to/bursar-near"
+    }
+  }
+}
+```
+
+Cursor, `.cursor/mcp.json`, uses the same `mcpServers` object.
+
 `decide` in `src/decide.ts` returns `block`, `warn`, or `allow`. Block: the receiver is on a trusted blocklist report, within two edits of a known payee, the request matches the injection scan, or campaign memory already has it. Warn: a NEAR account was created under 14 days ago, or its contract was deployed under 14 days ago, or a NEAR RPC or NearBlocks read failed. Allow: none of those. `frol.near` has code hash `11111111111111111111111111111111` (no contract). `wrap.near` has code hash `DL2f5xmZ44cQRP6vBMt94rvseH5d5KKnAGis2WkTAsh1`. Creation timestamp observed on `wrap.near`: `1613398225524785200`. Latest deploy timestamp: `1619090101984073232`. A non-NEAR receiver gets the evidence line `not a NEAR account: on-chain age and activity not checked` and is not warned for missing chain data.
 
-A reporter key can call `report` and cannot attach a deposit (`src/report.ts`, gas `30000000000000`). The paying key is an Intents key. `intents.near` gives a key full control of that Intents account. `BursarGuardedSigner` signs only one `transfer` to the quote's `depositAddress` (`src/signer.ts`, `src/intent.ts`).
+A reporter key can call `report` and cannot attach a deposit (`src/report.ts`, gas `30000000000000`). The paying key is an Intents key. `intents.near` gives a key full control of that Intents account. `BursarGuardedSigner` signs only one `transfer` to the quote's `depositAddress` (`src/signer.ts`, `src/intent.ts`). `sendGuardedUsdc` signs only `ft_transfer` of NEAR USDC to the MPP deposit address, and only after `transferStop` returns null (`src/signer.ts`).
 
-`reviewQuote` checks the signature, then the fields, then the fee (`src/quote.ts`). An invalid signature is `STOP: bad signature`. `appFees` is not in the signed hash. Both captured quotes put 20 bps on `5880ad2b362620fadf759cbceb1cd5737ce8c6ed7fb8e9942881e6731f9247dd`. The NEP-413 recipient of `test/fixtures/generate-intent.json` is `intents.near`. No mainnet NEAR payment was submitted.
+`reviewQuote` checks the signature, then the fields, then the fee (`src/quote.ts`). An invalid signature is `STOP: bad signature`. `appFees` is not in the signed hash. Both captured quotes put 20 bps on `5880ad2b362620fadf759cbceb1cd5737ce8c6ed7fb8e9942881e6731f9247dd`. The NEP-413 recipient of `test/fixtures/generate-intent.json` is `intents.near`. The 0.25 USDC payment is the `SUCCESS` transaction in Links.
 
 ## Demo
 
-`bursar agent "<request>" gives Bursar-9B the tools `quote`, `check`, and `pay` (`src/agent.ts`). The model chooses the calls. `requestStops` returns a reason for `ignore your limits` even when the recorded model call pays `bad1794304962694.near`. A `warn` prints its reasons and the plain line, then `approve? [y/N]`. `y` is written to the ledger and the guarded signer runs. A `block` does not ask (`src/agent.ts`). `npm run demo` prints these lines. The test `npm run demo stops every attack` in `test/quote.test.ts` requires each one.
+`bursar agent` is the terminal tool (`src/cli.ts`, `src/agent.ts`). `bursar` with no arguments prints usage. There is no chat command. The model hears the sentence and calls `understand`. An empty amount or recipient is a question. Earlier lines stay in the session and are not a payment. `npm run demo` stops when a paste says `ignore your limits` and the recorded model still pays `bad1794304962694.near`. A warn prints its reasons and asks `approve? [y/N]`. `y` is written to the ledger and the guarded signer runs. A block does not ask. Paying an API is `bursar merchant --mpp --to <Base address>` in one terminal and `bursar pays http://127.0.0.1:8402/` in another (`src/merchant.ts`, `src/mpp-pay.ts`). The API asks for `250000` (0.25) NEAR USDC and the Base address receives that much USDC. `npm run bursar -- find card` on 2026-11-11 found no payable service in the public catalog, so this local API is the example. `npm run demo` prints these lines. The test `npm run demo stops every attack` in `test/quote.test.ts` requires each one.
 
 ```command
 npm run demo
@@ -168,7 +197,7 @@ transfer to another account: STOP: receiver_id not-the-deposit.near
 
 ## What is not NEAR
 
-`src/guard/` is Bursar’s guard modules, written during the hackathon window. Those modules do not call a chain. Bursar-9B is not in this repository. The Solana payment above is on Solana. The TypeScript reference of `1click check` does not call 1Click. The blocklist read, when `BURSAR_BLOCKLIST_CONTRACT` is set, is a NEAR RPC `query`.
+`src/guard/` is Bursar’s guard modules, written during the hackathon window. Those modules do not call a chain. Bursar-9B is not in this repository. The TypeScript reference of `1click check` does not call 1Click. The blocklist read, when `BURSAR_BLOCKLIST_CONTRACT` is set, is a NEAR RPC `query`. `mppx` is the Stripe and Tempo payment authentication library. The MPP merchant's destination is USDC on Base. The deposit itself is a NEAR `ft_transfer`.
 
 ## Hackathon diff
 
@@ -179,7 +208,10 @@ transfer to another account: STOP: receiver_id not-the-deposit.near
 Versions are the ones in `package-lock.json` and `contract/Cargo.lock`.
 
 - `@defuse-protocol/one-click-sdk-typescript` 0.1.26
+- `@defuse-protocol/nearintents-mpp-sdk` 0.4.1
 - `@defuse-protocol/intents-sdk` 0.95.0
+- `mppx` 0.17.0
+- `viem` 2.57.1
 - `near-api-js` 5.1.1
 - `typescript` 5.9.3
 - `tsx` 4.23.15
@@ -195,15 +227,14 @@ Versions are the ones in `package-lock.json` and `contract/Cargo.lock`.
 
 ## Build log and roadmap
 
-Work counts from 2026-10-19 (Q-001). Commit hashes below are text. Private repositories are not linked. The six phases are inside the window. Locals 0.2.0, commit `7c38f56` dated 2026-10-12, is before 2026-10-19 and is baseline, not one of the six phases.
+Work counts from 2026-10-19 (Q-001). Commit hashes below are text. Private repositories are not linked. The five phases are inside the window. Locals 0.2.0, commit `7c38f56` dated 2026-10-12, is before 2026-10-19 and is baseline, not one of the five phases.
 
 | Phase | Dates | Days | Work | Evidence |
 | --- | --- | --- | --- | --- |
-| Weights and firmware gates | 2026-10-31 to 2026-11-06 | 7 | The RV32 computer in the Qwen3.5-9B weights, then EVM, Solana, NEAR, and Stellar firmware with the gate tests | `6ae9003` 2026-10-31; `0da27b3` and `5425dc2` 2026-11-01; `ab930ae` 2026-11-01; `4af0911` 2026-11-05; `ce9c136`, `80526dd`, `33fd3be` 2026-11-06 |
+| Weights and firmware gates | 2026-10-31 to 2026-11-06 | 7 | The RV32 computer in the Qwen3.5-9B weights, then EVM, NEAR, and Stellar firmware with the gate tests | `6ae9003` 2026-10-31; `0da27b3` and `5425dc2` 2026-11-01; `ab930ae` 2026-11-01; `4af0911` 2026-11-05; `ce9c136`, `80526dd`, `33fd3be` 2026-11-06 |
 | eth-evals | 2026-11-02 to 2026-11-06 | 5 | Tools-track results for the untrained model | `ext-untrained-qwenputer-syntax-tools-fw3782ed2b.json` timestamp 2026-11-06 18:50:58, categories calldata 7/15, derivations 3/10, indexing 0/4, wallets 0/4, overall 19.2, ci95 10.0 to 28.3 |
 | GPU (VPS) | 2026-11-01 to 2026-11-06 | 6 | Fine-tune trainer, ft1b gate, Vast eval VM, SWiRL prompting pilot | `573a671` 2026-11-01; `199ec06` 2026-11-02; `632ff16` 2026-11-04; `2f10c38` 2026-11-06 |
 | Mac runtime | 2026-11-05 to 2026-11-10 | 6 | Locals serving the 9B pack on the Mac | `a657bc5` 2026-11-05; `f1ed92d` 2026-11-08; `d78a6c9` 2026-11-10 |
-| Solana mainnet payment | 2026-11-08 | 1 | 0.005 USDC to citable.run | commit `a73932b` 2026-11-08; the Solana transaction in Links |
 | NEAR build | 2026-11-01 to 2026-11-10 | 10 | Spill gates, NEAR firmware gates, checks, guards, contract, three verification levels | `9f6081c` 2026-11-01; `ce9c136` 2026-11-06; `14b88e4` through `10c1dff` 2026-11-10; receipt dated 2026-11-10 |
 
 ```mermaid
@@ -216,7 +247,6 @@ gantt
     eth-evals                       :2026-11-02, 2026-11-06
     GPU VPS                         :2026-11-01, 2026-11-06
     Mac runtime                     :2026-11-05, 2026-11-10
-    Solana mainnet payment          :2026-11-08, 2026-11-08
     NEAR build                      :2026-11-01, 2026-11-10
 ```
 
@@ -234,8 +264,9 @@ Each item is planned.
 - A Mac app with the key in the Secure Enclave and Touch ID for new payees, top-ups, and limit changes.
 - A passkey (WebAuthn, P-256) signer for the Intents account. This repository has no test that `intents.near` accepts that key.
 - The phone first as an approval remote for the Mac agent, then fully on the phone, with a smaller Qwen and the computer compiled into it, the model downloaded on first launch, published by an organisation account under App Store rule 3.1.5.
-- x402 through Ping Agent Pay.
-- More chains (Base, Stellar) using the firmware already built (`80526dd`, 2026-11-06, includes Stellar).
+- A paid x402 call. `pay <url>` settles Base exact USDC from the Keychain float (`src/x402-pay.ts`). The 2026-11-11 weather call was not sent: the Intents balance was 0.
+- A live payment on a chain other than NEAR. `bursar agent` can name Base from the sentence and the 1Click token list (`src/assets.ts`, `src/agent.ts`). The 0.25 Base payment was not sent. Age and contract checks stay on NEAR accounts. The firmware for those chains is `80526dd`, 2026-11-06.
+- The Mac app, above. It is not in this repository.
 
 ## Licence
 

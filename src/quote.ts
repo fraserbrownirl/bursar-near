@@ -36,6 +36,10 @@ export type SignedQuote = {
     depositAddress?: string;
     depositMemo?: string | null;
     amountIn: string;
+    /** Present on EXACT_OUTPUT quotes. The merchant's exact destination amount. */
+    amountOut?: string;
+    /** Present on EXACT_OUTPUT quotes. The minimum origin deposit the backend accepts. */
+    minAmountIn?: string;
     minAmountOut: string;
     deadline?: string;
     withdrawFee?: string | null;
@@ -128,10 +132,11 @@ export function referenceCheck(response: SignedQuote, request: BursarRequest, no
   const amount = normInt(got.amountIn);
   const wanted = normInt(request.amount);
   const signedAmount = normInt(asked.amount);
-  if (amount === null || wanted === null || cmp(amount, wanted) !== 0) fails.push("amount");
-  if ((asked.swapType ?? "EXACT_INPUT") === "EXACT_INPUT" && (amount === null || signedAmount === null || cmp(amount, signedAmount) !== 0)) {
-    if (!fails.includes("amount")) fails.push("amount");
-  }
+  const swap = asked.swapType ?? "EXACT_INPUT";
+  const amountFail = swap === "EXACT_INPUT"
+    ? amount === null || wanted === null || signedAmount === null || cmp(amount, wanted) !== 0 || cmp(amount, signedAmount) !== 0
+    : signedAmount === null || wanted === null || cmp(signedAmount, wanted) !== 0;
+  if (amountFail) fails.push("amount");
   const minOut = normInt(got.minAmountOut);
   const minWanted = normInt(request.minAmountOut);
   if (minOut === null || minWanted === null || cmp(minOut, minWanted) < 0) fails.push("min_out");

@@ -33,8 +33,13 @@ function usage(): never {
     +     "bursar fund --origin <assetId> --amount <atomic>\n"
     + "bursar anchor\n"
     + "bursar agent \"<request>\"\n"
+    + "bursar mcp\n"
     + "bursar history --csv\n"
-    + "bursar demo",
+    + "bursar demo\n"
+    + "bursar balance\n"
+    + "bursar pay <url>\n"
+    + "bursar find \"<need>\"\n"
+    + "bursar merchant --mpp [--port 8402] [--name <name>] [--to <base address>]",
   );
 }
 
@@ -221,13 +226,56 @@ async function fund(argv: readonly string[]): Promise<void> {
 
 async function main(): Promise<void> {
   const argv = process.argv.slice(2);
+  if (argv.length === 0) usage();
   if (argv[0] === "fund") {
     await fund(argv.slice(1));
     return;
   }
+  if (argv[0] === "balance") {
+    const accountId = process.env.BURSAR_NEAR_ACCOUNT;
+    if (!accountId) throw new Error("BURSAR_NEAR_ACCOUNT is required");
+    const { balanceReport } = await import("./base-float.js");
+    process.stdout.write(await balanceReport(accountId) + "\n");
+    return;
+  }
+  if (argv[0] === "find") {
+    const need = argv.slice(1).join(" ").trim();
+    if (!need) usage();
+    const { findReport } = await import("./catalog.js");
+    process.stdout.write(await findReport(need) + "\n");
+    return;
+  }
+  if (argv[0] === "pay" && argv[1] && /^https?:\/\//.test(argv[1])) {
+    const { payCatalog } = await import("./catalog-pay.js");
+    process.exit(await payCatalog(argv[1]));
+  }
   if (argv[0] === "pay") {
     await pay(argv.slice(1));
     return;
+  }
+  if (argv[0] === "pays") {
+    const url = argv[1] && !argv[1].startsWith("--") ? argv[1] : "http://127.0.0.1:8402/";
+    if (argv[1]?.startsWith("--")) usage();
+    const accountId = process.env.BURSAR_NEAR_ACCOUNT;
+    if (!accountId) throw new Error("BURSAR_NEAR_ACCOUNT is required");
+    const { payUrl } = await import("./mpp-pay.js");
+    process.exit(await payUrl(url, accountId));
+  }
+  if (argv[0] === "merchant") {
+    if (argv[1] !== "--mpp") usage();
+    const port = Number(flagValue(argv, "--port") ?? "8402");
+    const name = flagValue(argv, "--name") ?? "demo merchant";
+    const to = flagValue(argv, "--to") ?? process.env.BURSAR_MERCHANT_BASE;
+    if (!to) throw new Error("BURSAR_MERCHANT_BASE or --to is the Base address that receives USDC");
+    const { serveMerchant } = await import("./merchant.js");
+    const jwt = process.env.ONE_CLICK_JWT;
+    await serveMerchant({
+      destinationRecipient: to,
+      name,
+      port,
+      ...(jwt ? { jwt } : {}),
+    });
+    await new Promise(() => undefined);
   }
   if (argv[0] === "anchor") {
     const { anchorLedger } = await import("./anchor.js");
@@ -239,6 +287,11 @@ async function main(): Promise<void> {
     if (argv[1] !== "--csv") usage();
     const { historyCsv } = await import("./history.js");
     process.stdout.write(historyCsv());
+    return;
+  }
+  if (argv[0] === "mcp") {
+    const { serveMcp } = await import("./mcp.js");
+    await serveMcp();
     return;
   }
   if (argv[0] === "agent") {

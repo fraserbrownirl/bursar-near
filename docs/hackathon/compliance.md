@@ -6,11 +6,11 @@ Snapshot fetched 2026-11-10T13:06:52Z. An `open` row is unfinished.
 | --- | --- | --- | --- | --- |
 | Q-000 | "NEAR AI credits?" | This repo does not use a NEAR AI API key. | `src/model.ts` default URL is local | n/a |
 | Q-001 | "Code before 2026-11-01? Yes, from the announcement on 2026-10-19" | The build log starts the counted work at 2026-10-19. Locals `7c38f56` is 2026-10-12 and is marked baseline. | README Build log | met |
-| Q-002 | "Existing product on another chain? Allowed." | What is not NEAR names the Solana payment and that the guard modules do not call a chain. | README What is not NEAR | met |
+| Q-002 | "Existing product on another chain? Allowed." | What is not NEAR names the Solana payment, `mppx`, the Base destination, and that the guard modules do not call a chain. | README What is not NEAR | met |
 | Q-003 | "Dedicated branch, or tags pre-hackathon and hackathon-submission, plus a README section linking the diff." | Tag `pre-hackathon` exists. The diff link is `pre-hackathon...main`. `hackathon-submission` is not tagged. | README Hackathon diff | open |
 | Q-004 | "New feature in the window: yes, if separated per Q-003." | The NEAR commits are 2026-11-10, after the tag `14b88e4`. | `git log` | met |
 | Q-005 | "List in README; own old libs count as baseline." | Libraries and Code written with AI. | README | met |
-| Q-006 | "1Click JWT? Not required." | No JWT is set. | `src/quote.ts` | n/a |
+| Q-006 | "1Click JWT? Not required. Without it, 0.2% fee." | `bursar merchant --mpp` passes `ONE_CLICK_JWT` only when it is set. When it is unset, the process writes that the 0.2% unauthenticated fee applies. | `src/merchant.ts`, `test/mpp.test.ts` | met |
 | Q-007 | "Testnet for Intents? None exists or is planned." | Quotes are captured mainnet 1Click responses. No Intents testnet is called. | `test/fixtures/quote-live.json` | met |
 | Q-008 | "Testnet NEAR is free" | No faucet is used by `npm test`. | `package.json` script `test` | n/a |
 | Q-009 | "Public RPC free" | The check reads `https://rpc.mainnet.near.org`. | `src/decide.ts` | met |
@@ -36,7 +36,7 @@ Snapshot fetched 2026-11-10T13:06:52Z. An `open` row is unfinished.
 | never submit | "Send the submission." | Not sent. | — | open |
 | never X | "Post anything on X or another network on their behalf." | Not posted. | — | open |
 | never public | "Make the repository public, push, or force-push." | Not done from this change. | — | open |
-| never sign | "Sign transactions, spend tokens or deploy to mainnet." | Deploy, reporter funding, the `bad1794304962694.near` report, and `anchor` were sent after a yes. `bursar pay` is not sent. | README Links, `docs/hackathon/evidence.json` | open |
+| never sign | "Sign transactions, spend tokens or deploy to mainnet." | Deploy, reporter funding, the report, `anchor`, and the 0.25 USDC payment were sent after a yes. | README Links, `docs/hackathon/evidence.json` | open |
 | never secrets | "Commit secrets." | No key file is added here. | — | open |
 | submit repo | "The repository is public, and the README has do X, see Y steps" | The steps are in the README. Public state is not changed here. | README Do this, see that | open |
 | submit post | "Your demo post is live on X" | No post. | — | open |

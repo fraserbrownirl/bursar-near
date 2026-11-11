@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 import { OneClickService } from "@defuse-protocol/one-click-sdk-typescript";
 import { dir } from "./store.js";
 
-export type TokenRow = { assetId: string; decimals: number; symbol?: string };
+export type TokenRow = { assetId: string; decimals: number; symbol?: string; blockchain?: string };
 
 const recorded = join(dirname(fileURLToPath(import.meta.url)), "../test/fixtures/tokens.json");
 

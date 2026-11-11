@@ -1,0 +1,55 @@
+# Bursar NEAR
+
+Bursar is a terminal tool and an MCP service. It checks a counterparty, then pays from a NEAR Intents balance. The Mac app is planned.
+
+## Commands
+
+- `bursar check <receiver>` prints allow, warn, or block before a key is used.
+- `bursar agent "<request>"` pays from a sentence. A warn prints its reasons and asks `approve? [y/N]`. The answer is a ledger decision. A block does not ask.
+- `bursar agent "pay 0.25 USDC to <0x address> on Base"` quotes Base USDC with recipientType DESTINATION_CHAIN. A live 0.25 Base payment was not sent: after the NEAR payment the Intents balance was 50000 (0.05 USDC), and no Base float key was in the Keychain.
+- `bursar history --csv` prints date, recipient, chain, amount, fee, verdict, transaction, receipts.
+- `bursar mcp` serves pay, check, balance, and history on stdio. Those tools use the same checks, guards, and guarded signer. A STOP is a tool error.
+- `bursar` with no arguments prints usage. There is no chat command.
+
+## MCP
+
+Claude Desktop, `~/Library/Application Support/Claude/claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "bursar": {
+      "command": "npm",
+      "args": ["run", "bursar", "--", "mcp"],
+      "cwd": "/absolute/path/to/bursar-near"
+    }
+  }
+}
+```
+
+Cursor, `.cursor/mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "bursar": {
+      "command": "npm",
+      "args": ["run", "bursar", "--", "mcp"],
+      "cwd": "/absolute/path/to/bursar-near"
+    }
+  }
+}
+```
+
+## What was run
+
+- 0.25 USDC to frsrcom.near. The warn was account age under 14 days. The ledger records human `y` and prompt `approve?`. Transaction: https://nearblocks.io/txns/8iEQeRWP1GTKvdHVUmGTiZvsPrd6DCCitrNCF3CQXYCb. After it, `mt_balance_of` for frsrcom.near was 250000 and the payer's Intents balance was 50000.
+- `BURSAR_PING_KEY` is empty. No Ping payment was sent.
+- The hosted demo is not published.
+
+## Tracks
+
+- security: the guarded signer, the quote checks, and `npm run verify`. TEE attestation is not used. The three verify levels are the check.
+- agents: `bursar agent` and `bursar mcp`.
+- realworld: the mainnet payment above.
+- privacy: the model is requested at http://127.0.0.1:8000/v1/chat/completions. The key stays in the macOS Keychain.

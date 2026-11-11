@@ -17,7 +17,9 @@ export function trustedReporters(): string[] {
     .filter((item) => item !== "");
 }
 
-const bundled = join(dirname(fileURLToPath(import.meta.url)), "../fixtures/blocklist.json");
+function bundledBlocklist(): string {
+  return join(dirname(fileURLToPath(import.meta.url)), "../fixtures/blocklist.json");
+}
 
 /**
  * When set, `get` is a view call on this mainnet contract.
@@ -29,7 +31,7 @@ export function blocklistContract(): string | undefined {
 
 /** Path of the blocklist fixture. `BURSAR_BLOCKLIST` overrides the bundled file. */
 export function blocklistPath(): string {
-  return env("BURSAR_BLOCKLIST") ?? bundled;
+  return env("BURSAR_BLOCKLIST") ?? bundledBlocklist();
 }
 
 /**

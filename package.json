@@ -5,11 +5,13 @@
   "description": "Counterparty check for agents that pay through NEAR Intents.",
   "type": "module",
   "bin": {
-    "bursar": "./dist/cli.js"
+    "bursar": "./bin/bursar.js"
   },
   "scripts": {
     "build": "tsc",
-    "test": "tsx --test test/check.test.ts test/quote.test.ts test/signer.test.ts test/intents-dec.test.ts test/pay.test.ts test/agents.test.ts test/agent.test.ts test/history.test.ts test/decimals.test.ts test/recorded.test.ts test/verify.test.ts",
+    "test": "tsx --test test/check.test.ts test/quote.test.ts test/signer.test.ts test/intents-dec.test.ts test/pay.test.ts test/mpp.test.ts test/catalog.test.ts test/agents.test.ts test/agent.test.ts test/assets.test.ts test/screenshot.test.ts test/x402.test.ts test/history.test.ts test/mcp.test.ts test/decimals.test.ts test/recorded.test.ts test/verify.test.ts test/eval-agent.test.ts test/phone-hear.test.ts",
+    "test:count": "node scripts/test-count.mjs",
+    "eval:agent": "tsx src/eval-agent-cli.ts",
     "verify": "tsx src/verify.ts",
     "verify:firmware": "sh -c '${BURSAR_PYTHON:-../ethereus-mac/.venv/bin/python} scripts/verify_firmware.py'",
     "verify:weights": "tsx src/verify-weights.ts",
@@ -27,12 +29,15 @@
   "license": "MIT",
   "dependencies": {
     "@defuse-protocol/intents-sdk": "^0.95.0",
+    "@defuse-protocol/nearintents-mpp-sdk": "^0.4.1",
     "@defuse-protocol/one-click-sdk-typescript": "0.1.26",
-    "near-api-js": "5.1.1"
+    "mppx": "^0.17.0",
+    "near-api-js": "5.1.1",
+    "tsx": "^4.20.0",
+    "viem": "^2.57.1"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",
-    "tsx": "^4.20.0",
     "typescript": "^5.9.0",
     "vite": "^8.3.7"
   }
