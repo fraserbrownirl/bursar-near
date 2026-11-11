@@ -27,4 +27,10 @@ Result: work stayed 5/157. Holdout went from 2/50 to 3/50. All-case pass went fr
 
 Cause for the 34 tool-only silences: **setting**. Four turns were spent calling tools, so the reply was cut off before the model could speak. The reply cap stays 80 tokens. The loop now allows six turns.
 
+Result: work 12/157, holdout 4/50. Both improved on round 1. Skill-not-read is 72, because a quote in the same reply is still counted before `skills`.
+
+## Round 3
+
+Cause: **code rule**. When one reply calls `skills` and `quote` or `pay`, the playbook runs first. The loop now runs every `skills` call in that reply before the others.
+
 Work and holdout scores for this round are filled in when the rerun finishes.

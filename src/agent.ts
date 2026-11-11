@@ -545,7 +545,8 @@ export async function runAgent(text: string, accountId: string, talk: Talk = new
       type: "function",
       function: { name: call.name, arguments: JSON.stringify({ to: call.to, amount: call.amount, asset: call.asset, chain: call.chain, url: call.url, need: call.need, speaker: call.speaker, payer: call.payer, payee: call.payee }) },
     })) });
-    for (const call of model.calls) {
+    const ordered = [...model.calls.filter((call) => call.name === "skills"), ...model.calls.filter((call) => call.name !== "skills")];
+    for (const call of ordered) {
       called.push(call.name);
       if (talk.verbose) lines.push(`model ${call.name}: to=${call.to || "-"} amount=${call.amount || "-"} asset=${call.asset || "-"} ${label(model.receipt)}`);
       let outcome = "STOP";
