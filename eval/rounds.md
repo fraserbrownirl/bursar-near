@@ -20,3 +20,11 @@ Cause for the 90: **tool**. `quote`, `pay`, `receive`, `pay_url`, and `convert` 
 Change: those five tools return `call skills with no name, then with the playbook that fits` until `skills` has been called. No playbook text was edited.
 
 Work and holdout scores for this round are filled in when the rerun finishes.
+
+Result: work stayed 5/157. Holdout went from 2/50 to 3/50. All-case pass went from 7 to 8. Skill-not-read fell from 90 to 29. Empty replies rose to 114, 57 of them with no tool call and 34 that used the four turns on tools and never spoke.
+
+## Round 2
+
+Cause for the 34 tool-only silences: **setting**. Four turns were spent calling tools, so the reply was cut off before the model could speak. The reply cap stays 80 tokens. The loop now allows six turns.
+
+Work and holdout scores for this round are filled in when the rerun finishes.

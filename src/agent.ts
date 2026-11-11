@@ -524,7 +524,7 @@ export async function runAgent(text: string, accountId: string, talk: Talk = new
   talk.messages.push({ role: "user", content: text });
   let submitted = false;
   let finished = false;
-  for (let turn = 0; turn < 4 && !submitted; turn += 1) {
+  for (let turn = 0; turn < 6 && !submitted; turn += 1) {
     let model: Turn;
     try {
       model = talk.brain ? await talk.brain(talk.messages) : await complete(talk.messages);
