@@ -612,6 +612,7 @@ async function runCall(text: string, call: ModelCall, accountId: string, lines: 
     if (!call.chain || !call.asset) return "missing chain or token";
     const { receive } = await import("./receive.js");
     const drawn = await receive({ accountId, chain: call.chain, token: call.asset, amount: call.amount, dir });
+    if (call.amount && call.asset) reveal(lines, talk, `${call.amount} ${call.asset} on ${call.chain}`);
     revealLinks(lines, talk, drawn.uri);
     talk.depositShown = true;
     return drawn.uri;

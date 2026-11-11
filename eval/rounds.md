@@ -92,6 +92,19 @@ Holdout held at 6/10, the same as round 4, so the list stays. No judge call was 
 
 Cause for a deposit address that is cut off or is the token contract: **code rule**. `receive` already shows the full deposit line. A reply that calls `receive` and also contains an address is not shown, and neither is the next reply when it contains an address. A shortened address or the token contract is not where the money goes.
 
+## Round 8 result
+
+| Set | Passed | Total |
+| --- | --- | --- |
+| Work | 21 | 30 |
+| Holdout | 6 | 10 |
+
+Holdout held at 6/10, so the rule stays. The deposit line is the full URI. A reply that repeated an address was not shown. Two receive cases then had only the URI, and the judge wanted the amount and token as well.
+
+## Round 9
+
+Cause for a deposit line that is only the URI: **code rule**. The line `receive` shows names the amount and the token from the call, then the full URI. The model's retelling of an address stays hidden.
+
 Work and holdout scores for this round are filled in when the rerun finishes.
 
 ## Parked 207-case log
