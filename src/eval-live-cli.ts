@@ -53,6 +53,7 @@ async function claudeText(system: string, prompt: string): Promise<string> {
       "--system-prompt", system,
       "--model", "sonnet",
       "--tools", "",
+      "--no-session-persistence",
       "--output-format", "json",
     ], { encoding: "utf8", timeout: 120_000, maxBuffer: 4_000_000 });
     if (result.status === 0) {
@@ -127,6 +128,7 @@ async function claudeBrain(messages: unknown[]): Promise<Turn> {
     "--system-prompt", system?.content || SYSTEM,
     "--model", "sonnet",
     "--tools", "",
+    "--no-session-persistence",
     "--output-format", "json",
   ], { encoding: "utf8", timeout: 120_000, maxBuffer: 8_000_000 });
   if (result.status !== 0) throw new Error((result.stderr || "claude").slice(0, 300));

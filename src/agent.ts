@@ -228,7 +228,10 @@ export function chainNamedIn(text: string): string {
   return (text.match(/\bon\s+(base|arbitrum|arb|ethereum|eth|solana|sol)\b/i)?.[1] ?? "").toLowerCase();
 }
 
-/** A NEAR account is not a destination on another chain. The tool hears this; the owner does not. */
+/** Missing evidence is not a line on the card. A real warning is. */
+export function cardReason(reasons: readonly string[]): string {
+  return reasons.find((reason) => reason.trim() !== "" && !/unavailable/i.test(reason)) ?? "";
+}
 export function refuseNearOnOtherChain(recipient: string, ownerText: string, toolChain: string): string | null {
   const named = [chainNamedIn(ownerText), toolChain.toLowerCase()].find((chain) => chain && chain !== "near");
   if (!named || !isNearAccount(recipient)) return null;
@@ -301,20 +304,10 @@ export class Talk {
 
 const LINK = /https?:\/\/[^\s)]+|ethereum:\S+|solana:\S+|bitcoin:\S+/g;
 
-function playbookName(raw: unknown): string {
-  try {
-    const args = argsOf(raw ?? {});
-    return (args.name || args.to || "").trim();
-  } catch {
-    return "";
-  }
-}
-
-/** A playbook counts once skills was called with its name. Listing the names does not. */
-export function playbookRead(messages: readonly unknown[]): boolean {
-  return messages.some((message) => {
-    const calls = (message as { tool_calls?: { function?: { name?: string; arguments?: unknown } }[] }).tool_calls ?? [];
-    return calls.some((call) => call.function?.name === "skills" && /^[a-z0-9-]+$/.test(playbookName(call.function.arguments)));
+function sawSkill(talk: Talk): boolean {
+  return talk.messages.some((message) => {
+    const calls = (message as { tool_calls?: { function?: { name?: string } }[] }).tool_calls ?? [];
+    return calls.some((call) => call.function?.name === "skills");
   });
 }
 
@@ -376,7 +369,10 @@ function callsOf(message: { tool_calls?: { id?: string; function?: { name?: stri
 }
 
 async function complete(messages: unknown[]): Promise<Turn> {
-  const offered = playbookRead(messages) ? TOOLS : TOOLS.filter((tool) => tool.function.name === "skills");
+  const offered = messages.some((message) => {
+    const calls = (message as { tool_calls?: { function?: { name?: string } }[] }).tool_calls ?? [];
+    return calls.some((call) => call.function?.name === "skills");
+  }) ? TOOLS : TOOLS.filter((tool) => tool.function.name === "skills");
   const response = await fetch(process.env.BURSAR_MODEL_URL ?? "http://127.0.0.1:8000/v1/chat/completions", {
     method: "POST",
     headers: { "content-type": "application/json" },
@@ -593,7 +589,7 @@ export async function runAgent(text: string, accountId: string, talk: Talk = new
 
 async function runCall(text: string, call: ModelCall, accountId: string, lines: string[], talk: Talk, pasted: string | null, dir: string): Promise<string> {
   if (call.name === "receive" || call.name === "quote" || call.name === "pay" || call.name === "pay_url" || call.name === "convert") {
-    if (!playbookRead(talk.messages)) return "call skills with no name, then with the playbook that fits";
+    if (!sawSkill(talk)) return "call skills with no name, then with the playbook that fits";
   }
   const guarded = ["understand", "pay", "quote", "convert", "receive", "watch", "scan", "balance", "find", "pay_url", "history", "payees"];
   if (guarded.includes(call.name) && pasted) {
@@ -759,7 +755,7 @@ async function runCall(text: string, call: ModelCall, accountId: string, lines: 
         return "STOP";
       }
       const where = priced.dest.blockchain === "near" ? "" : ` on ${priced.dest.blockchain}`;
-      reveal(lines, talk, [`Send ${heard.human} ${priced.dest.symbol} to ${heard.to}${where}?`, chain.reasons[0] ?? "", "This cannot be undone."].filter((line) => line !== "").join("\n"));
+      reveal(lines, talk, [`Send ${heard.human} ${priced.dest.symbol} to ${heard.to}${where}?`, cardReason(chain.reasons), "This cannot be undone."].filter((line) => line !== "").join("\n"));
       return "card";
     }
     const nowSec = Math.floor(nowMs / 1000);
@@ -793,7 +789,7 @@ async function runCall(text: string, call: ModelCall, accountId: string, lines: 
       return plain;
     }
     const where = priced.dest.blockchain === "near" ? "" : ` on ${priced.dest.blockchain}`;
-    const card = [`Send ${heard.human} ${priced.dest.symbol} to ${heard.to}${where}?`, chain.reasons[0] ?? "", "This cannot be undone."].filter((line) => line !== "").join("\n");
+    const card = [`Send ${heard.human} ${priced.dest.symbol} to ${heard.to}${where}?`, cardReason(chain.reasons), "This cannot be undone."].filter((line) => line !== "").join("\n");
     if (!talk.settle) {
       reveal(lines, talk, card);
       return "card";

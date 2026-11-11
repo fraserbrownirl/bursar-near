@@ -57,6 +57,17 @@ Holdout rose (round 0 was 5/10), so the check stays. A NEAR account named with a
 
 Cause for a payment that listed the playbook names and then paid: **code rule**. The list call was counted as reading a playbook, so `quote` and `pay` were offered. A playbook counts when `skills` is called with its name. Until then the only tool offered is `skills`.
 
+| Set | Passed | Total |
+| --- | --- | --- |
+| Work | 16 | 30 |
+| Holdout | 5 | 10 |
+
+Holdout fell (round 4 was 6/10), so the gate is reverted. One holdout case paid in another language and the judge failed it. Several link cases were not judged: the judge process resumed one refused session and that text was scored as a fail. Each judge call now starts a new session.
+
+## Round 6
+
+Cause for the card showing a missing check: **code rule**. A reason that says the evidence is unavailable is not a line on the card. A real warning, such as a young account, stays. A block still stops.
+
 Work and holdout scores for this round are filled in when the rerun finishes.
 
 ## Parked 207-case log
