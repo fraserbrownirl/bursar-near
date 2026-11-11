@@ -266,6 +266,21 @@ export function contentStops(content: string): string | null {
 
 export type Heard = { to: string; human: string; asset: string; chain: string; purpose: string };
 
+export type Noted = { human: string; asset: string; chain: string };
+
+/** Keep an amount, token, or chain the model already gave. An empty field does not erase one. */
+export function noteFacts(prev: Noted | null, args: { amount?: string; asset?: string; chain?: string }): Noted | null {
+  const human = (args.amount ?? "").trim();
+  const asset = (args.asset ?? "").trim().toUpperCase();
+  const chain = (args.chain ?? "").trim().toLowerCase();
+  if (!human && !asset && !chain) return prev;
+  return {
+    human: human || prev?.human || "",
+    asset: asset || prev?.asset || "",
+    chain: chain || prev?.chain || "",
+  };
+}
+
 /** The model's reading. An empty field is a question, not a guess. */
 export function intentFromArgs(args: { to?: string; amount?: string; asset?: string; chain?: string; purpose?: string }): { ok: true; heard: Heard } | { ok: false; ask: string } {
   const to = (args.to ?? "").trim();
@@ -294,6 +309,8 @@ export class Talk {
   brain: ((messages: unknown[]) => Promise<Turn>) | null = null;
   /** The next reply is dropped when it repeats a deposit address. The deposit line was already shown. */
   depositShown = false;
+  /** Amount, token, and chain already given, even when the recipient was not. */
+  noted: Noted | null = null;
   readonly messages: unknown[];
 
   constructor() {
@@ -609,10 +626,14 @@ async function runCall(text: string, call: ModelCall, accountId: string, lines: 
   }
   if (call.name === "show_code") return "use receive";
   if (call.name === "receive") {
-    if (!call.chain || !call.asset) return "missing chain or token";
+    talk.noted = noteFacts(talk.noted, call);
+    const amount = call.amount || talk.noted?.human || "";
+    const asset = call.asset || talk.noted?.asset || "";
+    const chain = call.chain || talk.noted?.chain || "";
+    if (!chain || !asset) return "missing chain or token";
     const { receive } = await import("./receive.js");
-    const drawn = await receive({ accountId, chain: call.chain, token: call.asset, amount: call.amount, dir });
-    if (call.amount && call.asset) reveal(lines, talk, `${call.amount} ${call.asset} on ${call.chain}`);
+    const drawn = await receive({ accountId, chain, token: asset, amount, dir });
+    if (amount && asset) reveal(lines, talk, `${amount} ${asset} on ${drawn.chain}`);
     revealLinks(lines, talk, drawn.uri);
     talk.depositShown = true;
     return drawn.uri;
@@ -679,6 +700,7 @@ async function runCall(text: string, call: ModelCall, accountId: string, lines: 
     }
   }
   if (call.name === "understand") {
+    talk.noted = noteFacts(talk.noted, call);
     const heard = intentFromArgs(call);
     if (heard.ok) talk.heard = heard.heard;
     return "noted";

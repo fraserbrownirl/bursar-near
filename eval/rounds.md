@@ -127,6 +127,12 @@ Cause for a link that fails and the reply never says USDC: **tool**. A failed `p
 
 Holdout held at 7/10, so the tool sentence stays. The link replies still do not say USDC. A skill sentence, a prompt sentence, and this tool sentence have all left those replies the same. That cluster is the model.
 
+## Round 11
+
+Cause for a deposit line that is only the URI: **code rule**. The amount and token were given on an earlier call, and `receive` left them blank, so the line and the payment request omitted them. An amount, token, or chain already given is kept, and `receive` uses it.
+
+Work and holdout scores for this round are filled in when the rerun finishes.
+
 ## Parked 207-case log
 
 The set was the 207 playbook cases. 50 were holdout. That run is not this eval.
