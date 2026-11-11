@@ -105,6 +105,19 @@ Holdout held at 6/10, so the rule stays. The deposit line is the full URI. A rep
 
 Cause for a deposit line that is only the URI: **code rule**. The line `receive` shows names the amount and the token from the call, then the full URI. The model's retelling of an address stays hidden.
 
+## Round 9 result
+
+| Set | Passed | Total |
+| --- | --- | --- |
+| Work | 20 | 30 |
+| Holdout | 7 | 10 |
+
+Holdout rose (round 8 was 6/10), so the amount stays on the deposit line.
+
+## Round 10
+
+Cause for a link that fails and the reply never says USDC: **tool**. A failed `pay_url` was returned as STOP, and the owner saw that word. The tool now tells the model that nothing was paid and the token is USDC, and that line is not shown to the owner.
+
 Work and holdout scores for this round are filled in when the rerun finishes.
 
 ## Parked 207-case log

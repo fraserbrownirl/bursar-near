@@ -671,8 +671,8 @@ async function runCall(text: string, call: ModelCall, accountId: string, lines: 
     try {
       const { payCatalog } = await import("./catalog-pay.js");
       const code = await payCatalog(url);
-      if (code !== 0) reveal(lines, talk, "STOP");
-      return code === 0 ? "submitted" : "STOP";
+      if (code !== 0) return "The link could not be fetched. Nothing was paid. The token is USDC unless the owner named another. Say USDC.";
+      return "submitted";
     } finally {
       if (previous === undefined) delete process.env.BURSAR_NEAR_ACCOUNT;
       else process.env.BURSAR_NEAR_ACCOUNT = previous;
