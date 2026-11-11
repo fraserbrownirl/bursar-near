@@ -228,10 +228,7 @@ export function chainNamedIn(text: string): string {
   return (text.match(/\bon\s+(base|arbitrum|arb|ethereum|eth|solana|sol)\b/i)?.[1] ?? "").toLowerCase();
 }
 
-/** Missing evidence is not a line on the card. A real warning is. */
-export function cardReason(reasons: readonly string[]): string {
-  return reasons.find((reason) => reason.trim() !== "" && !/unavailable/i.test(reason)) ?? "";
-}
+/** A NEAR account is not a destination on another chain. The tool hears this; the owner does not. */
 export function refuseNearOnOtherChain(recipient: string, ownerText: string, toolChain: string): string | null {
   const named = [chainNamedIn(ownerText), toolChain.toLowerCase()].find((chain) => chain && chain !== "near");
   if (!named || !isNearAccount(recipient)) return null;
@@ -755,7 +752,7 @@ async function runCall(text: string, call: ModelCall, accountId: string, lines: 
         return "STOP";
       }
       const where = priced.dest.blockchain === "near" ? "" : ` on ${priced.dest.blockchain}`;
-      reveal(lines, talk, [`Send ${heard.human} ${priced.dest.symbol} to ${heard.to}${where}?`, cardReason(chain.reasons), "This cannot be undone."].filter((line) => line !== "").join("\n"));
+      reveal(lines, talk, [`Send ${heard.human} ${priced.dest.symbol} to ${heard.to}${where}?`, chain.reasons[0] ?? "", "This cannot be undone."].filter((line) => line !== "").join("\n"));
       return "card";
     }
     const nowSec = Math.floor(nowMs / 1000);
@@ -789,7 +786,7 @@ async function runCall(text: string, call: ModelCall, accountId: string, lines: 
       return plain;
     }
     const where = priced.dest.blockchain === "near" ? "" : ` on ${priced.dest.blockchain}`;
-    const card = [`Send ${heard.human} ${priced.dest.symbol} to ${heard.to}${where}?`, cardReason(chain.reasons), "This cannot be undone."].filter((line) => line !== "").join("\n");
+    const card = [`Send ${heard.human} ${priced.dest.symbol} to ${heard.to}${where}?`, chain.reasons[0] ?? "", "This cannot be undone."].filter((line) => line !== "").join("\n");
     if (!talk.settle) {
       reveal(lines, talk, card);
       return "card";

@@ -68,6 +68,17 @@ Holdout fell (round 4 was 6/10), so the gate is reverted. One holdout case paid 
 
 Cause for the card showing a missing check: **code rule**. A reason that says the evidence is unavailable is not a line on the card. A real warning, such as a young account, stays. A block still stops.
 
+| Set | Passed | Total |
+| --- | --- | --- |
+| Work | 19 | 30 |
+| Holdout | 5 | 10 |
+
+Holdout fell (round 4 was 6/10), so the card is back to showing the first reason. The one holdout drop asked which chain and did not say USDC. Eight cases were not judged: they share one refused session id. Each judge call now uses its own session id.
+
+## Round 7
+
+Cause for reading the pay playbook when someone else is paying the owner: **tool**. The list of playbooks was names only, so the name `pay-person` was the one that sounded like a payment. The list now includes the line that says when each playbook applies.
+
 Work and holdout scores for this round are filled in when the rerun finishes.
 
 ## Parked 207-case log

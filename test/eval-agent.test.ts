@@ -28,7 +28,8 @@ test("the live eval includes Fraser's three sentences and refuses a token questi
   assert.match(skillText("pay-person"), /Never list saved accounts/);
   assert.match(skillText("receive-merchant"), /not the Intents account/);
   assert.equal(skillText("../pay-person"), "unknown playbook");
-  assert.equal(skillText(""), skillNames().join("\n"));
+  assert.match(skillText(""), /pay-person: Applies when the owner is sending money/);
+  assert.match(skillText(""), /receive-merchant: Applies when someone else is paying the owner/);
 });
 
 test("the situation set covers at least 200 varied cases and the scorer keeps money safe", () => {

@@ -2,6 +2,7 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
+import { randomUUID } from "node:crypto";
 import { SYSTEM, TOOLS, Talk, runAgent, type ModelCall, type Turn } from "./agent.js";
 import { liveCases, mechanical, type LiveCase } from "./eval-live.js";
 
@@ -53,6 +54,7 @@ async function claudeText(system: string, prompt: string): Promise<string> {
       "--system-prompt", system,
       "--model", "sonnet",
       "--tools", "",
+      "--session-id", randomUUID(),
       "--no-session-persistence",
       "--output-format", "json",
     ], { encoding: "utf8", timeout: 120_000, maxBuffer: 4_000_000 });

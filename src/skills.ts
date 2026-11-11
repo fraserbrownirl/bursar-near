@@ -14,10 +14,15 @@ export function skillNames(dir = skillsDir()): string[] {
     .sort();
 }
 
-/** Empty name lists the playbooks. A name returns that file. Anything else is refused. */
+/** Empty name lists the playbooks with the line that says when each applies. A name returns that file. Anything else is refused. */
 export function skillText(name: string, dir = skillsDir()): string {
   const wanted = name.trim();
-  if (!wanted) return skillNames(dir).join("\n");
+  if (!wanted) {
+    return skillNames(dir).map((skill) => {
+      const line = readFileSync(join(dir, `${skill}.md`), "utf8").split("\n").find((item) => item.startsWith("Applies when")) ?? "";
+      return line ? `${skill}: ${line}` : skill;
+    }).join("\n");
+  }
   if (!/^[a-z0-9-]+$/.test(wanted)) return "unknown playbook";
   const path = join(dir, `${wanted}.md`);
   if (!existsSync(path) || !path.startsWith(dir)) return "unknown playbook";
