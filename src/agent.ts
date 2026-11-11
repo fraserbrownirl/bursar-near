@@ -354,6 +354,10 @@ function callsOf(message: { tool_calls?: { id?: string; function?: { name?: stri
 }
 
 async function complete(messages: unknown[]): Promise<Turn> {
+  const offered = messages.some((message) => {
+    const calls = (message as { tool_calls?: { function?: { name?: string } }[] }).tool_calls ?? [];
+    return calls.some((call) => call.function?.name === "skills");
+  }) ? TOOLS : TOOLS.filter((tool) => tool.function.name === "skills");
   const response = await fetch(process.env.BURSAR_MODEL_URL ?? "http://127.0.0.1:8000/v1/chat/completions", {
     method: "POST",
     headers: { "content-type": "application/json" },
@@ -361,7 +365,7 @@ async function complete(messages: unknown[]): Promise<Turn> {
       model: "bursar-9b",
       max_tokens: 80,
       messages,
-      tools: TOOLS,
+      tools: offered,
       tool_choice: "auto",
       chat_template_kwargs: { enable_thinking: false },
     }),

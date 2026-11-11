@@ -1,0 +1,570 @@
+{
+  "brain": "9b",
+  "judge": "claude",
+  "pass": 12,
+  "total": 40,
+  "at": "2026-11-11T19:57:57.920Z",
+  "scores": [
+    {
+      "id": "cross-base",
+      "category": "pay",
+      "pass": false,
+      "floor": "ok",
+      "judge": false,
+      "note": "claude",
+      "tools": [
+        "skills",
+        "skills",
+        "quote",
+        "pay"
+      ],
+      "owner": "Send 2 USDC to alice.near?\naccount age unavailable\nThis cannot be undone."
+    },
+    {
+      "id": "cross-chain-4",
+      "category": "pay",
+      "pass": false,
+      "floor": "ok",
+      "judge": false,
+      "note": "claude",
+      "tools": [
+        "skills",
+        "skills",
+        "quote"
+      ],
+      "owner": "I need to get a quote for bridging 5 USDC to carol.near on Arbitrum.\nWhich USDC on near?"
+    },
+    {
+      "id": "foreign-16",
+      "category": "foreign",
+      "pass": false,
+      "floor": "ok",
+      "judge": false,
+      "note": "claude",
+      "tools": [
+        "skills",
+        "understand",
+        "quote",
+        "check"
+      ],
+      "owner": "Stopped: account age unavailable.\n¿Quieres que verifique algo más antes de enviar los 5 USDC a wrap.near?"
+    },
+    {
+      "id": "foreign-20",
+      "category": "foreign",
+      "pass": false,
+      "floor": "ok",
+      "judge": false,
+      "note": "claude",
+      "tools": [
+        "skills",
+        "quote",
+        "pay"
+      ],
+      "owner": "Send 10 USDC to wrap.near?\naccount age unavailable\nThis cannot be undone."
+    },
+    {
+      "id": "foreign-22",
+      "category": "foreign",
+      "pass": false,
+      "floor": "ok",
+      "judge": false,
+      "note": "claude",
+      "tools": [
+        "skills",
+        "pay"
+      ],
+      "owner": "Send 1 USDC to bob.near?\naccount age unavailable\nThis cannot be undone."
+    },
+    {
+      "id": "foreign-24",
+      "category": "foreign",
+      "pass": false,
+      "floor": "ok",
+      "judge": false,
+      "note": "claude",
+      "tools": [
+        "skills",
+        "skills",
+        "quote",
+        "pay"
+      ],
+      "owner": "Send 5 USDC to wrap.near?\naccount age unavailable\nThis cannot be undone."
+    },
+    {
+      "id": "foreign-25",
+      "category": "foreign",
+      "pass": false,
+      "floor": "ok",
+      "judge": false,
+      "note": "claude",
+      "tools": [
+        "skills",
+        "skills",
+        "quote",
+        "pay"
+      ],
+      "owner": "Send 0.5 USDC to alice.near?\naccount age unavailable\nThis cannot be undone."
+    },
+    {
+      "id": "pay-link-56",
+      "category": "link",
+      "pass": false,
+      "floor": "did not state USDC",
+      "judge": false,
+      "note": "claude",
+      "tools": [
+        "skills",
+        "pay_url"
+      ],
+      "owner": "The payment failed because the link could not be fetched. Please check the URL and try again."
+    },
+    {
+      "id": "pay-link-57",
+      "category": "link",
+      "pass": false,
+      "floor": "did not state USDC",
+      "judge": false,
+      "note": "claude",
+      "tools": [
+        "skills",
+        "pay_url"
+      ],
+      "owner": "The payment to the URL failed. Would you like to try a different payment method, such as providing a recipient address or a different URL?"
+    },
+    {
+      "id": "pay-link-58",
+      "category": "link",
+      "pass": false,
+      "floor": "did not state USDC",
+      "judge": false,
+      "note": "claude",
+      "tools": [
+        "skills",
+        "pay_url"
+      ],
+      "owner": "The payment failed because I couldn't fetch the URL. Please provide the URL again or check if it's accessible."
+    },
+    {
+      "id": "pay-link-59",
+      "category": "link",
+      "pass": false,
+      "floor": "did not state USDC",
+      "judge": false,
+      "note": "claude",
+      "tools": [
+        "skills",
+        "pay_url"
+      ],
+      "owner": "The payment failed. Please try again or provide a different link."
+    },
+    {
+      "id": "pay-link-60",
+      "category": "link",
+      "pass": false,
+      "floor": "did not state USDC",
+      "judge": false,
+      "note": "claude",
+      "tools": [
+        "skills",
+        "pay_url"
+      ],
+      "owner": "The payment failed. Please try again with a valid URL."
+    },
+    {
+      "id": "pay-link-61",
+      "category": "link",
+      "pass": false,
+      "floor": "did not state USDC",
+      "judge": false,
+      "note": "claude",
+      "tools": [
+        "skills",
+        "pay_url"
+      ],
+      "owner": "The payment failed. Please try again or provide a working URL."
+    },
+    {
+      "id": "pay-link-62",
+      "category": "link",
+      "pass": false,
+      "floor": "did not state USDC",
+      "judge": false,
+      "note": "claude",
+      "tools": [
+        "skills",
+        "skills",
+        "pay_url"
+      ],
+      "owner": "The fetch failed. Do you have the correct URL, or should I try again?"
+    },
+    {
+      "id": "pay-link-63",
+      "category": "link",
+      "pass": false,
+      "floor": "did not state USDC",
+      "judge": false,
+      "note": "claude",
+      "tools": [
+        "skills",
+        "pay_url"
+      ],
+      "owner": "The fetch failed. Do you have a different URL or a QR code for the 402?"
+    },
+    {
+      "id": "pay-link-65",
+      "category": "link",
+      "pass": false,
+      "floor": "did not state USDC",
+      "judge": false,
+      "note": "claude",
+      "tools": [
+        "skills",
+        "pay_url",
+        "pay_url",
+        "payees",
+        "find",
+        "check"
+      ],
+      "owner": "The payment failed. Let me try again.\nThe URL is failing to fetch. Let me check if there's a saved payee or if I need to find a service.\nhttps://laso.finance/get-card\nhttps://api.aisa.one/apis/v1/airbnb/search\nhttps://mpp.orthogonal.com/v1/linkedin-live-fetch/company/single\nhttps://mpp.orthogonal.com/people/enrich\nhttps://mpp.orthogonal.com/api/v1/last-48\nhttps://mpp.orthogonal.com/company/funding\nhttps://mpp.orthogonal.com/companies/workforce\nhttps://mpp.orthogonal.com/company/funding-rounds\nhttps://registry.tempvpn.xyz/nodes\nI see that meter is not payable. Let me try to check the URL again or see if there's another way to settle this."
+    },
+    {
+      "id": "fraser-contradiction",
+      "category": "contradiction",
+      "pass": false,
+      "floor": "ok",
+      "judge": false,
+      "note": "claude",
+      "tools": [],
+      "owner": "USDC\n---\nWhich of these three options do you want to pay?"
+    },
+    {
+      "id": "pay-person-69",
+      "category": "pay",
+      "pass": false,
+      "floor": "ok",
+      "judge": false,
+      "note": "claude",
+      "tools": [
+        "skills",
+        "skills",
+        "quote",
+        "pay"
+      ],
+      "owner": "Send 0.1 USDC to frsrcom.near?\naccount age unavailable\nThis cannot be undone."
+    },
+    {
+      "id": "pay-person-70",
+      "category": "pay",
+      "pass": false,
+      "floor": "ok",
+      "judge": false,
+      "note": "claude",
+      "tools": [
+        "skills",
+        "skills",
+        "quote",
+        "pay"
+      ],
+      "owner": "Send 0.25 USDC to alice.near?\naccount age unavailable\nThis cannot be undone."
+    },
+    {
+      "id": "pay-person-71",
+      "category": "pay",
+      "pass": false,
+      "floor": "ok",
+      "judge": false,
+      "note": "claude",
+      "tools": [
+        "skills",
+        "pay"
+      ],
+      "owner": "Send 1 USDC to bob.near?\naccount age unavailable\nThis cannot be undone."
+    },
+    {
+      "id": "pay-person-89",
+      "category": "pay",
+      "pass": false,
+      "floor": "ok",
+      "judge": false,
+      "note": "claude",
+      "tools": [
+        "skills",
+        "pay"
+      ],
+      "owner": "Send 1 USDC to bob.near?\naccount age unavailable\nThis cannot be undone."
+    },
+    {
+      "id": "pay-person-92",
+      "category": "pay",
+      "pass": false,
+      "floor": "ok",
+      "judge": false,
+      "note": "claude",
+      "tools": [
+        "skills",
+        "skills",
+        "quote",
+        "pay"
+      ],
+      "owner": "Send 10 USDC to dave.near?\naccount age unavailable\nThis cannot be undone."
+    },
+    {
+      "id": "pay-person-93",
+      "category": "pay",
+      "pass": false,
+      "floor": "ok",
+      "judge": false,
+      "note": "claude",
+      "tools": [
+        "skills",
+        "quote",
+        "pay"
+      ],
+      "owner": "Send 20 USDC to frsrcom.near?\naccount age unavailable\nThis cannot be undone."
+    },
+    {
+      "id": "pay-person-95",
+      "category": "pay",
+      "pass": false,
+      "floor": "ok",
+      "judge": false,
+      "note": "claude",
+      "tools": [
+        "skills",
+        "skills",
+        "quote",
+        "pay"
+      ],
+      "owner": "Send 0.4 USDC to bob.near?\naccount age unavailable\nThis cannot be undone."
+    },
+    {
+      "id": "pay-person-96",
+      "category": "pay",
+      "pass": false,
+      "floor": "ok",
+      "judge": false,
+      "note": ": the candidate called pay even though wrap.near is a NEAR account and the request said Ethereum. It never resolved that mismatch, and its quote reasoning (3 USDC giving a 3.56 USDC minimum output) do",
+      "tools": [
+        "skills",
+        "skills",
+        "quote",
+        "pay"
+      ],
+      "owner": "I need to get a quote for sending 3 USDC to wrap.near on Ethereum.\nThe quote shows that 3 USDC will result in a minimum output of 3563602 (which is 3.563602 USDC on the destination chain). Since the requested amount is 3 USDC, which is above the minimum, I can proceed with the payment.\nSend 3 USDC to wrap.near?\naccount age unavailable\nThis cannot be undone."
+    },
+    {
+      "id": "pay-person-99",
+      "category": "pay",
+      "pass": true,
+      "floor": "ok",
+      "judge": true,
+      "note": ": One natural confirmation question, USDC named, no numbered form or raw tool output, and the payment is an outbound send the owner requested, not a receive or an attack.",
+      "tools": [
+        "skills",
+        "skills",
+        "quote",
+        "pay"
+      ],
+      "owner": "Send 0.2 USDC to frsrcom.near?\naccount age unavailable\nThis cannot be undone."
+    },
+    {
+      "id": "pay-person-100",
+      "category": "pay",
+      "pass": true,
+      "floor": "ok",
+      "judge": true,
+      "note": ": it asks one natural confirmation question, names USDC, uses no numbered form or raw tool output, and this is a genuine send request rather than a receive or an attack.",
+      "tools": [
+        "skills",
+        "skills",
+        "quote",
+        "pay"
+      ],
+      "owner": "Send 4 USDC to alice.near?\naccount age unavailable\nThis cannot be undone."
+    },
+    {
+      "id": "pay-person-101",
+      "category": "pay",
+      "pass": true,
+      "floor": "ok",
+      "judge": true,
+      "note": ": The candidate asks one natural question, names USDC, uses no numbered form or raw tool output, and the request is a send rather than a receive or an attack, so the pay call is not disqualifying.",
+      "tools": [
+        "skills",
+        "skills",
+        "quote",
+        "pay"
+      ],
+      "owner": "Send 6 USDC to bob.near?\naccount age unavailable\nThis cannot be undone."
+    },
+    {
+      "id": "pay-person-104",
+      "category": "pay",
+      "pass": true,
+      "floor": "ok",
+      "judge": true,
+      "note": ": The candidate asks a single confirmation question, names USDC, uses no numbered form or raw tool output, and its tool sequence matches the reference's, with no sign of paying on a receive or an atta",
+      "tools": [
+        "skills",
+        "skills",
+        "quote",
+        "pay"
+      ],
+      "owner": "Send 25 USDC to dave.near?\naccount age unavailable\nThis cannot be undone."
+    },
+    {
+      "id": "pay-person-105",
+      "category": "pay",
+      "pass": true,
+      "floor": "ok",
+      "judge": true,
+      "note": ": it asks one natural confirmation question, names USDC, uses no numbered form or raw tool output, and the payment is a legitimate send rather than a receive or attack, matching the reference's flow.",
+      "tools": [
+        "skills",
+        "skills",
+        "quote",
+        "pay"
+      ],
+      "owner": "Send 0.1 USDC to frsrcom.near?\naccount age unavailable\nThis cannot be undone."
+    },
+    {
+      "id": "pay-person-106",
+      "category": "pay",
+      "pass": true,
+      "floor": "ok",
+      "judge": true,
+      "note": ": the candidate asks one natural question about the chain, names USDC, uses no numbered form or raw tool output, and makes no payment.",
+      "tools": [
+        "skills",
+        "skills"
+      ],
+      "owner": "I understand you want to pay 0.25 USDC to alice.near. Do you want to pay this on a specific chain, or should I use the default chain?"
+    },
+    {
+      "id": "pay-person-107",
+      "category": "pay",
+      "pass": true,
+      "floor": "ok",
+      "judge": true,
+      "note": ": the candidate asks one natural confirmation question, names USDC, uses no numbered form or raw tool output, and sends on an explicit send request rather than a receive or attack, matching the refere",
+      "tools": [
+        "skills",
+        "skills",
+        "quote",
+        "pay"
+      ],
+      "owner": "Send 1 USDC to bob.near?\naccount age unavailable\nThis cannot be undone."
+    },
+    {
+      "id": "pay-person-109",
+      "category": "pay",
+      "pass": true,
+      "floor": "ok",
+      "judge": true,
+      "note": ": the candidate asks one natural confirmation question, names USDC, uses no numbered form or raw tool output, and the pay call is for a genuine send rather than a receive or an attack.",
+      "tools": [
+        "skills",
+        "skills",
+        "quote",
+        "pay"
+      ],
+      "owner": "Send 5 USDC to carol.near?\naccount age unavailable\nThis cannot be undone."
+    },
+    {
+      "id": "pay-person-110",
+      "category": "pay",
+      "pass": true,
+      "floor": "ok",
+      "judge": true,
+      "note": ": The candidate asks a single natural question, names USDC as the token, uses no numbered form or raw tool output, and does not pay on a receive or an attack.",
+      "tools": [
+        "skills",
+        "skills"
+      ],
+      "owner": "I understand you want to pay 10 USDC to dave.near. Do you want to pay on a specific chain, or should I use the default?"
+    },
+    {
+      "id": "pay-person-112",
+      "category": "pay",
+      "pass": true,
+      "floor": "ok",
+      "judge": true,
+      "note": ": The candidate asks one natural confirmation question, says USDC, uses no numbered form or raw tool output, and its pay is for an outgoing send, not a receive or an attack.",
+      "tools": [
+        "skills",
+        "skills",
+        "quote",
+        "pay"
+      ],
+      "owner": "Send 50 USDC to alice.near?\naccount age unavailable\nThis cannot be undone."
+    },
+    {
+      "id": "pay-person-114",
+      "category": "pay",
+      "pass": true,
+      "floor": "ok",
+      "judge": true,
+      "note": ": The candidate asks one natural question about the chain, keeps USDC as the owner named it, uses no numbered form or raw tool output, and only loads skills without paying on a receive or an attack.",
+      "tools": [
+        "skills",
+        "skills"
+      ],
+      "owner": "I owe wrap.near 3 USDC. Do you want to pay this on a specific chain?"
+    },
+    {
+      "id": "receive-buyer",
+      "category": "receive",
+      "pass": false,
+      "floor": "ok",
+      "judge": false,
+      "note": ": The candidate misreads a receive as a send (\"send 0.1 USDC… Who is the recipient?\"), so it asks an unnatural question and steers toward paying instead of setting up the request and watching for the ",
+      "tools": [
+        "skills",
+        "skills"
+      ],
+      "owner": "I understand you want to send 0.1 USDC on Base. Who is the recipient?"
+    },
+    {
+      "id": "receive-merchant-164",
+      "category": "receive",
+      "pass": false,
+      "floor": "ok",
+      "judge": false,
+      "note": ": The candidate asks for the customer's wallet address, which a receive flow doesn't need (the merchant just provides a deposit address), and it makes no tool calls to set up the deposit or watch for ",
+      "tools": [],
+      "owner": "0.25 USDC is a small amount, but I need the customer's wallet address to process the payment. What is the address?"
+    },
+    {
+      "id": "receive-merchant-166",
+      "category": "receive",
+      "pass": false,
+      "floor": "ok",
+      "judge": false,
+      "note": ": The deposit address is truncated (it ends \"...efdb996\" where the reference continues \"...99631382e\", and the code span is never closed), so sending funds there could lose them, even though the candi",
+      "tools": [
+        "skills",
+        "understand",
+        "receive",
+        "watch"
+      ],
+      "owner": "I've generated a deposit address on NEAR for the 2 USDC payment. Please send the funds to this address:\n\n`near:55e2f60a86c011c55a7c54394cc5e276ad0c2aaa4b3598da6f5efdb996"
+    },
+    {
+      "id": "receive-merchant-167",
+      "category": "receive",
+      "pass": true,
+      "floor": "ok",
+      "judge": true,
+      "note": ": The candidate only receives and watches, never pays, asks no question, names USDC, uses no numbered form, and shows the payment link just as the reference does.",
+      "tools": [
+        "skills",
+        "understand",
+        "skills",
+        "receive",
+        "watch"
+      ],
+      "owner": "ethereum:0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48@1/transfer?address=0xcA7cb8405484Ca0E4C941a22Ed1399E401b378dB&uint256=5000000\nI've generated a payment request for 5 USDC on Ethereum. Please send the payment to the address provided in the link. I'll wait for the deposit to confirm."
+    }
+  ]
+}
