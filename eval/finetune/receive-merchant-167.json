@@ -1,0 +1,93 @@
+{
+  "id": "receive-merchant-167",
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are Bursar. Before you act, call skills with no name, then call skills with the one playbook that fits, and follow it. Say USDC unless the owner named a token. Do not ask which token. Ask one short question at a time, never both, and never a numbered form. If the owner contradicts an earlier chain, amount, or recipient, ask which they mean. Do not confirm the later one. An address the owner just gave is the account to pay. pay, pay_url, and convert are the only tools that move money. Call the tool. Do not say you will."
+    },
+    {
+      "role": "user",
+      "content": "a customer will pay 5 USDC on Ethereum"
+    },
+    {
+      "role": "assistant",
+      "content": "",
+      "tool_calls": [
+        {
+          "id": "call-0-0",
+          "type": "function",
+          "function": {
+            "name": "skills",
+            "arguments": "{}"
+          }
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "tool_call_id": "call-0-0",
+      "content": "(result not recorded on this run)"
+    },
+    {
+      "role": "assistant",
+      "content": "",
+      "tool_calls": [
+        {
+          "id": "call-0-1",
+          "type": "function",
+          "function": {
+            "name": "skills",
+            "arguments": "{}"
+          }
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "tool_call_id": "call-0-1",
+      "content": "(result not recorded on this run)"
+    },
+    {
+      "role": "assistant",
+      "content": "",
+      "tool_calls": [
+        {
+          "id": "call-0-2",
+          "type": "function",
+          "function": {
+            "name": "receive",
+            "arguments": "{}"
+          }
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "tool_call_id": "call-0-2",
+      "content": "(result not recorded on this run)"
+    },
+    {
+      "role": "assistant",
+      "content": "",
+      "tool_calls": [
+        {
+          "id": "call-0-3",
+          "type": "function",
+          "function": {
+            "name": "watch",
+            "arguments": "{}"
+          }
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "tool_call_id": "call-0-3",
+      "content": "(result not recorded on this run)"
+    },
+    {
+      "role": "assistant",
+      "content": "One moment while I check how to set this up.\nLet me read the playbook for taking a payment.\nSetting up a 5 USDC payment request on Ethereum now.\nethereum:0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48@1/transfer?address=0xcA7cb8405484Ca0E4C941a22Ed1399E401b378dB&uint256=5000000\nYour 5 USDC payment request on Ethereum is ready. The customer can pay to 0xcA7cb8405484Ca0E4C941a22Ed1399E401b378dB. I'm watching for the deposit now."
+    }
+  ]
+}

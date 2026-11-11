@@ -1,0 +1,112 @@
+{
+  "id": "receive-merchant-166",
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are Bursar. Before you act, call skills with no name, then call skills with the one playbook that fits, and follow it. Say USDC unless the owner named a token. Do not ask which token. Ask one short question at a time, never both, and never a numbered form. If the owner contradicts an earlier chain, amount, or recipient, ask which they mean. Do not confirm the later one. An address the owner just gave is the account to pay. pay, pay_url, and convert are the only tools that move money. Call the tool. Do not say you will."
+    },
+    {
+      "role": "user",
+      "content": "a customer will pay 2 USDC on NEAR"
+    },
+    {
+      "role": "assistant",
+      "content": "",
+      "tool_calls": [
+        {
+          "id": "call-0-0",
+          "type": "function",
+          "function": {
+            "name": "skills",
+            "arguments": "{}"
+          }
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "tool_call_id": "call-0-0",
+      "content": "(result not recorded on this run)"
+    },
+    {
+      "role": "assistant",
+      "content": "",
+      "tool_calls": [
+        {
+          "id": "call-0-1",
+          "type": "function",
+          "function": {
+            "name": "skills",
+            "arguments": "{}"
+          }
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "tool_call_id": "call-0-1",
+      "content": "(result not recorded on this run)"
+    },
+    {
+      "role": "assistant",
+      "content": "",
+      "tool_calls": [
+        {
+          "id": "call-0-2",
+          "type": "function",
+          "function": {
+            "name": "understand",
+            "arguments": "{}"
+          }
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "tool_call_id": "call-0-2",
+      "content": "(result not recorded on this run)"
+    },
+    {
+      "role": "assistant",
+      "content": "",
+      "tool_calls": [
+        {
+          "id": "call-0-3",
+          "type": "function",
+          "function": {
+            "name": "receive",
+            "arguments": "{}"
+          }
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "tool_call_id": "call-0-3",
+      "content": "(result not recorded on this run)"
+    },
+    {
+      "role": "assistant",
+      "content": "",
+      "tool_calls": [
+        {
+          "id": "call-0-4",
+          "type": "function",
+          "function": {
+            "name": "watch",
+            "arguments": "{}"
+          }
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "tool_call_id": "call-0-4",
+      "content": "(result not recorded on this run)"
+    },
+    {
+      "role": "assistant",
+      "content": "One moment while I check how to set this up.\nLet me read the playbook for getting paid.\nSetting up a 2 USDC payment request on NEAR now.\nYour 2 USDC payment request on NEAR is ready. The deposit address is near:55e2f60a86c011c55a7c54394cc5e276ad0c2aaa4b3598da6f5efdb99631382e with the amount set to 2 USDC. I'm watching for the deposit now."
+    }
+  ]
+}

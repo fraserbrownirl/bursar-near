@@ -51,7 +51,7 @@ export async function liveCall(cmd: string, files: Record<string, string> = {}):
     const matched = text.match(/<tool_response>\n?([\s\S]*?)\n?<\/tool_response>/);
     const value = matched?.[1]?.trim() || null;
     const trace = body.computer?.[body.computer.length - 1];
-    if (value && trace?.trace_sha256 && trace.firmware_elf_sha256 && trace.chip_weights_sha256) {
+    if (value && trace?.trace_sha256 && trace.firmware_elf_sha256 && trace.chip_weights_sha256 && process.env.BURSAR_RECORD_RECEIPTS !== "0") {
       const inputs: Record<string, string> = {};
       const inputDir = join(receiptsDir(), "inputs");
       if (Object.keys(files).length > 0) mkdirSync(inputDir, { recursive: true });

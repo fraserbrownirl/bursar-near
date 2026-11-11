@@ -1,0 +1,12 @@
+{
+  "case": "fraser-receive",
+  "case_seconds": 5.552,
+  "turns": [
+    { "completion_tokens": 13, "wall_s": 3.591, "tok_s": 3.6 },
+    { "completion_tokens": 26, "wall_s": 0.803, "tok_s": 32.4 },
+    { "completion_tokens": 10, "wall_s": 1.120, "tok_s": 8.9 }
+  ],
+  "owner": "Which chain will the customer use to pay you?",
+  "tools": ["skills", "skills"],
+  "settings": { "enable_thinking": false, "max_tokens": 80 }
+}
