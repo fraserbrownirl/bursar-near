@@ -79,6 +79,19 @@ Holdout fell (round 4 was 6/10), so the card is back to showing the first reason
 
 Cause for reading the pay playbook when someone else is paying the owner: **tool**. The list of playbooks was names only, so the name `pay-person` was the one that sounded like a payment. The list now includes the line that says when each playbook applies.
 
+## Round 7 result
+
+| Set | Passed | Total |
+| --- | --- | --- |
+| Work | 20 | 30 |
+| Holdout | 6 | 10 |
+
+Holdout held at 6/10, the same as round 4, so the list stays. No judge call was a refused session. The receive case in the holdout passed.
+
+## Round 8
+
+Cause for a deposit address that is cut off or is the token contract: **code rule**. `receive` already shows the full deposit line. A reply that calls `receive` and also contains an address is not shown, and neither is the next reply when it contains an address. A shortened address or the token contract is not where the money goes.
+
 Work and holdout scores for this round are filled in when the rerun finishes.
 
 ## Parked 207-case log

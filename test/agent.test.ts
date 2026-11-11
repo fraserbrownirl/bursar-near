@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
 import { readLedger } from "../src/guard/ledger.js";
-import { INJECTED_PASTE, READY, SYSTEM, TOOLS, Talk, askApprove, atomicAmount, chainNamedIn, contentStops, continuesAfter, injectedAgentDemo, intentFromArgs, refuseNearOnOtherChain, requestStops, runAgent, splitTurn, statedPayment, talkSession } from "../src/agent.js";
+import { INJECTED_PASTE, READY, SYSTEM, TOOLS, Talk, askApprove, atomicAmount, chainNamedIn, contentStops, continuesAfter, injectedAgentDemo, intentFromArgs, refuseNearOnOtherChain, repeatsDeposit, requestStops, runAgent, splitTurn, statedPayment, talkSession } from "../src/agent.js";
 
 test("0.25 USDC is 250000 atomic units", () => {
   const stated = statedPayment("pay 0.25 USDC to frsrcom.near");
@@ -16,6 +16,12 @@ test("0.25 USDC is 250000 atomic units", () => {
   assert.equal(base?.chain, "base");
   assert.equal(base?.to, "0x1111111111111111111111111111111111111111");
   assert.equal(atomicAmount("0.25", 6), "250000");
+});
+
+test("a reply that repeats a deposit address is the one the line already showed", () => {
+  assert.equal(repeatsDeposit("Please send the funds to 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"), true);
+  assert.equal(repeatsDeposit("near:55e2f60a86c011c55a7c54394cc5e276ad0c2aaa"), true);
+  assert.equal(repeatsDeposit("I'll wait for the 2 USDC deposit."), false);
 });
 
 test("a NEAR account named with another chain is not quoted", () => {

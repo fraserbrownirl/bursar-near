@@ -292,6 +292,8 @@ export class Talk {
   approveRead: () => Promise<string> = readApprove;
   onOwner: ((text: string) => void) | null = null;
   brain: ((messages: unknown[]) => Promise<Turn>) | null = null;
+  /** The next reply is dropped when it repeats a deposit address. The deposit line was already shown. */
+  depositShown = false;
   readonly messages: unknown[];
 
   constructor() {
@@ -312,9 +314,20 @@ function spoken(content: string): string {
   return content.replace(/<tool_call>[\s\S]*?<\/tool_call>/g, "").trim();
 }
 
+/** An address in a reply after the deposit line. The line already has the full address. */
+export function repeatsDeposit(text: string): boolean {
+  return /\b0x[a-fA-F0-9]{8,}\b/.test(text) || /\bnear:[0-9a-f]+\b/i.test(text) || /ethereum:0x/i.test(text);
+}
+
 function say(lines: string[], talk: Talk, said: string): void {
   const speech = spoken(said);
-  if (speech) reveal(lines, talk, speech);
+  if (!speech) return;
+  if (talk.depositShown && repeatsDeposit(speech)) {
+    talk.depositShown = false;
+    return;
+  }
+  talk.depositShown = false;
+  reveal(lines, talk, speech);
 }
 
 /** The owner sees a model reply, the card, a STOP sentence, or a link. */
@@ -550,12 +563,13 @@ export async function runAgent(text: string, accountId: string, talk: Talk = new
       return { text: lines.join("\n"), code: 1, tools: called };
     }
     const said = spoken(model.content ?? "");
+    const receiving = model.calls.some((call) => call.name === "receive");
     if (model.calls.length === 0) {
       say(lines, talk, said);
       talk.messages.push({ role: "assistant", content: said });
       break;
     }
-    say(lines, talk, said);
+    if (!(receiving && repeatsDeposit(said))) say(lines, talk, said);
     talk.messages.push({ role: "assistant", content: model.content, tool_calls: model.calls.map((call) => ({
       id: call.id,
       type: "function",
@@ -599,6 +613,7 @@ async function runCall(text: string, call: ModelCall, accountId: string, lines: 
     const { receive } = await import("./receive.js");
     const drawn = await receive({ accountId, chain: call.chain, token: call.asset, amount: call.amount, dir });
     revealLinks(lines, talk, drawn.uri);
+    talk.depositShown = true;
     return drawn.uri;
   }
   if (call.name === "watch") {
