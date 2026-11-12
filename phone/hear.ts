@@ -45,7 +45,9 @@ function accountIn(text: string): string | null {
   const named = text.match(/\b([a-z0-9][a-z0-9._-]{0,62}\.near)\b/);
   if (named?.[1] && isNearAccount(named[1])) return named[1];
   const implicit = text.match(/\b([0-9a-f]{64})\b/);
-  return implicit?.[1] ?? null;
+  if (implicit?.[1]) return implicit[1];
+  const sol = text.match(/\b([1-9A-HJ-NP-Za-km-z]{32,44})\b/);
+  return sol?.[1] ?? null;
 }
 
 function amountIn(text: string): string | null {

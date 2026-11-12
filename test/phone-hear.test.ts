@@ -42,6 +42,14 @@ test("the Base and Solana receive codes are cards for 0.15 USDC", () => {
   }
 });
 
+test("a pasted split instruction on Solana is a card", () => {
+  const heard = hear("pay 0.20 USDC to BHQBpzsUNHzhZfD2jrxwwcp1FcduvdLjTh5x4DkzvEkp on Solana");
+  assert.equal(heard.screen, "card");
+  if (heard.screen !== "card") return;
+  assert.equal(heard.to, "BHQBpzsUNHzhZfD2jrxwwcp1FcduvdLjTh5x4DkzvEkp");
+  assert.equal(heard.human, "0.20");
+});
+
 test("a receive code with an atomic amount is a card", () => {
   const heard = scan("ethereum:0x0000000000000000000000000000000000000001@8453/transfer?address=0x1111111111111111111111111111111111111111&uint256=250000");
   assert.equal(heard.screen, "card");

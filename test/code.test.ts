@@ -29,13 +29,17 @@ test("a Solana payment QR fits a normal terminal without wrapping", () => {
   const uri = "solana:BHQBpzsUNHzhZfD2jrxwwcp1FcduvdLjTh5x4DkzvEkp?spl-token=EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v&amount=0.15";
   const drawn = terminalQr(uri, 80);
   const lines = drawn.replace(/\n$/, "").split("\n");
-  assert.ok(lines.every((line) => line.length === lines[0]?.length && line.length <= 80));
-  assert.match(drawn, /[█▀▄]/);
+  const visible = (line: string) => line.replace(/\x1b\[[0-9;]*m/g, "").length;
+  assert.ok(lines.every((line) => visible(line) === visible(lines[0] ?? "") && visible(line) <= 80));
+  assert.match(drawn, /\x1b\[47m/);
+  assert.match(drawn, /\x1b\[40m/);
+  const wide = terminalQr(uri, 120);
+  assert.match(visible(wide.split("\n")[0] ?? "") === 106 ? wide : "", /./);
 });
 
 test("a QR of frsrcom.near decodes to that account", async () => {
   const drawn = await encode("frsrcom.near");
-  assert.match(drawn.terminal, /[█▀▄]/);
+  assert.match(drawn.terminal, /\x1b\[4[07]m/);
   const file = join(mkdtempSync(join(tmpdir(), "bursar-code-")), "bursar-code.png");
   writeFileSync(file, drawn.png);
   assert.equal(decode(readFileSync(file)), "frsrcom.near");
