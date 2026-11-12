@@ -14,6 +14,9 @@ credentials.json
 id_rsa
 id_ed25519
 attacks/video/*.mp4
+attacks/video/h*/
+attacks/video/*-list.txt
+attacks/video/*-hlist.txt
 attacks/takes/*.mp4
 attacks/takes/*.tape
 

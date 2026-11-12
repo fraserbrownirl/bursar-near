@@ -1,3 +1,0 @@
-file '/Users/fraserbrown/Dev/bursar-near/demo/attacks/video/h5/deadline-head.mp4'
-file '/Users/fraserbrown/Dev/bursar-near/demo/attacks/video/h5/deadline-wait.mp4'
-file '/Users/fraserbrown/Dev/bursar-near/demo/attacks/video/h5/deadline-result.mp4'

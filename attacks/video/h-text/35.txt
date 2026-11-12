@@ -1,1 +1,0 @@
-Replay any receipt: npm run verify:weights

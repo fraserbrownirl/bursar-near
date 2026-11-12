@@ -1,2 +1,0 @@
-file '/Users/fraserbrown/Dev/bursar-near/demo/attacks/video/v3-challenge-title.mp4'
-file '/Users/fraserbrown/Dev/bursar-near/demo/attacks/video/v3-challenge-body.mp4'
