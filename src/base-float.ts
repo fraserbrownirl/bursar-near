@@ -7,10 +7,11 @@ import { NEAR_USDC, resolveAsset, rowsFor } from "./assets.js";
 import { checkIntentInModel, checkQuoteInModel } from "./model-checks.js";
 import { referenceUi } from "./model.js";
 import { settle } from "./pay.js";
-import { secretFromKeychain, signerFromSecret } from "./signer.js";
+import { touchSigner } from "./signer.js";
 import { BASE_USDC, needsTopUp, topUpChunk, TOP_UP_ATOMIC } from "./x402.js";
 
-const SERVICE = "bursar-base-float";
+/** Same Keychain item as the Arbitrum refund key. One secp256k1 key, Base and Arbitrum. */
+const SERVICE = "bursar-evm";
 const USDC_ABI = parseAbi(["function balanceOf(address) view returns (uint256)"]);
 
 const client = createPublicClient({ chain: base, transport: http("https://mainnet.base.org") });
@@ -70,7 +71,7 @@ export async function intentsUsdc(accountId: string): Promise<bigint> {
         method_name: "mt_balance_of",
         args_base64: Buffer.from(JSON.stringify({
           account_id: accountId,
-          token_id: `nep141:${NEAR_USDC}`,
+          token_id: NEAR_USDC,
         })).toString("base64"),
       },
     }),
@@ -134,7 +135,7 @@ export async function topUpFloat(accountId: string, paymentAtomic: bigint): Prom
   const checked = await checkQuoteInModel(quote as never, request, nowSec);
   process.stdout.write(checked.lines + "\n");
   if (checked.stop) throw new Error(checked.stop);
-  const signer = signerFromSecret(secretFromKeychain(accountId), accountId, quote as never, () => nowMs);
+  const signer = await touchSigner(accountId, quote as never, () => nowMs);
   const line = await settle({
     quote: quote as never,
     request,

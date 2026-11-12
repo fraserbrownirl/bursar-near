@@ -57,7 +57,7 @@ export class BursarGuardedSigner implements IIntentSigner {
       intents: intent.intents,
     });
     const fields = webAuthnFields(payload);
-    const signature = await this.signHash(Buffer.from(fields.messageHex, "hex"));
+    const signature = p256LowS(await this.signHash(Buffer.from(fields.messageHex, "hex")));
     return {
       standard: "webauthn",
       payload,
@@ -198,6 +198,32 @@ export function defusePayload(input: {
     nonce: input.nonce,
     intents: input.intents,
   });
+}
+
+/** P-256 order. A signature with s above half the order is the same point with a high S, and intents.near rejects it. */
+const P256_N = BigInt("0xFFFFFFFF00000000FFFFFFFFFFFFFFFFBCE6FAADA7179E84F3B9CAC2FC632551");
+
+/** r || s, with s replaced by n - s when s is high. */
+export function p256LowS(signature: Uint8Array): Buffer {
+  if (signature.length !== 64) throw new Error("STOP: signature");
+  const raw = Buffer.from(signature);
+  let s = BigInt(`0x${raw.subarray(32).toString("hex")}`);
+  if (s > P256_N >> 1n) s = P256_N - s;
+  const bytes = Buffer.from(s.toString(16).padStart(64, "0"), "hex");
+  return Buffer.concat([raw.subarray(0, 32), bytes]);
+}
+
+/**
+ * 32-byte versioned nonce. Prefix `5628f6c6`, version 0, then the contract salt,
+ * the deadline in nanoseconds little-endian, and 15 random bytes.
+ * The intent deadline must not be later than this deadline.
+ */
+export function versionedNonce(saltHex: string, deadlineMs: number, random: Uint8Array): Buffer {
+  if (!/^[0-9a-f]{8}$/i.test(saltHex)) throw new Error("STOP: salt");
+  if (random.length !== 15) throw new Error("STOP: nonce");
+  const deadline = Buffer.alloc(8);
+  deadline.writeBigUInt64LE(BigInt(deadlineMs) * 1_000_000n);
+  return Buffer.concat([Buffer.from("5628f6c6", "hex"), Buffer.from([0]), Buffer.from(saltHex, "hex"), deadline, Buffer.from(random)]);
 }
 
 /** Same bytes as `BursarEnclave.prepare`. The challenge is base64url(sha256(payload)). */

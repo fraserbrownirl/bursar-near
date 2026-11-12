@@ -1,10 +1,10 @@
 import type { GeneratedIntent } from "./pay.js";
 import { intentsDecText } from "./intents-dec.js";
-import { liveCall } from "./model.js";
+import { liveCall, noteReferenceOnly } from "./model.js";
 import { quoteCheckLine } from "./reference.js";
 import type { BursarRequest, SignedQuote } from "./quote.js";
 
-export type ModelCheck = { lines: string; stop: string | null };
+export type ModelCheck = { lines: string; stop: string | null; live: boolean };
 
 function hexOf(text: string): string {
   return Buffer.from(text, "utf8").toString("hex");
@@ -54,14 +54,18 @@ export async function checkIntentInModel(generated: GeneratedIntent, accountId: 
 
 function compare(name: string, cmd: string, live: string | null, reference: string, receipt?: string): ModelCheck {
   const ref = reference.trim();
+  if (live === null) {
+    noteReferenceOnly();
+    return {
+      lines: [`${cmd} → ${ref} [reference (TypeScript)]`, "reference checks only"].join("\n"),
+      stop: null,
+      live: false,
+    };
+  }
   const lines = [
-    live === null
-      ? `${cmd} → ${ref} [reference (TypeScript)]`
-      : `${cmd} → ${live.trim()} [live (model, Mac)]${receipt ? ` receipt ${receipt}` : ""}`,
+    `${cmd} → ${live.trim()} [live (model, Mac)]${receipt ? ` receipt ${receipt}` : ""}`,
     `reference (TypeScript) → ${ref}`,
   ];
-  if (live !== null && live.trim() !== ref) {
-    return { lines: lines.join("\n"), stop: `STOP: ${name}` };
-  }
-  return { lines: lines.join("\n"), stop: null };
+  if (live.trim() !== ref) return { lines: lines.join("\n"), stop: `STOP: ${name}`, live: true };
+  return { lines: lines.join("\n"), stop: null, live: true };
 }

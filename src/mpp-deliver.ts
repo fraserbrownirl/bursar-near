@@ -1,5 +1,6 @@
 import { OneClickService } from "@defuse-protocol/one-click-sdk-typescript";
 import { NEAR_USDC } from "./assets.js";
+import { floatAddress } from "./base-float.js";
 import { loadBlocklist } from "./blocklist.js";
 import { decide } from "./decide.js";
 import { append } from "./guard/ledger.js";
@@ -9,7 +10,7 @@ import { reviewMpp, type MppRequest } from "./mpp.js";
 import { readPayeeMap } from "./payees.js";
 import { settle } from "./pay.js";
 import { reviewQuote, type BursarRequest, type SignedQuote } from "./quote.js";
-import { secretFromKeychain, signerFromSecret } from "./signer.js";
+import { touchSigner } from "./signer.js";
 
 /**
  * The quote Bursar asks 1Click for: exact output of the challenge amount,
@@ -41,7 +42,7 @@ export async function assetForCurrency(currency: string): Promise<string | null>
 function refundAddress(request: MppRequest, accountId: string): string {
   const refund = request.methodDetails.refundTo;
   if (refund.startsWith("0x") || refund.startsWith("0X")) {
-    const evm = process.env.BURSAR_EVM_ADDRESS ?? "";
+    const evm = floatAddress();
     if (!evm) throw new Error("STOP: refund address");
     return evm;
   }
@@ -111,7 +112,8 @@ export async function deliverFromIntents(input: {
   append("decision", { human: "yes", prompt: "pay url", reasons: guard.reasons, card });
   const deposit = quote.quote.depositAddress;
   if (!deposit) throw new Error("STOP: deposit");
-  const signer = signerFromSecret(secretFromKeychain(input.accountId), input.accountId, quote, () => nowMs);
+  process.stdout.write(`amountIn: ${quote.quote.amountIn}\n`);
+  const signer = await touchSigner(input.accountId, quote, () => nowMs);
   const settled = await settle({
     quote,
     request,
@@ -134,13 +136,20 @@ export async function deliverFromIntents(input: {
 
 async function destinationHash(depositAddress: string): Promise<string> {
   let status = "PENDING_DEPOSIT";
-  for (let i = 0; i < 60; i += 1) {
-    const body = await OneClickService.getExecutionStatus(depositAddress);
-    status = body.status ?? status;
-    const hash = body.swapDetails?.destinationChainTxHashes?.[0]?.hash;
-    if (status === "SUCCESS" && hash) return hash;
-    if (status === "REFUNDED" || status === "FAILED") throw new Error(`STOP: ${status}`);
-    await new Promise((resolve) => setTimeout(resolve, 3000));
+  for (let i = 0; i < 360; i += 1) {
+    try {
+      const body = await OneClickService.getExecutionStatus(depositAddress);
+      status = body.status ?? status;
+      const hash = body.swapDetails?.destinationChainTxHashes?.[0]?.hash;
+      const reason = body.swapDetails?.refundReason ?? "";
+      if (status === "SUCCESS" && hash) return hash;
+      if (status === "REFUNDED" || status === "FAILED") throw new Error(`STOP: ${status}${reason ? ` ${reason}` : ""}`);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      if (message.startsWith("STOP:")) throw error;
+      status = "retry";
+    }
+    await new Promise((resolve) => setTimeout(resolve, 20_000));
   }
   throw new Error(`STOP: ${status}`);
 }

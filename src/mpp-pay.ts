@@ -10,7 +10,7 @@ import { checkQuoteInModel } from "./model-checks.js";
 import { ACCOUNT_HEADER, assetsMatch, reviewMpp, type MppRequest } from "./mpp.js";
 import { readPayeeMap } from "./payees.js";
 import type { SignedQuote } from "./quote.js";
-import { secretFromKeychain, sendGuardedUsdc } from "./signer.js";
+import { sendGuardedUsdc } from "./signer.js";
 
 const EMPTY: ChainFacts = {
   codeHash: null,
@@ -58,7 +58,6 @@ export async function payMppChallenge(input: {
   if (!yes) return { stop: "STOP", hash: null, card: reviewed.card };
   const memo = input.request.methodDetails.depositMemo ?? null;
   const send = input.send ?? ((amount, depositAddress, depositMemo) => sendGuardedUsdc({
-    secret: secretFromKeychain(input.accountId),
     accountId: input.accountId,
     depositAddress,
     amount,
