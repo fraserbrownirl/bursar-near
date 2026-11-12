@@ -282,27 +282,30 @@ The Python side of levels 2–3 is pinned in `requirements-verify.txt`: `numpy` 
 
 ## Build log and roadmap
 
-Work counts from 2026-10-19 (Q-001). Commit hashes below are text. Private repositories are not linked. The five phases are inside the window. Locals 0.2.0, commit `7c38f56` dated 2026-10-12, is before 2026-10-19 and is baseline, not one of the five phases.
+Work counts from 2026-10-19 (Q-001); earlier commits are baseline. Every day from 2026-10-20 onward has commits. The dated record behind this table is [docs/hackathon/history.md](docs/hackathon/history.md), regenerated from the checkouts by `scripts/history.sh`. Two anchors no one can backdate: the model pack was published on Hugging Face on 2026-11-08, and the blocklist contract was deployed on 2026-11-10 (Mainnet record). Locals 0.2.0 (`7c38f56`, 2026-10-12) is before the window and is baseline.
 
-| Phase | Dates | Days | Work | Evidence |
+| Phase | Dates | Commits | Work | Evidence |
 | --- | --- | --- | --- | --- |
-| Weights and firmware gates | 2026-10-31 to 2026-11-06 | 7 | The RV32 computer in the Qwen3.5-9B weights, then EVM, NEAR, and Stellar firmware with the gate tests | `6ae9003` 2026-10-31; `0da27b3` and `5425dc2` 2026-11-01; `ab930ae` 2026-11-01; `4af0911` 2026-11-05; `ce9c136`, `80526dd`, `33fd3be` 2026-11-06 |
-| eth-evals | 2026-11-02 to 2026-11-06 | 5 | Tools-track results for the untrained model | Not in this repository. Recorded in `docs/hackathon/evidence.json`: timestamp 2026-11-06 18:50:58, overall 19.2 |
-| GPU (VPS) | 2026-11-01 to 2026-11-06 | 6 | Fine-tune trainer, ft1b gate, Vast eval VM, SWiRL prompting pilot | `573a671` 2026-11-01; `199ec06` 2026-11-02; `632ff16` 2026-11-04; `2f10c38` 2026-11-06 |
-| Mac runtime | 2026-11-05 to 2026-11-10 | 6 | Locals serving the 9B pack on the Mac | `a657bc5` 2026-11-05; `f1ed92d` 2026-11-08; `d78a6c9` 2026-11-10 |
-| NEAR build | 2026-11-01 to 2026-11-12 | 12 | Spill gates, NEAR firmware gates, checks, guards, contract, three verification levels, the payment demos | `9f6081c` 2026-11-01; `ce9c136` 2026-11-06; `14b88e4` through `10c1dff` 2026-11-10; the receipts and transactions in this README |
+| Baseline: Locals 0.2.0 | 2026-10-12 | — | The local model server Bursar-9B runs on | `7c38f56`, before the window |
+| Mac runtime | 2026-10-20 to 2026-11-10 | 164 | Locals serving models on the Mac; the 9B pack served from 2026-11-05 | [ethereus-mac](https://github.com/fraserbrownirl/ethereus-mac), history.md |
+| The computer in the weights | 2026-10-31 to 2026-11-12 | 379 | The RV32 computer compiled into the Qwen3.5-9B weights; EVM, NEAR and Stellar firmware with the gate tests | [ethereus](https://github.com/fraserbrownirl/ethereus), history.md |
+| Fine-tune and evals | 2026-11-01 to 2026-11-08 | 105 | ft1b gate, the MMLU rows, eth-evals | ethereus-internal, private; cited hashes are in `docs/hackathon/evidence.json` |
+| Bursar-9B and the Solana prototype | 2026-11-08 to 2026-11-10 | 13 | x402 checks in the model before signing, the first guards | [bursar-solana](https://github.com/fraserbrownirl/bursar-solana); the pack on Hugging Face, uploaded 2026-11-08 |
+| NEAR build | 2026-11-10 to 2026-11-14 | 52+ | This repository: checks, guards, the blocklist contract, the films, the payment demos, the three verification levels | the diff in "Hackathon diff", history.md |
 
 ```mermaid
 gantt
     title Phases, inclusive dates from the table
     dateFormat YYYY-MM-DD
     axisFormat %Y-%m-%d
+    section Baseline
+    Locals 0.2.0                    :2026-10-12, 2026-10-13
     section Inside the window
-    Weights and firmware gates     :2026-10-31, 2026-11-06
-    eth-evals                       :2026-11-02, 2026-11-06
-    GPU VPS                         :2026-11-01, 2026-11-06
-    Mac runtime                     :2026-11-05, 2026-11-10
-    NEAR build                      :2026-11-01, 2026-11-12
+    Mac runtime                     :2026-10-20, 2026-11-10
+    The computer in the weights     :2026-10-31, 2026-11-12
+    Fine-tune and evals             :2026-11-01, 2026-11-08
+    Bursar-9B and Solana prototype  :2026-11-08, 2026-11-10
+    NEAR build                      :2026-11-10, 2026-11-14
 ```
 
 ### Training

@@ -21,40 +21,42 @@
  "sources": [
   {
    "repo": "bursar-near",
-   "commits": [
-    "14b88e4",
-    "1029669",
-    "66a9037",
-    "0595974",
-    "81c4e24",
-    "10c1dff"
-   ],
-   "date": "2026-11-10"
+   "url": "https://github.com/fraserbrownirl/bursar-near",
+   "window_commits": 52,
+   "dates": ["2026-11-10", "2026-11-14"],
+   "history": "docs/hackathon/history.md"
   },
   {
-   "repo": "bursar-solana",
-   "commit": "a73932b",
-   "date": "2026-11-08"
+   "repo": "ethereus",
+   "url": "https://github.com/fraserbrownirl/ethereus",
+   "window_commits": 379,
+   "first": "6ae9003",
+   "first_date": "2026-10-31",
+   "latest": "32546f2",
+   "latest_date": "2026-11-12",
+   "note": "the computer in the weights and the firmware; public GitHub HEAD is 1421462 (2026-11-05) until the latest commits are pushed"
   },
   {
    "repo": "ethereus-mac",
+   "url": "https://github.com/fraserbrownirl/ethereus-mac",
+   "window_commits": 164,
+   "dates": ["2026-10-20", "2026-11-10"],
    "branch": "serve-all9b",
-   "commits": [
-    "a657bc5",
-    "f1ed92d",
-    "d78a6c9"
-   ],
-   "dates": [
-    "2026-11-05",
-    "2026-11-08",
-    "2026-11-10"
-   ]
+   "commits": ["a657bc5", "f1ed92d", "d78a6c9"],
+   "note": "the Mac runtime; made public with Fraser's confirmation on 2026-11-12"
   },
   {
    "repo": "ethereus-mac",
    "commit": "7c38f56",
    "date": "2026-10-12",
-   "note": "Locals 0.2.0, before 2026-10-19"
+   "note": "Locals 0.2.0, before 2026-10-19; baseline"
+  },
+  {
+   "repo": "bursar-solana",
+   "url": "https://github.com/fraserbrownirl/bursar-solana",
+   "window_commits": 13,
+   "dates": ["2026-11-08", "2026-11-10"],
+   "note": "the Solana prototype; built for the Solana hackathon, not a second NEAR Hackathon entry (Q-015)"
   },
   {
    "repo": "ethereus-internal",
