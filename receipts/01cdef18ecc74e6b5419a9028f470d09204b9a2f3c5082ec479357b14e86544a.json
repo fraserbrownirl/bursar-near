@@ -1,0 +1,14 @@
+{
+  "cmd": "1click check @quote 0x20c1E3Dc7b93CA194176962cD2aDB11f75cCc042 515ead208df187f146f2ae5f7e24522cf2ca977df95bdee7bb5f957bbe142c54 nep141:arb-0xaf88d065e77c8cc2239327c5edb3a432268e5831.omft.near 101034 101034 1794483850 -",
+  "inputs": {
+    "quote": "127c697ef4794ad87d3e289a302f568af0363ed11e815c5c6c880e6d504ce319"
+  },
+  "firmware_elf_sha256": "8cb34279eb5d0528800beebb618b750c52bbddd792f61742dd1b01480523a2be",
+  "chip_weights_sha256": "7d756fd40e9b6c4bd36ec3f4afea44f2d04d7269c27bc841e6f4aff96007a216",
+  "output": "fail amount",
+  "trace_tokens": 186581,
+  "trace_sha256": "e3bb564ae2bb169fd9e87886848abb6dda3b40037d1659e89e8ab859aa6537ff",
+  "wall_ms": 53464,
+  "runtime": "locals-mac",
+  "date": "2026-11-12"
+}
