@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import { attacks, demoReport } from "../src/demo.js";
 import { inspectIntent, expectedTransfer } from "../src/intent.js";
-import { quoteCheckLine } from "../src/reference.js";
+import { quoteCheckLine, quoteFieldLine } from "../src/reference.js";
 import { ONECLICK_FEE_RECIPIENT, feeCapBps, payeeOf, reviewQuote, signatureOk, type BursarRequest, type SignedQuote } from "../src/quote.js";
 
 function load(name: string): SignedQuote {
@@ -98,4 +98,35 @@ test("1click check uses the caller's recipient, not the quote's", () => {
   };
   assert.equal(quoteCheckLine(quote, expected, now), "ok");
   assert.equal(quoteCheckLine(quote, { ...expected, recipient: "someone-else.near" }, now), "fail recipient");
+});
+
+test("1click check accepts an ed25519 implicit account and a 0x P-256 implicit account", () => {
+  const vectors = JSON.parse(readFileSync(new URL("./fixtures/implicit-accounts.json", import.meta.url), "utf8")) as { name: string; account: string }[];
+  const now = 1794000000;
+  const asset = "nep141:17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1";
+  for (const vector of vectors) {
+    const quote = {
+      signature: "ed25519:x",
+      quoteRequest: {
+        dry: false,
+        recipient: vector.account,
+        refundTo: vector.account,
+        destinationAsset: asset,
+      },
+      quote: {
+        depositAddress: "ab".repeat(32),
+        amountIn: "20000",
+        minAmountOut: "0",
+        deadline: "2026-12-01T00:00:00Z",
+      },
+    } as SignedQuote;
+    const expected = {
+      recipient: vector.account,
+      refundTo: vector.account,
+      destinationAsset: asset,
+      amount: "20000",
+      minAmountOut: "0",
+    };
+    assert.equal(quoteFieldLine(quote, expected, now), "ok", vector.name);
+  }
 });

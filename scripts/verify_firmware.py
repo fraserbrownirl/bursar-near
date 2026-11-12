@@ -19,7 +19,7 @@ import sys
 import tempfile
 from pathlib import Path
 
-LOADED_SHA256 = "e9324c1ef20faf5fa39e92abe1d5477abd111e90bb4dfac83465c954a6ff3f49"
+LOADED_SHA256 = "e3c2f204f05f45986fdbfaffb9e464cb99dd23dd7aabfae6079af8c6a7da32f5"
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
@@ -101,25 +101,48 @@ def receipts() -> list[tuple[str, dict]]:
     return rows
 
 
-def emulate(cmd: str, elf_path: Path, v0: int) -> dict:
+def receipt_files(receipt: dict) -> dict[str, str]:
+    folder = ROOT / "receipts" / "inputs"
+    files = {}
+    for name, digest in (receipt.get("inputs") or {}).items():
+        hashed = folder / digest
+        named = folder / name
+        path = hashed if hashed.is_file() else named
+        files[name] = path.read_text()
+    return files
+
+
+def emulate(cmd: str, elf_path: Path, v0: int, files: dict[str, str] | None = None) -> dict:
     mac = ethereus_mac()
     sys.path.insert(0, str(mac))
     src = firmware_src()
     if str(src) not in sys.path:
         sys.path.append(str(src))
+    os.environ.setdefault("LOCALS_CHIPFORMER", str(src))
     import copy
-    from tokenizers import Tokenizer
     from chipformer.rv import bridge, elf, ref
+    from chipformer.rv import spill as fw
     from chipformer.rv import spec as S
+    from locals.models.eth_spill import plan
     from locals.models.tracehash import trace_sha256
 
     tok_path = tokenizer_path()
     text = bridge.Text(str(tok_path))
-    machine = ref.Machine.from_program(elf.program(str(elf_path)))
+    files = files or {}
+
+    def encode(value: str) -> list[int]:
+        return text.encode(value)
+
+    planned = plan(cmd, len(encode(fw.call_text(cmd))), files, encode)
+    use = planned.files if planned else {}
+    eth_in = planned.eth_in if planned else None
+    shown = planned.short if planned and planned.short else cmd
+    image = fw.firmware_with_files(elf_path, use, eth_in) if use or eth_in else elf_path
+    machine = ref.Machine.from_program(elf.program(str(image)))
     bridge.park(machine)
     session = bridge.Session(text, copy.deepcopy(machine))
     prompt = text.encode(PROMPT)
-    call = text.encode(tool_text(cmd))
+    call = text.encode(tool_text(shown))
     session.history(prompt)
     start = len(session.toks)
     session.qwen(call)
@@ -133,7 +156,8 @@ def emulate(cmd: str, elf_path: Path, v0: int) -> dict:
 
 
 def main() -> int:
-    rows = receipts()
+    only = {arg for arg in sys.argv[1:] if len(arg) == 64 and all(c in "0123456789abcdef" for c in arg)}
+    rows = [row for row in receipts() if not only or row[0] in only]
     if not rows:
         print("no receipts")
         return 1
@@ -158,7 +182,7 @@ def main() -> int:
     v0 = int(chip["chip_token_offset"])
     bad = 0
     for digest, receipt in rows:
-        got = emulate(receipt["cmd"], elf_path, v0)
+        got = emulate(receipt["cmd"], elf_path, v0, receipt_files(receipt))
         ok = got["output"] == receipt["output"] and got["trace_sha256"] == receipt["trace_sha256"]
         bad += not ok
         print(f"{digest} {'match' if ok else 'MISMATCH'} {receipt['cmd']}")

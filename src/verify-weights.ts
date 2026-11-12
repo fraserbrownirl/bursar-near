@@ -1,5 +1,5 @@
 import { spawnSync } from "node:child_process";
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { listReceipts } from "./receipt.js";
@@ -16,8 +16,14 @@ function python(): string {
 
 type Run = { output: string; trace_tokens: number; trace_sha256: string; wall_ms: number };
 
-function computer(cmd: string): Run {
-  const result = spawnSync(python(), [join(root, "scripts/computer_run.py"), cmd], {
+function computer(cmd: string, files?: Record<string, string>): Run {
+  const args = [join(root, "scripts/computer_run.py"), cmd];
+  if (files && Object.keys(files).length > 0) {
+    const path = join(root, "receipts/inputs", `.${process.pid}.json`);
+    writeFileSync(path, JSON.stringify(files));
+    args.push(path);
+  }
+  const result = spawnSync(python(), args, {
     encoding: "utf8",
     env: process.env,
   });
@@ -29,8 +35,9 @@ function computer(cmd: string): Run {
 }
 
 async function main(): Promise<void> {
-  const cmd = process.argv.slice(2).join(" ").trim();
-  if (cmd) {
+  const only = new Set(process.argv.slice(2).filter((arg) => /^[0-9a-f]{64}$/.test(arg)));
+  const cmd = process.argv.slice(2).filter((arg) => !only.has(arg)).join(" ").trim();
+  if (cmd && only.size === 0) {
     const run = computer(cmd);
     let reference = "no reference";
     try {
@@ -44,14 +51,21 @@ async function main(): Promise<void> {
     process.stdout.write(`reference: ${reference}\n`);
     return;
   }
-  const rows = listReceipts();
+  const rows = listReceipts().filter((row) => only.size === 0 || only.has(row.hash));
   if (rows.length === 0) {
     process.stdout.write("no receipts\n");
     process.exit(1);
   }
   let bad = 0;
   for (const { hash, receipt } of rows) {
-    const run = computer(receipt.cmd);
+    const files: Record<string, string> = {};
+    for (const [name, digest] of Object.entries(receipt.inputs)) {
+      const hashed = join(root, "receipts/inputs", digest);
+      const named = join(root, "receipts/inputs", name);
+      const path = existsSync(hashed) ? hashed : named;
+      files[name] = readFileSync(path, "utf8");
+    }
+    const run = computer(receipt.cmd, files);
     const ok = run.output === receipt.output && run.trace_sha256 === receipt.trace_sha256;
     bad += ok ? 0 : 1;
     process.stdout.write(`${hash} ${ok ? "match" : "MISMATCH"} ${receipt.cmd}\n`);

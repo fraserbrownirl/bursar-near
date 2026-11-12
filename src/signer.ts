@@ -1,6 +1,8 @@
-import { execFileSync } from "node:child_process";
-import { createIntentSignerNearKeyPair, type IIntentSigner, type IntentPayload } from "@defuse-protocol/intents-sdk";
-import { connect, keyStores, KeyPair } from "near-api-js";
+import { createHash } from "node:crypto";
+import { spawn } from "node:child_process";
+import { fileURLToPath } from "node:url";
+import type { IIntentSigner, IntentPayload } from "@defuse-protocol/intents-sdk";
+import { baseEncode } from "@near-js/utils";
 import { deadlineProblem } from "./deadline.js";
 import { inspectIntent, type IntentRecord } from "./intent.js";
 import type { SignedQuote } from "./quote.js";
@@ -11,17 +13,21 @@ export class BursarGuardedSigner implements IIntentSigner {
   private readonly usedNonces = new Set<string>();
 
   constructor(
-    private readonly inner: IIntentSigner,
+    private readonly inner: IIntentSigner | null,
     private readonly options: {
       accountId: string;
       quote: SignedQuote;
       now?: () => number;
+      publicKey?: string;
+      /** The exact webauthn payload string from generateIntent. Key order is signed. */
+      payloadText?: () => string | undefined;
+      /** Test double. Production leaves this empty and the helper signs. */
+      signHash?: (hash: Uint8Array) => Promise<Uint8Array>;
     },
   ) {}
 
   /**
-   * NEP-413 recipient is `verifying_contract` (intent-signer-nep413.js sets
-   * `recipient: intent.verifying_contract`). The key is only on `inner`.
+   * NEP-413 recipient is `verifying_contract`. The helper runs only after these checks.
    */
   async signIntent(intent: IntentPayload): Promise<Awaited<ReturnType<IIntentSigner["signIntent"]>>> {
     if (intent.verifying_contract !== "intents.near") {
@@ -36,22 +42,68 @@ export class BursarGuardedSigner implements IIntentSigner {
     if (this.usedNonces.has(intent.nonce)) throw new Error("STOP: nonce");
     const shape = inspectIntent({ intents: intent.intents as unknown as IntentRecord[] }, this.options.quote);
     if (shape) throw new Error(shape);
-    const signed = await this.inner.signIntent(intent);
     this.usedNonces.add(intent.nonce);
-    return signed;
+    if (this.inner) return this.inner.signIntent(intent);
+    return this.signWebAuthn(intent);
+  }
+
+  private async signWebAuthn(intent: IntentPayload): Promise<Awaited<ReturnType<IIntentSigner["signIntent"]>>> {
+    if (!this.options.publicKey) throw new Error("STOP: public key");
+    const payload = this.options.payloadText?.() ?? defusePayload({
+      signer_id: this.options.accountId,
+      verifying_contract: intent.verifying_contract,
+      deadline: intent.deadline,
+      nonce: intent.nonce,
+      intents: intent.intents,
+    });
+    const fields = webAuthnFields(payload);
+    const signature = await this.signHash(Buffer.from(fields.messageHex, "hex"));
+    return {
+      standard: "webauthn",
+      payload,
+      public_key: this.options.publicKey,
+      signature: `p256:${baseEncode(signature)}`,
+      client_data_json: fields.clientDataJSON,
+      authenticator_data: fields.authenticatorData,
+    } as Awaited<ReturnType<IIntentSigner["signIntent"]>>;
+  }
+
+  /** The only call into bursar-signer. Guards run before this. */
+  private signHash(hash: Uint8Array): Promise<Uint8Array> {
+    if (this.options.signHash) return this.options.signHash(hash);
+    return signWithHelper(this.options.accountId, hash);
   }
 }
 
-/** The signer key saved by `near account import-account … save-to-keychain`. */
-export function secretFromKeychain(accountId: string): string {
-  const raw = execFileSync("security", ["find-generic-password", "-s", `near-mainnet-${accountId}`, "-w"], {
-    encoding: "utf8",
-  }).trim();
-  if (raw.startsWith("ed25519:") || raw.startsWith("secp256k1:")) return raw;
-  const parsed = JSON.parse(raw) as Record<string, unknown>;
-  const secret = parsed.secret_keypair_str ?? parsed.private_key ?? parsed.secret_key;
-  if (typeof secret !== "string" || secret.length === 0) throw new Error("keychain entry has no secret");
-  return secret;
+/** The enclave account. Creating the key can ask for Touch ID. The private key stays in the helper. */
+export function enclaveIdentity(): Promise<{ accountId: string; publicKey: string }> {
+  return new Promise((resolve, reject) => {
+    const child = spawn(helperBinary(), ["account"], { stdio: ["ignore", "pipe", "pipe"] });
+    const out: Buffer[] = [];
+    const err: Buffer[] = [];
+    child.stdout.on("data", (chunk: Buffer) => out.push(chunk));
+    child.stderr.on("data", (chunk: Buffer) => err.push(chunk));
+    child.on("error", reject);
+    child.on("close", (code) => {
+      const text = Buffer.concat(out).toString("utf8").trim().split("\n");
+      if (code !== 0 || !text[0] || !text[1]) {
+        reject(new Error(Buffer.concat(err).toString("utf8").trim() || "STOP: signer"));
+        return;
+      }
+      resolve({ accountId: text[0], publicKey: text[1] });
+    });
+  });
+}
+
+/** The signed helper. The CLI sends the bytes to sign and reads a signature. */
+export async function touchSigner(accountId: string, quote: SignedQuote, now?: () => number, payloadText?: () => string | undefined): Promise<BursarGuardedSigner> {
+  if (/^[0-9a-f]{64}$/i.test(accountId)) {
+    const { legacyInner } = await import("./legacy-key.js");
+    return new BursarGuardedSigner(legacyInner(accountId), { accountId, quote, now });
+  }
+  const identity = await enclaveIdentity();
+  if (identity.accountId !== accountId) throw new Error("STOP: signer id");
+  return new BursarGuardedSigner(null, { accountId, publicKey: identity.publicKey, quote, now, payloadText });
 }
 
 /** NEAR native USDC. `ft_balance_of` is the on-chain balance, not the Intents balance. */
@@ -103,8 +155,8 @@ export function transferStop(
 }
 
 /**
- * Signs the transfer only after `transferStop` returns null.
- * `broadcast` is the only function that receives the secret, and only then.
+ * Calls `broadcast` only after `transferStop` returns null.
+ * `broadcast` does not receive the key.
  */
 export async function signGuardedTransfer(
   action: FtTransfer,
@@ -116,45 +168,98 @@ export async function signGuardedTransfer(
   return broadcast();
 }
 
-/** Receives the secret and passes it to the Intents keypair signer. */
-export function signerFromSecret(secret: string, accountId: string, quote: SignedQuote, now?: () => number): BursarGuardedSigner {
-  const inner = createIntentSignerNearKeyPair({
-    signer: KeyPair.fromString(secret as never),
-    accountId,
-  });
-  return new BursarGuardedSigner(inner, { accountId, quote, now });
-}
-
 /**
- * Broadcasts the guarded NEAR USDC transfer. The secret reaches `near-api-js`
- * only after `transferStop` has accepted the action.
+ * Broadcasts the guarded NEAR USDC transfer. The helper signs only after
+ * `transferStop` has accepted the action. The key stays in the helper.
  */
 export async function sendGuardedUsdc(options: {
-  secret: string;
   accountId: string;
   depositAddress: string;
   amount: string;
   memo: string | null;
 }): Promise<string> {
   const action = usdcTransfer(options.depositAddress, options.amount, options.memo);
-  return signGuardedTransfer(action, options, () => broadcastFtTransfer(action, options.accountId, options.secret));
+  const stop = transferStop(action, options);
+  if (stop) throw new Error(stop);
+  throw new Error("STOP: the enclave key signs intents");
 }
 
-async function broadcastFtTransfer(action: FtTransfer, accountId: string, secret: string): Promise<string> {
-  const keyStore = new keyStores.InMemoryKeyStore();
-  await keyStore.setKey("mainnet", accountId, KeyPair.fromString(secret as `ed25519:${string}`));
-  const near = await connect({
-    networkId: "mainnet",
-    nodeUrl: process.env.NEAR_RPC_URL ?? "https://rpc.mainnet.near.org",
-    keyStore,
-  } as never);
-  const account = await near.account(accountId);
-  const outcome = await account.functionCall({
-    contractId: action.contractId,
-    methodName: action.methodName,
-    args: action.args,
-    gas: action.gas,
-    attachedDeposit: action.attachedDeposit,
-  }) as { transaction: { hash: string } };
-  return outcome.transaction.hash;
+export function defusePayload(input: {
+  signer_id: string;
+  verifying_contract: string;
+  deadline: string;
+  nonce: string;
+  intents: IntentPayload["intents"];
+}): string {
+  return JSON.stringify({
+    signer_id: input.signer_id,
+    verifying_contract: input.verifying_contract,
+    deadline: input.deadline,
+    nonce: input.nonce,
+    intents: input.intents,
+  });
+}
+
+/** Same bytes as `BursarEnclave.prepare`. The challenge is base64url(sha256(payload)). */
+export function webAuthnFields(payload: string): { clientDataJSON: string; authenticatorData: string; messageHex: string } {
+  const challenge = base64url(createHash("sha256").update(payload).digest());
+  const clientDataJSON = `{"type":"webauthn.get","challenge":"${challenge}","origin":"https://app.bursar.phone"}`;
+  const rp = createHash("sha256").update("app.bursar.phone").digest();
+  const authenticator = Buffer.concat([rp, Buffer.from([0x05, 0, 0, 0, 0])]);
+  const clientHash = createHash("sha256").update(clientDataJSON).digest();
+  const message = Buffer.concat([authenticator, clientHash]);
+  return {
+    clientDataJSON,
+    authenticatorData: base64url(authenticator),
+    messageHex: message.toString("hex"),
+  };
+}
+
+function base64url(data: Buffer): string {
+  return data.toString("base64").replaceAll("+", "-").replaceAll("/", "_").replaceAll("=", "");
+}
+
+/** sha256 of the NEP-413 borsh payload, the bytes Ed25519 signs. */
+export function nep413Hash(input: { message: string; nonce: Uint8Array; recipient: string }): Uint8Array {
+  if (input.nonce.length !== 32) throw new Error("STOP: nonce");
+  const payload = Buffer.concat([
+    borshString(input.message),
+    Buffer.from(input.nonce),
+    borshString(input.recipient),
+    Buffer.from([0]),
+  ]);
+  const prefix = Buffer.alloc(4);
+  prefix.writeUInt32LE((2 ** 31 + 413) >>> 0);
+  return createHash("sha256").update(prefix).update(payload).digest();
+}
+
+function borshString(value: string): Buffer {
+  const body = Buffer.from(value, "utf8");
+  const length = Buffer.alloc(4);
+  length.writeUInt32LE(body.length);
+  return Buffer.concat([length, body]);
+}
+
+function helperBinary(): string {
+  return fileURLToPath(new URL("../signer/bursar-signer", import.meta.url));
+}
+
+function signWithHelper(accountId: string, message: Uint8Array): Promise<Uint8Array> {
+  return new Promise((resolve, reject) => {
+    const child = spawn(helperBinary(), ["sign", accountId], { stdio: ["pipe", "pipe", "pipe"] });
+    const out: Buffer[] = [];
+    const err: Buffer[] = [];
+    child.stdout.on("data", (chunk: Buffer) => out.push(chunk));
+    child.stderr.on("data", (chunk: Buffer) => err.push(chunk));
+    child.on("error", reject);
+    child.on("close", (code) => {
+      const signature = Buffer.concat(out);
+      if (code !== 0 || signature.length !== 64) {
+        reject(new Error(Buffer.concat(err).toString("utf8").trim() || "STOP: signer"));
+        return;
+      }
+      resolve(signature);
+    });
+    child.stdin.end(message);
+  });
 }

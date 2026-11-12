@@ -27,7 +27,7 @@ def ethereus_mac() -> Path:
 
 
 CHIP_SHA256 = "7d756fd40e9b6c4bd36ec3f4afea44f2d04d7269c27bc841e6f4aff96007a216"
-ELF_SHA256 = "3bc277a53d1ac9cc359201997281e9eb363665915533628dfe198e3b92609ddd"
+ELF_SHA256 = "8cb34279eb5d0528800beebb618b750c52bbddd792f61742dd1b01480523a2be"
 # The chip pack is not on Hugging Face yet. Set BURSAR_CHIP_HF_REVISION when it is.
 HF_REPO = "frsrcom/bursar-9b"
 
@@ -82,9 +82,10 @@ def output_of(echo: str) -> str:
     return echo[start + len("<tool_response>\n"):end].strip()
 
 
-def run(cmd: str) -> dict:
+def run(cmd: str, files: dict[str, str] | None = None) -> dict:
     mac = ethereus_mac()
     sys.path.insert(0, str(mac))
+    os.environ.setdefault("LOCALS_CHIPFORMER", str(Path.home() / "Dev/ethereus/experimental/riscv"))
     os.environ["LOCALS_ETH_PACK"] = str(pack_dir())
     import torch
     torch.set_num_threads(int(os.environ.get("BURSAR_TORCH_THREADS") or "4"))
@@ -105,11 +106,29 @@ def run(cmd: str) -> dict:
     got_w, got_e = _sha256(weights), _sha256(elf) if elf.is_file() else ""
     if got_w != CHIP_SHA256 or got_e != ELF_SHA256:
         raise SystemExit(f"chip pack hash mismatch weights {got_w} elf {got_e}")
+    files = files or {}
+    shown = cmd
+    if files:
+        import tempfile
+        sys.path.append(os.environ["LOCALS_CHIPFORMER"])
+        from chipformer.rv import spill as fw
+        from locals.models.eth_spill import plan
+        from locals.models.qwenputer import add_snapshot, firmware_states
+        planned = plan(cmd, len(enc(fw.call_text(cmd))), files, enc)
+        if planned:
+            image = fw.firmware_with_files(elf, planned.files, planned.eth_in)
+            src = Path(os.environ.get("ETH_SRC") or Path.home() / "Dev/ethereus-artifacts/2026-11-02/q9-store-rv")
+            tmp = Path(tempfile.mkdtemp(prefix="bursar-chip-"))
+            os.symlink(weights, tmp / "chip.safetensors")
+            os.symlink(pack / "chip.json", tmp / "chip.json")
+            add_snapshot(tmp, firmware_states(src, image))
+            pack = tmp
+            shown = planned.short or cmd
     cpu = CpuChip(pack)
     st = cpu.new_state(1)
     cpu(cpu.embed([enc(PROMPT)]), st)
     cpu.inject(st)
-    call = enc(tool_text(cmd))
+    call = enc(tool_text(shown))
     first = int(cpu.read(call, st)[-1])
     if first < 0:
         raise SystemExit(f"the computer did not take the call ({first})")
@@ -122,6 +141,8 @@ def run(cmd: str) -> dict:
             break
         ids.append(nxt)
         cur = nxt
+        if len(ids) % 20000 == 0:
+            print(f"[weights] {len(ids)} tokens", file=sys.stderr, flush=True)
         if len(ids) > 250_000:
             raise SystemExit("run exceeded 250000 tokens")
     wall_ms = int(round((time.perf_counter() - t0) * 1000))
@@ -135,9 +156,10 @@ def run(cmd: str) -> dict:
 
 
 def main() -> None:
-    if len(sys.argv) != 2:
-        raise SystemExit("usage: computer_run.py <cmd>")
-    json.dump(run(sys.argv[1]), sys.stdout)
+    if len(sys.argv) not in (2, 3):
+        raise SystemExit("usage: computer_run.py <cmd> [files.json]")
+    files = json.loads(Path(sys.argv[2]).read_text()) if len(sys.argv) == 3 else {}
+    json.dump(run(sys.argv[1], files), sys.stdout)
     sys.stdout.write("\n")
 
 

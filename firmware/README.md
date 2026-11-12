@@ -5,8 +5,8 @@ The computer in the weights runs this bridge ELF.
 | | |
 | --- | --- |
 | File | `eth-bridge.elf` |
-| SHA-256 | `3bc277a53d1ac9cc359201997281e9eb363665915533628dfe198e3b92609ddd` |
-| Bytes | 467912 |
+| SHA-256 | `8cb34279eb5d0528800beebb618b750c52bbddd792f61742dd1b01480523a2be` |
+| Bytes | 468000 |
 | Source tree | ethereus `all-chains` `5513411398a3001c57977e6272986ff043bb9f36` |
 | Compiler | `riscv64-elf-gcc` 16.2.0 |
 | Flags | `-march=rv32im_zba -mabi=ilp32`, `-O2`, `solops.c` and `curve_mono.c` at `-Os` |

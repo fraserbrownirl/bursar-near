@@ -166,7 +166,8 @@ async function pay(argv: readonly string[]): Promise<void> {
     process.stdout.write("fixture replay: not submitted\n");
     return;
   }
-  const signer = await touchSigner(accountId, response, () => nowMs);
+  let exactPayload = "";
+  const signer = await touchSigner(accountId, response, () => nowMs, () => exactPayload || undefined);
   const line = await settle({
     quote: response,
     request,
@@ -177,12 +178,27 @@ async function pay(argv: readonly string[]): Promise<void> {
       process.stdout.write(result.lines + "\n");
       return result.stop;
     }),
-    generateIntent: async (depositAddress, signerId) => OneClickService.generateIntent({
-      type: "swap_transfer",
-      standard: "nep413",
-      signerId,
-      depositAddress,
-    } as never) as Promise<{ intent: { payload: { message: string; nonce: string; recipient: string } } }>,
+    generateIntent: async (depositAddress, signerId) => {
+      const webauthn = !/^[0-9a-f]{64}$/i.test(signerId);
+      const generated = await OneClickService.generateIntent({
+        type: "swap_transfer",
+        standard: webauthn ? "webauthn" : "nep413",
+        signerId,
+        depositAddress,
+      } as never) as { intent: { payload: { message: string; nonce: string; recipient: string } | string } };
+      if (typeof generated.intent.payload !== "string") return generated as { intent: { payload: { message: string; nonce: string; recipient: string } } };
+      exactPayload = generated.intent.payload;
+      const parsed = JSON.parse(exactPayload) as { deadline: string; nonce: string; verifying_contract: string; signer_id: string; intents: unknown };
+      return {
+        intent: {
+          payload: {
+            message: JSON.stringify({ deadline: parsed.deadline, intents: parsed.intents, signer_id: parsed.signer_id }),
+            nonce: parsed.nonce,
+            recipient: parsed.verifying_contract,
+          },
+        },
+      };
+    },
     submitIntent: async (signed) => OneClickService.submitIntent({ type: "swap_transfer", signedData: signed } as never),
   });
   process.stdout.write(line + "\n");
@@ -231,6 +247,8 @@ async function fund(argv: readonly string[]): Promise<void> {
 }
 
 async function main(): Promise<void> {
+  const { selfTestModel } = await import("./model.js");
+  await selfTestModel();
   const argv = process.argv.slice(2);
   if (argv.length === 0) {
     const { createInterface } = await import("node:readline");

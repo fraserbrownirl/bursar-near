@@ -6,6 +6,36 @@ import { receiptsDir, writeReceipt, type Receipt } from "./receipt.js";
 
 const MODEL_URL = process.env.BURSAR_MODEL_URL ?? "http://127.0.0.1:8000/v1/chat/completions";
 
+let referenceOnly = false;
+
+/** A later in-model check failed. Cards stay labelled until one succeeds. */
+export function noteReferenceOnly(): void {
+  referenceOnly = true;
+}
+
+export function referenceChecksOnly(): boolean {
+  return referenceOnly;
+}
+
+/** One tiny @file check. Failure is one line, and cards say reference checks only. */
+export async function selfTestModel(): Promise<boolean> {
+  const payload = JSON.stringify({
+    signer_id: "a.near",
+    verifying_contract: "intents.near",
+    deadline: "2026-11-13T00:00:00.000Z",
+    nonce: "11".repeat(32),
+    intents: [],
+  });
+  const live = await liveCall("intents dec @payload", { payload: Buffer.from(payload, "utf8").toString("hex") });
+  if (!live.value || !live.receipt) {
+    referenceOnly = true;
+    process.stderr.write("in-model check failed: reference checks only\n");
+    return false;
+  }
+  referenceOnly = false;
+  return true;
+}
+
 /** Integer atomic units to a decimal string. Same split a `sol ui` call returns. */
 export function referenceUi(atomic: string, decimals: number): string {
   const value = BigInt(atomic);
@@ -56,8 +86,10 @@ export async function liveCall(cmd: string, files: Record<string, string> = {}):
       const inputDir = join(receiptsDir(), "inputs");
       if (Object.keys(files).length > 0) mkdirSync(inputDir, { recursive: true });
       for (const [name, text] of Object.entries(files)) {
-        inputs[name] = createHash("sha256").update(text).digest("hex");
+        const digest = createHash("sha256").update(text).digest("hex");
+        inputs[name] = digest;
         writeFileSync(join(inputDir, name), text);
+        writeFileSync(join(inputDir, digest), text);
       }
       const receipt: Receipt = {
         cmd,

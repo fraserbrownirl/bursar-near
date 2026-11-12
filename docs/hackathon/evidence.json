@@ -34,16 +34,27 @@
     {"date": "2026-11-10", "kind": "report", "account": "bad1794304962694.near", "signer": "a45c2058b1503457935861504bf71359397f305648fb8f7c9e563ac12d3cab14", "public_key": "ed25519:C4bLgu8wupagUZFCXKgLnNusLnfFDXJEQ6AXUWJePoa3", "evidence_hash": "13cfb0baf872fa2ed72d01fc1b7bc4813663db3b929f3a0182b7595464c2953a", "id": "BvySKjNJ3rvqM5xQL5q4gke49oCfhRd2uCDVQeWvhyjC", "url": "https://nearblocks.io/txns/BvySKjNJ3rvqM5xQL5q4gke49oCfhRd2uCDVQeWvhyjC", "note": "full-access key; this call wrote the stored report"},
     {"date": "2026-11-10", "kind": "report", "account": "bad1794304962694.near", "signer": "a45c2058b1503457935861504bf71359397f305648fb8f7c9e563ac12d3cab14", "public_key": "ed25519:3ZT5JJHHiZ2emPicC32Y9LzwYADU4W1avvFiysbbe4z7", "evidence_hash": "13cfb0baf872fa2ed72d01fc1b7bc4813663db3b929f3a0182b7595464c2953a", "id": "8Y9JSyJdSZvMRrWWG1HV9j5K319Y5dJvefhHi1QbEQWu", "url": "https://nearblocks.io/txns/8Y9JSyJdSZvMRrWWG1HV9j5K319Y5dJvefhHi1QbEQWu", "note": "function-call key; the contract already had this reporter, so the stored list stayed one row"},
     {"date": "2026-11-10", "kind": "anchor", "account": "bursar-reports.near", "signer": "a45c2058b1503457935861504bf71359397f305648fb8f7c9e563ac12d3cab14", "public_key": "ed25519:3ZT5JJHHiZ2emPicC32Y9LzwYADU4W1avvFiysbbe4z7", "head": "13cfb0baf872fa2ed72d01fc1b7bc4813663db3b929f3a0182b7595464c2953a", "block_height": 223922998, "id": "Ds99qAExPLWfowBnChqU9NrsvzqkgabUbTpjHgtZDngp", "url": "https://nearblocks.io/txns/Ds99qAExPLWfowBnChqU9NrsvzqkgabUbTpjHgtZDngp"},
-    {"date": "2026-11-10", "kind": "ft_transfer_call", "token": "17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1", "to": "intents.near", "amount": "300000", "owner": "515ead208df187f146f2ae5f7e24522cf2ca977df95bdee7bb5f957bbe142c54", "id": "FUYorSoEYsNdYsZcGUdv1JGqSCSdeSEJ4d48k8F69cPs", "url": "https://nearblocks.io/txns/FUYorSoEYsNdYsZcGUdv1JGqSCSdeSEJ4d48k8F69cPs"},
-    {"date": "2026-11-10", "kind": "pay", "from": "515ead208df187f146f2ae5f7e24522cf2ca977df95bdee7bb5f957bbe142c54", "to": "frsrcom.near", "amount": "250000", "asset": "USDC", "status": "SUCCESS", "depositAddress": "c8b251899f7406b4242edd34ae6d03a446c7a617fc94b87e9303ffb65ac29c1a", "intent": "8zBRUfc2cv4S4ePrhbeAYTdoXo3km9aa4eyvsf54e9PP", "id": "8iEQeRWP1GTKvdHVUmGTiZvsPrd6DCCitrNCF3CQXYCb", "url": "https://nearblocks.io/txns/8iEQeRWP1GTKvdHVUmGTiZvsPrd6DCCitrNCF3CQXYCb", "receipts": ["1b2437a38474673dc25662f41dcaf40bbcfec35369e896208bad5e4b7dfc1307", "afcd5ebbced6c6a72b8b21344382c58df00c8d04bea95e5c5d972f71891cfb3d", "46c477f4fd8b59dc6319d6bf98b16e1773a8ba2867955444cba4346d9c52476f", "93b52051b20720e817cfc6eeb37dc40c0e779ca2463d741d0ae0310834302ca2"]}
+    {"date": "2026-11-10", "kind": "ft_transfer_call", "token": "17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1", "to": "intents.near", "amount": "300000", "display": "0.3", "owner": "515ead208df187f146f2ae5f7e24522cf2ca977df95bdee7bb5f957bbe142c54", "id": "FUYorSoEYsNdYsZcGUdv1JGqSCSdeSEJ4d48k8F69cPs", "url": "https://nearblocks.io/txns/FUYorSoEYsNdYsZcGUdv1JGqSCSdeSEJ4d48k8F69cPs"},
+    {"date": "2026-11-10", "kind": "pay", "from": "515ead208df187f146f2ae5f7e24522cf2ca977df95bdee7bb5f957bbe142c54", "to": "frsrcom.near", "amount": "250000", "display": "0.25", "fee_out": "247500", "asset": "USDC", "status": "SUCCESS", "depositAddress": "c8b251899f7406b4242edd34ae6d03a446c7a617fc94b87e9303ffb65ac29c1a", "intent": "8zBRUfc2cv4S4ePrhbeAYTdoXo3km9aa4eyvsf54e9PP", "id": "8iEQeRWP1GTKvdHVUmGTiZvsPrd6DCCitrNCF3CQXYCb", "url": "https://nearblocks.io/txns/8iEQeRWP1GTKvdHVUmGTiZvsPrd6DCCitrNCF3CQXYCb", "receipts": ["1b2437a38474673dc25662f41dcaf40bbcfec35369e896208bad5e4b7dfc1307", "afcd5ebbced6c6a72b8b21344382c58df00c8d04bea95e5c5d972f71891cfb3d", "46c477f4fd8b59dc6319d6bf98b16e1773a8ba2867955444cba4346d9c52476f", "93b52051b20720e817cfc6eeb37dc40c0e779ca2463d741d0ae0310834302ca2"]},
+    {"date": "2026-11-11", "kind": "ft_transfer", "token": "wrap.near", "to": "d0b5b4ec49bcded6882649388228a411c77652b45495d641aee8d2cafa55fed9", "amount": "42321341167365862085446", "owner": "515ead208df187f146f2ae5f7e24522cf2ca977df95bdee7bb5f957bbe142c54", "id": "3zLXRKQVhDDx1cBh5zSDhLAEhobmTYi9zwi3nQ6or4Dg", "url": "https://nearblocks.io/txns/3zLXRKQVhDDx1cBh5zSDhLAEhobmTYi9zwi3nQ6or4Dg", "note": "First wNEAR top-up. Later REFUNDED, reason QUOTE_EXPIRED"},
+    {"date": "2026-11-11", "kind": "ft_transfer", "token": "wrap.near", "to": "555bf635e5c67944099e536302773f79fea1e7f44fa1f254fba141eba5b0e7e4", "amount": "42239965408412290954030", "owner": "515ead208df187f146f2ae5f7e24522cf2ca977df95bdee7bb5f957bbe142c54", "id": "DFgdnoigmaidNXXF85TZmdutBWNt75NruNKeqhGGUQBm", "url": "https://nearblocks.io/txns/DFgdnoigmaidNXXF85TZmdutBWNt75NruNKeqhGGUQBm", "note": "Second wNEAR top-up, 150000 USDC exact output. Settled as 4h7dMbwdXe7iV1ZXPQy11bRdUiGkzKLehBZ6kg51zt59"},
+    {"date": "2026-11-11", "kind": "mpp-deposit", "chain": "arbitrum", "amount": "101034", "asset": "USDC", "id": "0x9a7a379e88c4e704d1e9638e868d951b4befbdb930e90a756c09fbb83b525599", "url": "https://arbiscan.io/tx/0x9a7a379e88c4e704d1e9638e868d951b4befbdb930e90a756c09fbb83b525599"},
+    {"date": "2026-11-11", "kind": "mpp-settlement", "to": "frsrcom.near", "amount": "100000", "asset": "USDC", "id": "yTnoP1oA2Yb92xen7fQGd7XP6ws4hhw6EGiHB9utp2z", "url": "https://nearblocks.io/txns/yTnoP1oA2Yb92xen7fQGd7XP6ws4hhw6EGiHB9utp2z", "amount_in": "107433"},
+    {"date": "2026-11-12", "kind": "pay", "from": "515ead208df187f146f2ae5f7e24522cf2ca977df95bdee7bb5f957bbe142c54", "to": "frsrcom.near", "amount": "20000", "display": "0.02", "asset": "USDC", "status": "SUCCESS", "depositAddress": "f41c56880dee618dc20faa63c56a8a852c9f6e990bf5cfe59c45512c43f66c0e", "id": "Ck8wGNBwD8Y1TJZjKW3Nn7opX8Wz2tkoiGPYF3ajuGvp", "url": "https://nearblocks.io/txns/Ck8wGNBwD8Y1TJZjKW3Nn7opX8Wz2tkoiGPYF3ajuGvp", "receipts": ["9274fa0d122ac6286d1a8bad56e34a3774764a4f9d791eb599e0f458d6ed0dba", "919bd558135a8bfa925a33ad15579a06610a6a83e213a025c4f0429c8d834f95"]},
+    {"date": "2026-11-12", "kind": "sweep", "from": "515ead208df187f146f2ae5f7e24522cf2ca977df95bdee7bb5f957bbe142c54", "to": "0xbc77a1ef1ee04fc563ccb1d19e28dcc7385f136b", "amount": "73642", "display": "0.073642", "asset": "USDC", "status": "SUCCESS", "id": "FaLbFsWREEQNvCP26yfXVwdYRa8oL7zTPf248x4BFVa4", "url": "https://nearblocks.io/txns/FaLbFsWREEQNvCP26yfXVwdYRa8oL7zTPf248x4BFVa4", "receipts": ["6ad8ab05e681d3569e87b441f5f4e30049042cd05c89ce7da8e76f4668378b05", "412f3f2bd03dcd9c05d15e7d297cfe3dda00af0ca8ebd6550ab051de76a82f7a"]}
   ],
   "runs": [
     {"kind": "receipt", "date": "2026-11-10", "file": "receipts/bf724a2f86e6b619ac7a55f432bad29459157a0ea8fee474cad5e24994e09f76.json", "wall_ms": 3880},
     {"kind": "check", "date": "2026-11-10", "command": "npm run bursar -- check bad1794304962694.near", "verdict": "block", "reason": "reported by a45c2058b1503457935861504bf71359397f305648fb8f7c9e563ac12d3cab14, evidence 13cfb0baf872fa2ed72d01fc1b7bc4813663db3b929f3a0182b7595464c2953a", "ledger": "f092be2e022e1e7df4492eb8a7e5f9374360202aea8bccb927d175888837e15f"},
-    {"kind": "eth-evals", "date": "2026-11-06", "file": "ext-untrained-qwenputer-syntax-tools-fw3782ed2b.json", "timestamp": "2026-11-06 18:50:58", "overall": 19.2},
-    {"kind": "mmlu", "date": "2026-11-02", "file": "q9-store-rv-ft1b/mmlu.json", "accuracy": 78.6, "n": 500},
-    {"kind": "mmlu", "date": "2026-11-02", "file": "mmlu-stock.json", "accuracy": 78.0, "n": 500},
-    {"kind": "kl", "date": "2026-11-02", "file": "ft1b-gates.log", "line": "FT_KL_GATE PASS 0.007834141299099429 cap 0.05"}
+    {"kind": "ledger-file", "date": "2026-11-11", "file": "receipts/ledger.txt", "lines": 6, "sha256": "68cb589754ca5d59069397f314016d63cc78f82889e3f8b6423072ee6b11eb1e", "note": "SHA-256 of the current file. The anchored head 13cfb0baf872fa2ed72d01fc1b7bc4813663db3b929f3a0182b7595464c2953a is the SHA-256 of the file when it was one line plus a newline."},
+    {"kind": "eth-evals", "date": "2026-11-06", "file": "ext-untrained-qwenputer-syntax-tools-fw3782ed2b.json", "in_repo": false, "timestamp": "2026-11-06 18:50:58", "overall": 19.2},
+    {"kind": "mmlu", "date": "2026-11-02", "file": "q9-store-rv-ft1b/mmlu.json", "in_repo": false, "accuracy": 78.6, "n": 500},
+    {"kind": "mmlu", "date": "2026-11-02", "file": "mmlu-stock.json", "in_repo": false, "accuracy": 78.0, "n": 500},
+    {"kind": "kl", "date": "2026-11-02", "file": "ft1b-gates.log", "in_repo": false, "line": "FT_KL_GATE PASS 0.007834141299099429 cap 0.05"},
+    {"kind": "catalog", "date": "2026-11-11", "command": "npm run bursar -- find card", "services": 139, "payable": {"nearintents": 0, "tempo": 0, "evm": 0, "stripe": 0}},
+    {"kind": "bazaar", "date": "2026-11-11", "command": "bursar find weather", "bazaar": 2, "payable": 2, "url": "https://x402.tbs-digital.com/weather/current", "amount": "1000", "display": "0.001", "scheme": "exact", "network": "eip155:8453"},
+    {"kind": "balance", "date": "2026-11-11", "command": "npm run bursar -- balance", "intents_usdc": "0.05", "base_float_usdc": "0", "keychain": "bursar-evm", "address": "0xE7369dD4F08fA5203B06F3E1Dccee00a11cCF152"},
+    {"kind": "premium", "date": "2026-11-11", "url": "http://127.0.0.1:8402/premium", "http": 200, "body": "{\"premium\":true,\"insight\":\"The merchant was paid an exact amount on NEAR before you saw this.\",\"servedAt\":\"2026-11-11T11:26:07.702Z\"}", "merchant_receives": "100000", "merchant": "frsrcom.near", "amount_in": "107433", "display_in": "0.107433", "origin": "0x9a7a379e88c4e704d1e9638e868d951b4befbdb930e90a756c09fbb83b525599", "delivery": "yTnoP1oA2Yb92xen7fQGd7XP6ws4hhw6EGiHB9utp2z", "paid": true}
   ],
   "cited": [
     "https://explorer.solana.com/tx/2MSFP4BiqvhsxmwJUE9S2iqB8k2sZFAV7fK7rPCDKnxbPeSwfkFFQPp7QYuTHDtbiUNuBmT4aXtecxaMuQ3hiCGo",
@@ -56,10 +67,13 @@
     "https://nearblocks.io/txns/7VWsx2Z5p8H96cdLJRAix1ExnT4t4YYkqHZ5ywyUC2rz",
     "e9324c1ef20faf5fa39e92abe1d5477abd111e90bb4dfac83465c954a6ff3f49",
     "3bc277a53d1ac9cc359201997281e9eb363665915533628dfe198e3b92609ddd",
+    "8cb34279eb5d0528800beebb618b750c52bbddd792f61742dd1b01480523a2be",
+    "e3c2f204f05f45986fdbfaffb9e464cb99dd23dd7aabfae6079af8c6a7da32f5",
     "7d756fd40e9b6c4bd36ec3f4afea44f2d04d7269c27bc841e6f4aff96007a216",
     "6d4827eb18025c05ed19a22fa792856cd058e7cc4b3a275e555046815acd9a07",
     "bf724a2f86e6b619ac7a55f432bad29459157a0ea8fee474cad5e24994e09f76",
     "13cfb0baf872fa2ed72d01fc1b7bc4813663db3b929f3a0182b7595464c2953a",
+    "68cb589754ca5d59069397f314016d63cc78f82889e3f8b6423072ee6b11eb1e",
     "5880ad2b362620fadf759cbceb1cd5737ce8c6ed7fb8e9942881e6731f9247dd",
     "17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1",
     "frol.near",
@@ -70,6 +84,8 @@
     "not-the-deposit.near",
     "test.near",
     "bursar-reports.near",
-    "bad1794304962694.near"
+    "bad1794304962694.near",
+    "bad-merchant.near",
+    "agent-a.near"
   ]
 }

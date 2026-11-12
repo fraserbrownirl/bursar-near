@@ -53,6 +53,22 @@ export function quoteCheckLine(quote: SignedQuote, expected: {
   memo?: string;
 }, nowSec: number): string {
   if (!signatureOk(quote)) return "fail signature";
+  return quoteFieldLine(quote, expected, nowSec);
+}
+
+/**
+ * The field half of `1click check`. Recipient and refund are compared as
+ * text, so an ed25519 implicit account and a `0x` P-256 implicit account
+ * are the same rule. The signature is not checked here.
+ */
+export function quoteFieldLine(quote: SignedQuote, expected: {
+  recipient: string;
+  refundTo: string;
+  destinationAsset: string;
+  amount: string;
+  minAmountOut: string;
+  memo?: string;
+}, nowSec: number): string {
   const asked = quote.quoteRequest;
   const got = quote.quote;
   const fails: string[] = [];
@@ -63,7 +79,12 @@ export function quoteCheckLine(quote: SignedQuote, expected: {
   if (asked.destinationAsset !== expected.destinationAsset) fails.push("asset");
   const amount = normInt(got.amountIn);
   const wanted = normInt(expected.amount);
-  if (amount === null || wanted === null || amount !== wanted) fails.push("amount");
+  const signedAmount = normInt(asked.amount);
+  const swap = asked.swapType ?? "EXACT_INPUT";
+  const amountFail = swap === "EXACT_INPUT"
+    ? amount === null || wanted === null || amount !== wanted
+    : signedAmount === null || wanted === null || signedAmount !== wanted;
+  if (amountFail) fails.push("amount");
   const minOut = normInt(got.minAmountOut);
   const minWanted = normInt(expected.minAmountOut);
   if (minOut === null || minWanted === null || cmp(minOut, minWanted) < 0) fails.push("min_out");
@@ -80,12 +101,22 @@ export function quoteCheckLine(quote: SignedQuote, expected: {
 /**
  * `1click check` against verifyQuoteSignature and the field rules.
  * The quote is a file named in `files` (`@name` or the bare name).
- * The other arguments are what the caller asked for.
+ * Recipient and refund are the same: a literal account, or `@name` whose
+ * file is the account text (a spilled `0x` implicit account).
  */
+function accountArg(token: string, files: Readonly<Record<string, Buffer>>): string | null {
+  if (!token.startsWith("@")) return token;
+  const bytes = files[token.slice(1)];
+  return bytes ? bytes.toString("utf8") : null;
+}
+
 export function reference1Click(args: readonly string[], files: Readonly<Record<string, Buffer>>): string {
   if (args.length !== 9 || args[0] !== "check") return "error (bad op)";
-  const [, quoteArg, recipient, refundTo, asset, minOut, amount, nowText, memoTok] = args;
+  const [, quoteArg, recipientTok, refundTok, asset, minOut, amount, nowText, memoTok] = args;
   if (!/^\d+$/.test(nowText)) return "error (bad now)";
+  const recipient = accountArg(recipientTok, files);
+  const refundTo = accountArg(refundTok, files);
+  if (recipient === null || refundTo === null) return "error (no file)";
   const name = quoteArg.startsWith("@") ? quoteArg.slice(1) : quoteArg;
   const bytes = files[name];
   if (!bytes) return "error (no file)";

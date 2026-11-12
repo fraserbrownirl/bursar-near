@@ -13,7 +13,9 @@ function inputDir(): string {
 function filesFor(receipt: Receipt): Record<string, Buffer> | null {
   const files: Record<string, Buffer> = {};
   for (const [name, want] of Object.entries(receipt.inputs)) {
-    const path = join(inputDir(), name);
+    const named = join(inputDir(), name);
+    const hashed = join(inputDir(), want);
+    const path = existsSync(hashed) ? hashed : named;
     if (!existsSync(path)) return null;
     const bytes = readFileSync(path);
     if (sha256Bytes(bytes) !== want) return null;
@@ -49,7 +51,8 @@ export async function verifyAll(): Promise<{ hash: string; verdict: Verdict }[]>
 }
 
 async function main(): Promise<void> {
-  const rows = await verifyAll();
+  const only = new Set(process.argv.slice(2).filter((arg) => /^[0-9a-f]{64}$/.test(arg)));
+  const rows = (await verifyAll()).filter((row) => only.size === 0 || only.has(row.hash));
   if (rows.length === 0) {
     process.stdout.write("no receipts\n");
     process.exit(1);
