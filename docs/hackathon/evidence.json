@@ -34,7 +34,7 @@
    "first_date": "2026-10-31",
    "latest": "32546f2",
    "latest_date": "2026-11-12",
-   "note": "the computer in the weights and the firmware; public GitHub HEAD is 1421462 (2026-11-05) until the latest commits are pushed"
+   "note": "the computer in the weights and the firmware; the latest commits (through 32546f2, 2026-11-12) are on the public all-chains branch, main and all-chains merge later"
   },
   {
    "repo": "ethereus-mac",
