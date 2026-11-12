@@ -1,6 +1,12 @@
 # Bursar NEAR
 
-A terminal tool and an MCP service that checks a counterparty, then pays through NEAR Intents. `bursar check <receiver>` prints `allow`, `warn`, or `block` before a key is used. The Mac app is planned.
+An agent that pays the wrong person.
+
+Bursar is an on-device agent. The computer is in the weights. The guarded signer is the only thing that can sign, and it signs only after the checks pass.
+
+Video: `web/public/bursar-demo-v4.mp4`.
+
+`npm test`, `npm run demo`, and `npm run verify`.
 
 ## Links
 
@@ -25,7 +31,7 @@ Three levels. Each command is in this repository.
 | 2 | `npm run verify:firmware` | The firmware source, built with the pinned compiler and run in an RV32IM emulator, produces that output and that trace hash. Label: `firmware check (emulator)`. | That the weights did it. |
 | 3 | `npm run verify:weights` | The chip weights, on CPU in PyTorch, produce that output and that trace hash. | That the language model chose to call the computer. |
 
-`npm run verify:firmware` and `npm run verify:weights` were not run in this session. The receipt `receipts/bf724a2f86e6b619ac7a55f432bad29459157a0ea8fee474cad5e24994e09f76.json` records `wall_ms` 3880 for `sol ui 5000 6`, runtime `locals-mac`, date 2026-11-10. Output `0.005`. Trace tokens 5279. Trace SHA-256 `6d4827eb18025c05ed19a22fa792856cd058e7cc4b3a275e555046815acd9a07`. Firmware ELF SHA-256 `3bc277a53d1ac9cc359201997281e9eb363665915533628dfe198e3b92609ddd`. Chip weights SHA-256 `7d756fd40e9b6c4bd36ec3f4afea44f2d04d7269c27bc841e6f4aff96007a216`. The current firmware file SHA-256 is `8cb34279eb5d0528800beebb618b750c52bbddd792f61742dd1b01480523a2be` (468000 bytes). The SHA-256 of its loadable segments is `e3c2f204f05f45986fdbfaffb9e464cb99dd23dd7aabfae6079af8c6a7da32f5`. The receipt cited above was produced by the previous ELF. The receipt file name is the SHA-256 of its bytes. The anchored head `13cfb0baf872fa2ed72d01fc1b7bc4813663db3b929f3a0182b7595464c2953a` is the SHA-256 of `receipts/ledger.txt` when that file was the single line `bf724a2f86e6b619ac7a55f432bad29459157a0ea8fee474cad5e24994e09f76` plus a newline. The file now has six lines. Its SHA-256 is `68cb589754ca5d59069397f314016d63cc78f82889e3f8b6423072ee6b11eb1e`.
+The receipt `receipts/bf724a2f86e6b619ac7a55f432bad29459157a0ea8fee474cad5e24994e09f76.json` records `wall_ms` 3880 for `sol ui 5000 6`, runtime `locals-mac`, date 2026-11-10. Output `0.005`. Trace tokens 5279. Trace SHA-256 `6d4827eb18025c05ed19a22fa792856cd058e7cc4b3a275e555046815acd9a07`. Firmware ELF SHA-256 `3bc277a53d1ac9cc359201997281e9eb363665915533628dfe198e3b92609ddd`. Chip weights SHA-256 `7d756fd40e9b6c4bd36ec3f4afea44f2d04d7269c27bc841e6f4aff96007a216`. The current firmware file SHA-256 is `8cb34279eb5d0528800beebb618b750c52bbddd792f61742dd1b01480523a2be` (468000 bytes). The SHA-256 of its loadable segments is `e3c2f204f05f45986fdbfaffb9e464cb99dd23dd7aabfae6079af8c6a7da32f5`. The receipt cited above was produced by the previous ELF. The receipt file name is the SHA-256 of its bytes. The anchored head `13cfb0baf872fa2ed72d01fc1b7bc4813663db3b929f3a0182b7595464c2953a` is the SHA-256 of `receipts/ledger.txt` when that file was the single line `bf724a2f86e6b619ac7a55f432bad29459157a0ea8fee474cad5e24994e09f76` plus a newline. The file now has six lines. Its SHA-256 is `68cb589754ca5d59069397f314016d63cc78f82889e3f8b6423072ee6b11eb1e`.
 
 ## Why on-device, and why verifiable
 
@@ -36,7 +42,7 @@ Context for a compromised inference server: https://near.ai/blog/security-incide
 | No inference provider | The model runs on this machine. The default URL is `http://127.0.0.1:8000/v1/chat/completions`. The receipt runtime is `locals-mac`. | `src/model.ts`, the receipt above |
 | A compromised model or agent cannot sign | `BursarGuardedSigner.signIntent` calls the inner signer only after the intent is one `transfer` to the quote's deposit address. A drainer payload throws and the inner signer is not called. | `src/signer.ts`, `test/signer.test.ts` |
 | Verification without trusted hardware | Levels 1–3 recompute the receipt from the published weights, the firmware, or the TypeScript reference. No TEE attestation is used. | `npm run verify`, `npm run verify:firmware`, `npm run verify:weights` |
-| Detection | `npm run verify:weights` prints `MISMATCH` when the output or the trace hash differs (`src/verify-weights.ts`). `verify` in `src/guard/ledger.ts` recomputes every ledger hash. There is no `bursar log` subcommand. `anchor(head)` was sent: https://nearblocks.io/txns/Ds99qAExPLWfowBnChqU9NrsvzqkgabUbTpjHgtZDngp. | `src/verify-weights.ts`, `src/guard/ledger.ts`, `src/anchor.ts` |
+| Detection | `npm run verify:weights` prints `MISMATCH` when the output or the trace hash differs (`src/verify-weights.ts`). `bursar log --verify` runs `verify` in `src/guard/ledger.ts`, which recomputes every ledger hash. `anchor(head)` was sent: https://nearblocks.io/txns/Ds99qAExPLWfowBnChqU9NrsvzqkgabUbTpjHgtZDngp. | `src/verify-weights.ts`, `src/cli.ts`, `src/guard/ledger.ts`, `src/anchor.ts` |
 | Playbooks | Read from `skills/` by the `skills` tool. On 2026-11-11, `strings` on `~/.locals/ethereus/all9b/eth-bridge.elf` showed `keccak`, `selector`, `encode`, `decode`, `u256`, and `near`, and no `files` command, so a playbook is not served from the weights. A paste is not that file. | `src/skills.ts`, `skills/` |
 
 ## What is real and what is simulated
@@ -47,7 +53,7 @@ Context for a compromised inference server: https://near.ai/blog/security-incide
 | Quote fields | Compared in TypeScript, including `swapType` `EXACT_INPUT` and `slippageTolerance` 100 | `npm test` and `npm run demo` do not call the model |
 | Chain age and code | NEAR RPC and NearBlocks, read on 2026-11-10, saved under `test/fixtures/` | Tests replay those files |
 | Blocklist | `get` on the contract in `BURSAR_BLOCKLIST_CONTRACT`, through `https://rpc.mainnet.near.org` when that variable is set | `npm test` and `npm run demo` use `fixtures/blocklist.json` |
-| Payment | The intent is one `transfer` to the quote's `depositAddress` | Nothing is submitted to `intents.near` |
+| Payment | The recorded payments in Links and Demo were submitted. The intent is one `transfer` to the quote's `depositAddress` | `npm test` and `npm run demo` do not submit |
 | MPP catalog | `bursar find` reads https://mpp.dev/api/services and marks a service payable when 1Click can deliver its 402 (`src/catalog.ts`) | The 2026-11-11 run paid nothing |
 
 ## The problem
@@ -62,8 +68,8 @@ An agent can be given a receiver that is new, a look-alike of a known payee, a c
 npm test
 ```
 ```output
-ℹ tests 106
-ℹ pass 106
+ℹ tests 121
+ℹ pass 121
 ℹ fail 0
 ```
 
@@ -110,7 +116,7 @@ agent B pay: block: reported by agent-a.near
 
 The owner starts `bursar`. It says `I am ready.` The session prints the model's replies, the card, STOP sentences, and links. A tool result is not printed. The model calls `skills` and follows the playbook in `skills/`. When the owner has not named a token, the reply says USDC. State is kept in `~/.bursar-near`. `receive` writes the payment request to `bursar-code.png` after the bridge returns a deposit address for that chain and token.
 
-`npm run verify:firmware` and `npm run verify:weights` were not run in this session. `LIVE_TESTS=1 npm run test:live` calls the network and is not part of `npm test`.
+`npm test` does not call the network. `npm run test:live` does, including `simulate_intents`.
 
 ## Tracks
 
@@ -176,7 +182,7 @@ Cursor uses the same `mcpServers` object. `.cursor/mcp.json` is not in this repo
 
 `decide` in `src/decide.ts` returns `block`, `warn`, or `allow`. Block: the receiver is on a trusted blocklist report, within two edits of a known payee, the request matches the injection scan, or campaign memory already has it. Warn: a NEAR account was created under 14 days ago, or its contract was deployed under 14 days ago, or a NEAR RPC or NearBlocks read failed. Allow: none of those. `frol.near` has code hash `11111111111111111111111111111111` (no contract). `wrap.near` has code hash `DL2f5xmZ44cQRP6vBMt94rvseH5d5KKnAGis2WkTAsh1`. Creation timestamp observed on `wrap.near`: `1613398225524785200`. Latest deploy timestamp: `1619090101984073232`. A non-NEAR receiver gets the evidence line `not a NEAR account: on-chain age and activity not checked` and is not warned for missing chain data.
 
-Bursar’s payment keys work like device-bound passkeys: created in the Secure Enclave on the Mac and the iPhone, impossible to export, and the enclave key is created with `biometryCurrentSet` in `signer/EnclaveSigner.swift`. `npm run demo` does not start `signer/bursar-signer`. There’s no seed phrase to steal. What’s new is that the key controls a NEAR Intents account, and the Secure Enclave only signs after Bursar’s checks have passed.
+Bursar’s payment keys work like device-bound passkeys: created in the Secure Enclave on the Mac and the iPhone, impossible to export, and every signature needs Touch ID or Face ID. There’s no seed phrase to steal. What’s new is that the key controls a NEAR Intents account, and the Secure Enclave only signs after Bursar’s checks have passed.
 
 A reporter key can call `report` and cannot attach a deposit (`src/report.ts`, gas `30000000000000`). `BursarGuardedSigner` signs only one `transfer` to the quote's `depositAddress`, then `signer/bursar-signer` signs that WebAuthn message inside the enclave (`src/signer.ts`, `signer/EnclaveSigner.swift`). The iPhone app compiles the same file. The enclave account created on this Mac is `0xbc77a1ef1ee04fc563ccb1d19e28dcc7385f136b`. The `/premium` payment landed in https://nearblocks.io/txns/yTnoP1oA2Yb92xen7fQGd7XP6ws4hhw6EGiHB9utp2z. `bursar signer sweep` moved 73642 atomic USDC (0.073642) from `515ead208df187f146f2ae5f7e24522cf2ca977df95bdee7bb5f957bbe142c54` to that enclave account: https://nearblocks.io/txns/FaLbFsWREEQNvCP26yfXVwdYRa8oL7zTPf248x4BFVa4. The ed25519 keychain item was then deleted (`src/sweep.ts`). `sendGuardedUsdc` accepts the action only when `transferStop` returns null, then throws `STOP: the enclave key signs intents` (`src/signer.ts`). It does not sign.
 
@@ -188,7 +194,9 @@ A reporter key can call `report` and cannot attach a deposit (`src/report.ts`, g
 
 No public nearintents merchant exists yet. The merchant is the official SDK example, `@defuse-protocol/nearintents-mpp-sdk` 0.4.1, run on mainnet at `http://127.0.0.1:8402`. `bursar pay http://127.0.0.1:8402/premium` on 2026-11-11 returned HTTP 200 `{"premium":true,"insight":"The merchant was paid an exact amount on NEAR before you saw this.","servedAt":"2026-11-11T11:26:07.702Z"}`. The merchant received `100000` (0.10 USDC) at `frsrcom.near`. The owner paid `107433` (0.107433 USDC) from the Intents balance for that 0.10. The Arbitrum deposit is https://arbiscan.io/tx/0x9a7a379e88c4e704d1e9638e868d951b4befbdb930e90a756c09fbb83b525599. The settlement to `frsrcom.near` is https://nearblocks.io/txns/yTnoP1oA2Yb92xen7fQGd7XP6ws4hhw6EGiHB9utp2z. `/premium-btc` was not called.
 
-`npm run demo:attacks` runs the scenarios in `demo/attacks`. Each one is a STOP from the pipeline, and the table is `demo/attacks/results.md`. `--only <id>` runs one. Nothing in that run is signed.
+`npm run demo:attacks` runs the scenarios in `demo/attacks`. The table is `demo/attacks/results.md`. 19 attacks stopped. Extra intent and the tampered quote stopped in the model. The deadline stop is the model decode plus the code comparison (`stoppedIn` in `src/attack-demo.ts`); its receipt `d9fc4584ff3aa86b7ca66bbe518a3b5fefedb4e78fef6fd892e7c1a9abf3dd6e` verifies. The other 16 stopped in code. The same table records the 0.02 USDC payment https://nearblocks.io/txns/Ck8wGNBwD8Y1TJZjKW3Nn7opX8Wz2tkoiGPYF3ajuGvp and the enclave payment https://nearblocks.io/txns/6dHJgrwAXxc9u4BBntdkAH9qjHkDPkzi1WxacwjWQ44Z.
+
+The agent eval on the 40 cases Claude passed is 27/40 (`eval/live/scores-40-round12.json`, 2026-11-11T22:00:02.604Z). Work is 20/30 and holdout is 7/10 (`eval/rounds.md`, round 12). The three holdout misses are `pay-link-56`, `pay-link-60`, and `receive-buyer`. The link misses are the model: the reply never says USDC.
 
 `bursar agent` is the terminal tool (`src/cli.ts`, `src/agent.ts`). `bursar` with no arguments prints usage. There is no chat command. The model hears the sentence and calls `understand`. An empty amount or recipient is a question. Earlier lines stay in the session and are not a payment. `npm run demo` stops when a paste says `ignore your limits`. The stop is `contentStops` in `src/agent.ts`. The recorded model still pays `bad1794304962694.near`. A warn prints its reasons and asks `approve? [y/N]`. `y` is written to the ledger and the guarded signer runs. A block does not ask. `npm run demo` prints these lines. The test `npm run demo stops every attack` in `test/quote.test.ts` requires each one.
 
@@ -285,12 +293,10 @@ Each item is planned.
 
 - The full checks running faster inside the model on the Mac.
 - Playbooks in the weights. The 9B firmware has no `files` command, so `skills/` is read from disk (`src/skills.ts`).
-- A Mac app with the key in the Secure Enclave and Touch ID for new payees, top-ups, and limit changes.
-- A passkey payment that `intents.near` has accepted. The signer is `signer/EnclaveSigner.swift`. This repository has no transaction that shows `intents.near` accepting that signature.
+- A Mac app with the key in the Secure Enclave and Touch ID for new payees, top-ups, and limit changes. It is not in this repository.
 - The phone first as an approval remote for the Mac agent, then fully on the phone, with a smaller Qwen and the computer compiled into it, the model downloaded on first launch, published by an organisation account under App Store rule 3.1.5.
 - A paid x402 call. `pay <url>` settles Base exact USDC from the Keychain float (`src/x402-pay.ts`). The 2026-11-11 weather call was not sent: the Intents balance was 0.
 - A live payment on a chain other than NEAR. `bursar agent` can name Base from the sentence and the 1Click token list (`src/assets.ts`, `src/agent.ts`). The 0.25 Base payment was not sent. Age and contract checks stay on NEAR accounts. The firmware for those chains is `80526dd`, 2026-11-06.
-- The Mac app, above. It is not in this repository.
 
 ## Licence
 

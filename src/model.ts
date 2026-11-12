@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { mkdirSync, writeFileSync } from "node:fs";
+import { appendFileSync, existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import type { BursarRequest } from "./quote.js";
 import { receiptsDir, writeReceipt, type Receipt } from "./receipt.js";
@@ -51,6 +51,12 @@ export type LiveCall = { value: string | null; receipt?: string };
 export async function liveCall(cmd: string, files: Record<string, string> = {}): Promise<LiveCall> {
   const headers: Record<string, string> = { "content-type": "application/json" };
   if (process.env.BURSAR_MODEL_KEY) headers.authorization = `Bearer ${process.env.BURSAR_MODEL_KEY}`;
+  const span = process.env.BURSAR_ATTACK_SPAN;
+  const started = Date.now();
+  const note = () => {
+    if (!span) return;
+    appendFileSync(span, `${JSON.stringify({ cmd, start: started, end: Date.now() })}\n`);
+  };
   try {
     const response = await fetch(MODEL_URL, {
       method: "POST",
@@ -66,7 +72,10 @@ export async function liveCall(cmd: string, files: Record<string, string> = {}):
       }),
       signal: AbortSignal.timeout(180_000),
     });
-    if (!response.ok) return { value: null };
+    if (!response.ok) {
+      note();
+      return { value: null };
+    }
     const body = await response.json() as {
       choices?: { message?: { reasoning_content?: string } }[];
       computer?: {
@@ -88,8 +97,8 @@ export async function liveCall(cmd: string, files: Record<string, string> = {}):
       for (const [name, text] of Object.entries(files)) {
         const digest = createHash("sha256").update(text).digest("hex");
         inputs[name] = digest;
-        writeFileSync(join(inputDir, name), text);
-        writeFileSync(join(inputDir, digest), text);
+        const path = join(inputDir, digest);
+        if (!existsSync(path)) writeFileSync(path, text);
       }
       const receipt: Receipt = {
         cmd,
@@ -103,10 +112,13 @@ export async function liveCall(cmd: string, files: Record<string, string> = {}):
         runtime: "locals-mac",
         date: new Date().toISOString().slice(0, 10),
       };
+      note();
       return { value, receipt: writeReceipt(receipt).hash };
     }
+    note();
     return { value };
   } catch {
+    note();
     return { value: null };
   }
 }

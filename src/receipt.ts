@@ -1,3 +1,4 @@
+import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { mkdirSync, readFileSync, writeFileSync, existsSync, readdirSync, appendFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -82,15 +83,29 @@ export function writeReceipt(receipt: Receipt): { hash: string; path: string } {
   return { hash, path };
 }
 
-export function listReceipts(): { hash: string; receipt: Receipt }[] {
+function receiptFiles(): string[] {
   const dir = receiptsDir();
   if (!existsSync(dir)) return [];
-  return readdirSync(dir)
-    .filter((name) => /^[0-9a-f]{64}\.json$/.test(name))
-    .sort()
-    .map((name) => {
-      const hash = name.slice(0, 64);
-      const receipt = JSON.parse(readFileSync(join(dir, name), "utf8")) as Receipt;
-      return { hash, receipt };
-    });
+  const names = readdirSync(dir).filter((name) => /^[0-9a-f]{64}\.json$/.test(name));
+  let tracked: Set<string> | null = null;
+  try {
+    const root = join(dir, "..");
+    const listed = execFileSync("git", ["ls-files", "receipts"], { cwd: root, encoding: "utf8" });
+    tracked = new Set(
+      listed.split("\n").filter((line) => /^receipts\/[0-9a-f]{64}\.json$/.test(line)).map((line) => line.slice("receipts/".length)),
+    );
+  } catch {
+    tracked = null;
+  }
+  return names.filter((name) => tracked === null || tracked.has(name)).sort();
+}
+
+/** Receipts git tracks. Untracked files in the working tree are ignored. */
+export function listReceipts(): { hash: string; receipt: Receipt }[] {
+  const dir = receiptsDir();
+  return receiptFiles().map((name) => {
+    const hash = name.slice(0, 64);
+    const receipt = JSON.parse(readFileSync(join(dir, name), "utf8")) as Receipt;
+    return { hash, receipt };
+  });
 }
