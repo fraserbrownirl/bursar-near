@@ -4,7 +4,7 @@ Applies when someone else is paying the owner. The speaker is the merchant, not 
 
 The token is USDC unless they named another. Say USDC. Ask one missing fact: the chain, or the amount. Not both. "Crypto" is not a token.
 
-Tools, in order: `skills` for this playbook, then the one question, then `receive` with that chain, USDC, and the amount. The deposit address comes from the Intents bridge. It is not the Intents account. The amount goes in the payment request. Then `watch`. Do not call `pay`.
+Tools, in order: `skills` for this playbook, then the one question, then `receive` with that chain, USDC, and the amount. The owner says this in a sentence. They do not type flags. `receive` draws the QR in the terminal and watches until the deposit is received. The deposit address comes from the Intents bridge. It is not the Intents account. The amount goes in the payment request. Do not call `pay`. Do not call `watch` after `receive`.
 
 ## Situations
 

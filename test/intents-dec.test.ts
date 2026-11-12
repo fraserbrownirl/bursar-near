@@ -14,6 +14,16 @@ test("intents dec of the generate-intent message reports the keys that are actua
   assert.equal(decoded.result, "error (bad intents)\n");
 });
 
+test("an unsupported intent replays as error (unsupported intent)", () => {
+  const receipt = JSON.parse(readFileSync(new URL("../receipts/fe499e51018d86f8c96f434f7d17ab9c95ec85b6e5711ec58eed5af06f93cead.json", import.meta.url), "utf8")) as {
+    inputs: { payload: string };
+    output: string;
+  };
+  const hex = readFileSync(new URL(`../receipts/inputs/${receipt.inputs.payload}`, import.meta.url), "utf8");
+  const payload = JSON.parse(Buffer.from(hex, "hex").toString("utf8")) as Parameters<typeof intentsDecText>[0];
+  assert.equal(intentsDecText(payload), receipt.output);
+});
+
 test("intents dec of the full envelope names the transfer", () => {
   const generated = JSON.parse(readFileSync(new URL("./fixtures/generate-intent.json", import.meta.url), "utf8")) as {
     intent: { payload: { message: string; nonce: string; recipient: string } };

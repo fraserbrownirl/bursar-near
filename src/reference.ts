@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { referenceUi } from "./model.js";
 import { intentsDecText } from "./intents-dec.js";
-import { normInt, signatureOk, type SignedQuote } from "./quote.js";
+import { normInt, type SignedQuote } from "./quote.js";
 
 export { referenceUi };
 
@@ -38,11 +38,14 @@ function parseNonce(text: string): Uint8Array {
 }
 
 /**
- * The firmware's `1click check` line, plus the signature.
- * The expected recipient, refund, asset, amount, min-out, and memo are the
- * caller's. They are not read back out of the quote.
- * `ok`, or `fail` plus the firmware's words. A bad signature is `fail signature`
- * and nothing else: the firmware does not check the signature.
+ * The in-model `1click check` line. Recipient, refund, asset, amount, min-out,
+ * and memo are the caller's. A bad signature is not this line: `reviewQuote`
+ * returns `STOP: bad signature`. Receipt `b0a8acaf8bcfd5737d80466b5a7f51fff86a19f097b7ee5cd6d6fdbfe45ae04b`
+ * records `fail recipient` for a quote whose signature does not verify.
+ * The amount is the quote's `amountIn` whatever the swap type: the caller
+ * states the deposit amount (`statedRequest` in `model-checks.ts`). Receipt
+ * `01cdef18ecc74e6b5419a9028f470d09204b9a2f3c5082ec479357b14e86544a` records
+ * `fail amount` for an EXACT_OUTPUT quote stated as its output amount.
  */
 export function quoteCheckLine(quote: SignedQuote, expected: {
   recipient: string;
@@ -52,14 +55,15 @@ export function quoteCheckLine(quote: SignedQuote, expected: {
   minAmountOut: string;
   memo?: string;
 }, nowSec: number): string {
-  if (!signatureOk(quote)) return "fail signature";
   return quoteFieldLine(quote, expected, nowSec);
 }
 
 /**
  * The field half of `1click check`. Recipient and refund are compared as
  * text, so an ed25519 implicit account and a `0x` P-256 implicit account
- * are the same rule. The signature is not checked here.
+ * are the same rule. The signature is not checked here. The amount rule is
+ * the firmware's: `amountIn` equals the stated amount, whatever the swap
+ * type, so the caller states the deposit amount.
  */
 export function quoteFieldLine(quote: SignedQuote, expected: {
   recipient: string;
@@ -79,12 +83,7 @@ export function quoteFieldLine(quote: SignedQuote, expected: {
   if (asked.destinationAsset !== expected.destinationAsset) fails.push("asset");
   const amount = normInt(got.amountIn);
   const wanted = normInt(expected.amount);
-  const signedAmount = normInt(asked.amount);
-  const swap = asked.swapType ?? "EXACT_INPUT";
-  const amountFail = swap === "EXACT_INPUT"
-    ? amount === null || wanted === null || amount !== wanted
-    : signedAmount === null || wanted === null || signedAmount !== wanted;
-  if (amountFail) fails.push("amount");
+  if (amount === null || wanted === null || amount !== wanted) fails.push("amount");
   const minOut = normInt(got.minAmountOut);
   const minWanted = normInt(expected.minAmountOut);
   if (minOut === null || minWanted === null || cmp(minOut, minWanted) < 0) fails.push("min_out");

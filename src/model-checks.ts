@@ -11,27 +11,43 @@ function hexOf(text: string): string {
 }
 
 /**
+ * What the caller states to `1click check`: the deposit amount on the signed
+ * quote, and the smallest output the caller accepts. The in-model computer
+ * compares the quote's `amountIn` with the stated amount whatever the swap
+ * type, so an EXACT_OUTPUT quote is stated as its `amountIn`, with the exact
+ * output it must deliver as `minAmountOut`. `reviewQuote` runs on the request
+ * itself before this; a quote without an `amountIn` never gets here.
+ */
+export function statedRequest(quote: SignedQuote, request: BursarRequest): BursarRequest {
+  const amount = quote.quote.amountIn;
+  if (!/^\d+$/.test(amount)) return request;
+  const exactOut = (request.swapType ?? "EXACT_INPUT") === "EXACT_OUTPUT";
+  return { ...request, amount, minAmountOut: exactOut ? request.amount : request.minAmountOut };
+}
+
+/**
  * `1click check @quote` inside the model. The expected fields are the request,
- * not the quote's own copy of them. The TypeScript line is printed beside the
- * model's. They must match.
+ * restated as the deposit the quote names, not the quote's own copy of them.
+ * The TypeScript line is printed beside the model's. They must match.
  */
 export async function checkQuoteInModel(
   quote: SignedQuote,
   request: BursarRequest,
   nowSec: number,
 ): Promise<ModelCheck> {
-  const memo = request.memo ?? "-";
+  const stated = statedRequest(quote, request);
+  const memo = stated.memo ?? "-";
   const cmd = [
     "1click check @quote",
-    request.recipient,
-    request.refundTo,
-    request.destinationAsset,
-    request.minAmountOut,
-    request.amount,
+    stated.recipient,
+    stated.refundTo,
+    stated.destinationAsset,
+    stated.minAmountOut,
+    stated.amount,
     String(nowSec),
     memo,
   ].join(" ");
-  const reference = quoteCheckLine(quote, request, nowSec);
+  const reference = quoteCheckLine(quote, stated, nowSec);
   const live = await liveCall(cmd, { quote: hexOf(JSON.stringify(quote)) });
   return compare("1click check", cmd, live.value, reference, live.receipt);
 }
@@ -50,6 +66,13 @@ export async function checkIntentInModel(generated: GeneratedIntent, accountId: 
   const cmd = "intents dec @payload";
   const live = await liveCall(cmd, { payload: hexOf(JSON.stringify(payload)) });
   return compare(cmd, cmd, live.value, reference, live.receipt);
+}
+
+/** A payment stops unless the model ran the check and wrote a receipt. */
+export function requireLive(check: ModelCheck): string | null {
+  if (check.stop) return check.stop;
+  if (!check.live || !/receipt [0-9a-f]{64}/.test(check.lines)) return "STOP: in-model check";
+  return null;
 }
 
 function compare(name: string, cmd: string, live: string | null, reference: string, receipt?: string): ModelCheck {

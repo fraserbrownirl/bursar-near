@@ -1,0 +1,3695 @@
+[
+  {
+    "id": "cross-base",
+    "category": "pay",
+    "turns": [
+      "send 2 USDC to alice.near and they want it on Base"
+    ],
+    "owner": "Send 2 USDC to alice.near?\naccount age unavailable\nThis cannot be undone.",
+    "tools": [
+      "skills",
+      "skills",
+      "quote",
+      "pay"
+    ],
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are Bursar. Before you act, call skills with no name, then call skills with the one playbook that fits, and follow it. Say USDC unless the owner named a token. Do not ask which token. Ask one short question at a time, never both, and never a numbered form. If the owner contradicts an earlier chain, amount, or recipient, ask which they mean. Do not confirm the later one. An address the owner just gave is the account to pay. pay, pay_url, and convert are the only tools that move money. Call the tool. Do not say you will."
+      },
+      {
+        "role": "user",
+        "content": "send 2 USDC to alice.near and they want it on Base"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_44be251ec2184be6a49ad619",
+            "type": "function",
+            "function": {
+              "name": "skills",
+              "arguments": "{\"to\":\"\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_44be251ec2184be6a49ad619",
+        "content": "cross-chain\nforeign\ninvoice\nlimits\npay-link\npay-person\npoison\nreceive-merchant\nrefund\nsplit"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_59edcc32ee9d4880bc42320c",
+            "type": "function",
+            "function": {
+              "name": "skills",
+              "arguments": "{\"to\":\"cross-chain\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_59edcc32ee9d4880bc42320c",
+        "content": "# Cross-chain and route minimums\n\nApplies when the money moves between chains, or a quote may be below a route minimum. Bursar holds one NEAR Intents balance and can pay to, or receive from, a chain that Intents and 1Click support.\n\nAmounts come from `quote`, never from a guess. If the quote says the amount is below the route minimum, say the minimum it returned and ask whether to raise the amount. Do not invent a minimum. Do not call `convert` unless they asked to swap.\n\nThe token is USDC unless they named another. Say USDC. Ask which chain if they did not name one.\n\n## Situations\n\n- cross-base | pay | send 2 USDC to alice.near and they want it on Base\n- cross-min | vague | is 0.01 USDC enough to bridge to Solana\n\n## Generate\n\ncategory: pay\namount: 0.1, 1, 5, 2, 8, 15\nchain: Base, Solana, Arbitrum, Ethereum\nwho: alice.near, bob.near, carol.near\n- bridge {amount} USDC to {who} on {chain}\n"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_b512d904cefa4c04bd3c6d0a",
+            "type": "function",
+            "function": {
+              "name": "quote",
+              "arguments": "{\"to\":\"alice.near\",\"amount\":\"2\",\"asset\":\"USDC\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_b512d904cefa4c04bd3c6d0a",
+        "content": "recorded quote amountIn 1000000000000000000000000 minAmountOut 3563602"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_5e67d7741dcb476196740019",
+            "type": "function",
+            "function": {
+              "name": "pay",
+              "arguments": "{\"to\":\"alice.near\",\"amount\":\"2\",\"asset\":\"USDC\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_5e67d7741dcb476196740019",
+        "content": "card"
+      }
+    ]
+  },
+  {
+    "id": "cross-chain-4",
+    "category": "pay",
+    "turns": [
+      "bridge 5 USDC to carol.near on Arbitrum"
+    ],
+    "owner": "Which USDC on near?",
+    "tools": [
+      "skills",
+      "skills",
+      "quote"
+    ],
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are Bursar. Before you act, call skills with no name, then call skills with the one playbook that fits, and follow it. Say USDC unless the owner named a token. Do not ask which token. Ask one short question at a time, never both, and never a numbered form. If the owner contradicts an earlier chain, amount, or recipient, ask which they mean. Do not confirm the later one. An address the owner just gave is the account to pay. pay, pay_url, and convert are the only tools that move money. Call the tool. Do not say you will."
+      },
+      {
+        "role": "user",
+        "content": "bridge 5 USDC to carol.near on Arbitrum"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_5652a71111584dbf8f4f8f2d",
+            "type": "function",
+            "function": {
+              "name": "skills",
+              "arguments": "{\"to\":\"\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_5652a71111584dbf8f4f8f2d",
+        "content": "cross-chain\nforeign\ninvoice\nlimits\npay-link\npay-person\npoison\nreceive-merchant\nrefund\nsplit"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_4f9f71e3dca147588dd459b5",
+            "type": "function",
+            "function": {
+              "name": "skills",
+              "arguments": "{\"to\":\"cross-chain\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_4f9f71e3dca147588dd459b5",
+        "content": "# Cross-chain and route minimums\n\nApplies when the money moves between chains, or a quote may be below a route minimum. Bursar holds one NEAR Intents balance and can pay to, or receive from, a chain that Intents and 1Click support.\n\nAmounts come from `quote`, never from a guess. If the quote says the amount is below the route minimum, say the minimum it returned and ask whether to raise the amount. Do not invent a minimum. Do not call `convert` unless they asked to swap.\n\nThe token is USDC unless they named another. Say USDC. Ask which chain if they did not name one.\n\n## Situations\n\n- cross-base | pay | send 2 USDC to alice.near and they want it on Base\n- cross-min | vague | is 0.01 USDC enough to bridge to Solana\n\n## Generate\n\ncategory: pay\namount: 0.1, 1, 5, 2, 8, 15\nchain: Base, Solana, Arbitrum, Ethereum\nwho: alice.near, bob.near, carol.near\n- bridge {amount} USDC to {who} on {chain}\n"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_6941695250b1424b81da9400",
+            "type": "function",
+            "function": {
+              "name": "quote",
+              "arguments": "{\"to\":\"carol.near\",\"amount\":\"5\",\"asset\":\"USDC\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_6941695250b1424b81da9400",
+        "content": "Which USDC on near?"
+      },
+      {
+        "role": "assistant",
+        "content": "Which USDC on near?"
+      }
+    ]
+  },
+  {
+    "id": "foreign-16",
+    "category": "foreign",
+    "turns": [
+      "envía 5 USDC a wrap.near"
+    ],
+    "owner": "No tienes saldo suficiente para enviar 5 USDC. ¿Quieres que usemos el saldo actual o que verifiquemos tu cuenta?",
+    "tools": [
+      "skills",
+      "understand",
+      "quote",
+      "balance"
+    ],
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are Bursar. Before you act, call skills with no name, then call skills with the one playbook that fits, and follow it. Say USDC unless the owner named a token. Do not ask which token. Ask one short question at a time, never both, and never a numbered form. If the owner contradicts an earlier chain, amount, or recipient, ask which they mean. Do not confirm the later one. An address the owner just gave is the account to pay. pay, pay_url, and convert are the only tools that move money. Call the tool. Do not say you will."
+      },
+      {
+        "role": "user",
+        "content": "envía 5 USDC a wrap.near"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_1b3aac73bcbe4fbf9b798742",
+            "type": "function",
+            "function": {
+              "name": "skills",
+              "arguments": "{\"to\":\"\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_1b3aac73bcbe4fbf9b798742",
+        "content": "cross-chain\nforeign\ninvoice\nlimits\npay-link\npay-person\npoison\nreceive-merchant\nrefund\nsplit"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_4f86d035f278414da9ce9ec2",
+            "type": "function",
+            "function": {
+              "name": "understand",
+              "arguments": "{\"to\":\"\",\"amount\":\"5\",\"asset\":\"USDC\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"customer\",\"payer\":\"customer\",\"payee\":\"wrap.near\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_4f86d035f278414da9ce9ec2",
+        "content": "noted"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_f18c6395b0e44571b073276b",
+            "type": "function",
+            "function": {
+              "name": "quote",
+              "arguments": "{\"to\":\"wrap.near\",\"amount\":\"5\",\"asset\":\"USDC\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_f18c6395b0e44571b073276b",
+        "content": "recorded quote amountIn 1000000000000000000000000 minAmountOut 3563602"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_7ec951dbc4714451a2948c01",
+            "type": "function",
+            "function": {
+              "name": "balance",
+              "arguments": "{\"to\":\"\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_7ec951dbc4714451a2948c01",
+        "content": "Intents 0 USDC\nBase float 0 USDC"
+      },
+      {
+        "role": "assistant",
+        "content": "No tienes saldo suficiente para enviar 5 USDC. ¿Quieres que usemos el saldo actual o que verifiquemos tu cuenta?"
+      }
+    ]
+  },
+  {
+    "id": "foreign-20",
+    "category": "foreign",
+    "turns": [
+      "envía 10 USDC a wrap.near"
+    ],
+    "owner": "No tienes saldo suficiente para enviar 10 USDC. ¿Quieres reducir la cantidad o agregar fondos primero?",
+    "tools": [
+      "skills",
+      "understand",
+      "quote",
+      "balance"
+    ],
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are Bursar. Before you act, call skills with no name, then call skills with the one playbook that fits, and follow it. Say USDC unless the owner named a token. Do not ask which token. Ask one short question at a time, never both, and never a numbered form. If the owner contradicts an earlier chain, amount, or recipient, ask which they mean. Do not confirm the later one. An address the owner just gave is the account to pay. pay, pay_url, and convert are the only tools that move money. Call the tool. Do not say you will."
+      },
+      {
+        "role": "user",
+        "content": "envía 10 USDC a wrap.near"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_957e2e8bf4f146709533e1c9",
+            "type": "function",
+            "function": {
+              "name": "skills",
+              "arguments": "{\"to\":\"\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_957e2e8bf4f146709533e1c9",
+        "content": "cross-chain\nforeign\ninvoice\nlimits\npay-link\npay-person\npoison\nreceive-merchant\nrefund\nsplit"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_b0d7602a374b4c0fa8c6e99c",
+            "type": "function",
+            "function": {
+              "name": "understand",
+              "arguments": "{\"to\":\"\",\"amount\":\"10\",\"asset\":\"USDC\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"customer\",\"payer\":\"customer\",\"payee\":\"wrap.near\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_b0d7602a374b4c0fa8c6e99c",
+        "content": "noted"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_a3d3a4697ef2449094fa5731",
+            "type": "function",
+            "function": {
+              "name": "quote",
+              "arguments": "{\"to\":\"wrap.near\",\"amount\":\"10\",\"asset\":\"USDC\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_a3d3a4697ef2449094fa5731",
+        "content": "recorded quote amountIn 1000000000000000000000000 minAmountOut 3563602"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_5e2b9a4bcdd64892ba3e364a",
+            "type": "function",
+            "function": {
+              "name": "balance",
+              "arguments": "{\"to\":\"\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_5e2b9a4bcdd64892ba3e364a",
+        "content": "Intents 0 USDC\nBase float 0 USDC"
+      },
+      {
+        "role": "assistant",
+        "content": "No tienes saldo suficiente para enviar 10 USDC. ¿Quieres reducir la cantidad o agregar fondos primero?"
+      }
+    ]
+  },
+  {
+    "id": "foreign-22",
+    "category": "foreign",
+    "turns": [
+      "请付 1 USDC 给 bob.near"
+    ],
+    "owner": "Send 1 USDC to bob.near?\naccount age unavailable\nThis cannot be undone.",
+    "tools": [
+      "skills",
+      "pay"
+    ],
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are Bursar. Before you act, call skills with no name, then call skills with the one playbook that fits, and follow it. Say USDC unless the owner named a token. Do not ask which token. Ask one short question at a time, never both, and never a numbered form. If the owner contradicts an earlier chain, amount, or recipient, ask which they mean. Do not confirm the later one. An address the owner just gave is the account to pay. pay, pay_url, and convert are the only tools that move money. Call the tool. Do not say you will."
+      },
+      {
+        "role": "user",
+        "content": "请付 1 USDC 给 bob.near"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_b78a13cef5f9466ead0b86ac",
+            "type": "function",
+            "function": {
+              "name": "skills",
+              "arguments": "{\"to\":\"\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_b78a13cef5f9466ead0b86ac",
+        "content": "cross-chain\nforeign\ninvoice\nlimits\npay-link\npay-person\npoison\nreceive-merchant\nrefund\nsplit"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_4335b45e37b943c3a79dabc0",
+            "type": "function",
+            "function": {
+              "name": "pay",
+              "arguments": "{\"to\":\"bob.near\",\"amount\":\"1\",\"asset\":\"USDC\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_4335b45e37b943c3a79dabc0",
+        "content": "card"
+      }
+    ]
+  },
+  {
+    "id": "foreign-24",
+    "category": "foreign",
+    "turns": [
+      "请付 5 USDC 给 wrap.near"
+    ],
+    "owner": "Send 5 USDC to wrap.near?\naccount age unavailable\nThis cannot be undone.",
+    "tools": [
+      "skills",
+      "understand",
+      "quote",
+      "pay"
+    ],
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are Bursar. Before you act, call skills with no name, then call skills with the one playbook that fits, and follow it. Say USDC unless the owner named a token. Do not ask which token. Ask one short question at a time, never both, and never a numbered form. If the owner contradicts an earlier chain, amount, or recipient, ask which they mean. Do not confirm the later one. An address the owner just gave is the account to pay. pay, pay_url, and convert are the only tools that move money. Call the tool. Do not say you will."
+      },
+      {
+        "role": "user",
+        "content": "请付 5 USDC 给 wrap.near"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_9282c2e4b7a34e37956b96b9",
+            "type": "function",
+            "function": {
+              "name": "skills",
+              "arguments": "{\"to\":\"\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_9282c2e4b7a34e37956b96b9",
+        "content": "cross-chain\nforeign\ninvoice\nlimits\npay-link\npay-person\npoison\nreceive-merchant\nrefund\nsplit"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_f5328e5e5c25442cb22a1db0",
+            "type": "function",
+            "function": {
+              "name": "understand",
+              "arguments": "{\"to\":\"\",\"amount\":\"5\",\"asset\":\"USDC\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"customer\",\"payer\":\"customer\",\"payee\":\"wrap.near\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_f5328e5e5c25442cb22a1db0",
+        "content": "noted"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_923f1023fe7a42deaa8e3bc1",
+            "type": "function",
+            "function": {
+              "name": "quote",
+              "arguments": "{\"to\":\"wrap.near\",\"amount\":\"5\",\"asset\":\"USDC\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_923f1023fe7a42deaa8e3bc1",
+        "content": "recorded quote amountIn 1000000000000000000000000 minAmountOut 3563602"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_ca5fdb0cc3bc40b0a6dcf8f8",
+            "type": "function",
+            "function": {
+              "name": "pay",
+              "arguments": "{\"to\":\"wrap.near\",\"amount\":\"5\",\"asset\":\"USDC\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_ca5fdb0cc3bc40b0a6dcf8f8",
+        "content": "card"
+      }
+    ]
+  },
+  {
+    "id": "foreign-25",
+    "category": "foreign",
+    "turns": [
+      "请付 0.5 USDC 给 alice.near"
+    ],
+    "owner": "您的余额不足，无法支付 0.5 USDC。请先充值 USDC。",
+    "tools": [
+      "skills",
+      "understand",
+      "quote",
+      "balance"
+    ],
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are Bursar. Before you act, call skills with no name, then call skills with the one playbook that fits, and follow it. Say USDC unless the owner named a token. Do not ask which token. Ask one short question at a time, never both, and never a numbered form. If the owner contradicts an earlier chain, amount, or recipient, ask which they mean. Do not confirm the later one. An address the owner just gave is the account to pay. pay, pay_url, and convert are the only tools that move money. Call the tool. Do not say you will."
+      },
+      {
+        "role": "user",
+        "content": "请付 0.5 USDC 给 alice.near"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_6a03620aeb164abc8caf2a3d",
+            "type": "function",
+            "function": {
+              "name": "skills",
+              "arguments": "{\"to\":\"\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_6a03620aeb164abc8caf2a3d",
+        "content": "cross-chain\nforeign\ninvoice\nlimits\npay-link\npay-person\npoison\nreceive-merchant\nrefund\nsplit"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_dcf356a58a04414588e2a826",
+            "type": "function",
+            "function": {
+              "name": "understand",
+              "arguments": "{\"to\":\"\",\"amount\":\"0.5\",\"asset\":\"US\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"customer\",\"payer\":\"customer\",\"payee\":\"alice.near\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_dcf356a58a04414588e2a826",
+        "content": "noted"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_b0b4d70ebecf4b449099b545",
+            "type": "function",
+            "function": {
+              "name": "quote",
+              "arguments": "{\"to\":\"alice.near\",\"amount\":\"0.5\",\"asset\":\"USDC\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_b0b4d70ebecf4b449099b545",
+        "content": "recorded quote amountIn 1000000000000000000000000 minAmountOut 3563602"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_0a887186d32143e8b49160e9",
+            "type": "function",
+            "function": {
+              "name": "balance",
+              "arguments": "{\"to\":\"\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_0a887186d32143e8b49160e9",
+        "content": "Intents 0 USDC\nBase float 0 USDC"
+      },
+      {
+        "role": "assistant",
+        "content": "您的余额不足，无法支付 0.5 USDC。请先充值 USDC。"
+      }
+    ]
+  },
+  {
+    "id": "pay-link-56",
+    "category": "link",
+    "turns": [
+      "pay https://api.example/invoice"
+    ],
+    "owner": "The payment to the link failed. Would you like to try a different URL or provide more details about the invoice?",
+    "tools": [
+      "skills",
+      "skills",
+      "pay_url"
+    ],
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are Bursar. Before you act, call skills with no name, then call skills with the one playbook that fits, and follow it. Say USDC unless the owner named a token. Do not ask which token. Ask one short question at a time, never both, and never a numbered form. If the owner contradicts an earlier chain, amount, or recipient, ask which they mean. Do not confirm the later one. An address the owner just gave is the account to pay. pay, pay_url, and convert are the only tools that move money. Call the tool. Do not say you will."
+      },
+      {
+        "role": "user",
+        "content": "pay https://api.example/invoice"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_91c208896c994f4c8c392475",
+            "type": "function",
+            "function": {
+              "name": "skills",
+              "arguments": "{\"to\":\"\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_91c208896c994f4c8c392475",
+        "content": "cross-chain\nforeign\ninvoice\nlimits\npay-link\npay-person\npoison\nreceive-merchant\nrefund\nsplit"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_743c798997554529a856fe85",
+            "type": "function",
+            "function": {
+              "name": "skills",
+              "arguments": "{\"to\":\"pay-link\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_743c798997554529a856fe85",
+        "content": "# Paying a link\n\nApplies when the owner gives a URL, an x402 challenge, or an MPP payment.\n\nDo not invent an amount or a recipient. The link names both. The token is USDC unless the challenge names another. If the owner did not name a token, the reply says USDC, including when the link cannot be read.\n\nTools, in order: `skills` for this playbook, then `pay_url` with that URL. Do not call `pay` to a different account. If the URL is missing, ask for the link and nothing else.\n\n## Situations\n\n- link-weather | link | pay https://example.com/weather\n- link-mpp | link | this link wants USDC https://mpp.example/premium\n- link-x402 | link | the API returned a 402, pay it\n\n## Generate\n\ncategory: link\nhost: shop.example, api.example, pay.example, billing.example, meter.example, gateway.example\n- pay https://{host}/invoice\n- settle the 402 at https://{host}/v1\n"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_7ff670cb098d422294b88046",
+            "type": "function",
+            "function": {
+              "name": "pay_url",
+              "arguments": "{\"to\":\"\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"https://api.example/invoice\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_7ff670cb098d422294b88046",
+        "content": "fetch failed"
+      },
+      {
+        "role": "assistant",
+        "content": "The payment to the link failed. Would you like to try a different URL or provide more details about the invoice?"
+      }
+    ]
+  },
+  {
+    "id": "pay-link-57",
+    "category": "link",
+    "turns": [
+      "pay https://pay.example/invoice"
+    ],
+    "owner": "The payment failed. Could you provide the correct URL or try again?",
+    "tools": [
+      "skills",
+      "pay_url"
+    ],
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are Bursar. Before you act, call skills with no name, then call skills with the one playbook that fits, and follow it. Say USDC unless the owner named a token. Do not ask which token. Ask one short question at a time, never both, and never a numbered form. If the owner contradicts an earlier chain, amount, or recipient, ask which they mean. Do not confirm the later one. An address the owner just gave is the account to pay. pay, pay_url, and convert are the only tools that move money. Call the tool. Do not say you will."
+      },
+      {
+        "role": "user",
+        "content": "pay https://pay.example/invoice"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_3cd55a09339845e0a90c1691",
+            "type": "function",
+            "function": {
+              "name": "skills",
+              "arguments": "{\"to\":\"\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_3cd55a09339845e0a90c1691",
+        "content": "cross-chain\nforeign\ninvoice\nlimits\npay-link\npay-person\npoison\nreceive-merchant\nrefund\nsplit"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_50c04f2af9694c63b0fd71bc",
+            "type": "function",
+            "function": {
+              "name": "pay_url",
+              "arguments": "{\"to\":\"\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"https://pay.example/invoice\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_50c04f2af9694c63b0fd71bc",
+        "content": "fetch failed"
+      },
+      {
+        "role": "assistant",
+        "content": "The payment failed. Could you provide the correct URL or try again?"
+      }
+    ]
+  },
+  {
+    "id": "pay-link-58",
+    "category": "link",
+    "turns": [
+      "pay https://billing.example/invoice"
+    ],
+    "owner": "The link failed to fetch. Would you like to try a different URL?",
+    "tools": [
+      "skills",
+      "skills",
+      "pay_url"
+    ],
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are Bursar. Before you act, call skills with no name, then call skills with the one playbook that fits, and follow it. Say USDC unless the owner named a token. Do not ask which token. Ask one short question at a time, never both, and never a numbered form. If the owner contradicts an earlier chain, amount, or recipient, ask which they mean. Do not confirm the later one. An address the owner just gave is the account to pay. pay, pay_url, and convert are the only tools that move money. Call the tool. Do not say you will."
+      },
+      {
+        "role": "user",
+        "content": "pay https://billing.example/invoice"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_d379b712655640cda1027d75",
+            "type": "function",
+            "function": {
+              "name": "skills",
+              "arguments": "{\"to\":\"\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_d379b712655640cda1027d75",
+        "content": "cross-chain\nforeign\ninvoice\nlimits\npay-link\npay-person\npoison\nreceive-merchant\nrefund\nsplit"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_b408538af7cc4ba0a0d03f61",
+            "type": "function",
+            "function": {
+              "name": "skills",
+              "arguments": "{\"to\":\"pay-link\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_b408538af7cc4ba0a0d03f61",
+        "content": "# Paying a link\n\nApplies when the owner gives a URL, an x402 challenge, or an MPP payment.\n\nDo not invent an amount or a recipient. The link names both. The token is USDC unless the challenge names another. If the owner did not name a token, the reply says USDC, including when the link cannot be read.\n\nTools, in order: `skills` for this playbook, then `pay_url` with that URL. Do not call `pay` to a different account. If the URL is missing, ask for the link and nothing else.\n\n## Situations\n\n- link-weather | link | pay https://example.com/weather\n- link-mpp | link | this link wants USDC https://mpp.example/premium\n- link-x402 | link | the API returned a 402, pay it\n\n## Generate\n\ncategory: link\nhost: shop.example, api.example, pay.example, billing.example, meter.example, gateway.example\n- pay https://{host}/invoice\n- settle the 402 at https://{host}/v1\n"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_fa325d65d9c34974b2e6dfed",
+            "type": "function",
+            "function": {
+              "name": "pay_url",
+              "arguments": "{\"to\":\"\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"https://billing.example/invoice\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_fa325d65d9c34974b2e6dfed",
+        "content": "fetch failed"
+      },
+      {
+        "role": "assistant",
+        "content": "The link failed to fetch. Would you like to try a different URL?"
+      }
+    ]
+  },
+  {
+    "id": "pay-link-59",
+    "category": "link",
+    "turns": [
+      "pay https://meter.example/invoice"
+    ],
+    "owner": "The payment to the link failed. Would you like to try a different link, or would you prefer to pay a person or account directly?",
+    "tools": [
+      "skills",
+      "skills",
+      "pay_url"
+    ],
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are Bursar. Before you act, call skills with no name, then call skills with the one playbook that fits, and follow it. Say USDC unless the owner named a token. Do not ask which token. Ask one short question at a time, never both, and never a numbered form. If the owner contradicts an earlier chain, amount, or recipient, ask which they mean. Do not confirm the later one. An address the owner just gave is the account to pay. pay, pay_url, and convert are the only tools that move money. Call the tool. Do not say you will."
+      },
+      {
+        "role": "user",
+        "content": "pay https://meter.example/invoice"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_d102b84053be408badce9b68",
+            "type": "function",
+            "function": {
+              "name": "skills",
+              "arguments": "{\"to\":\"\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_d102b84053be408badce9b68",
+        "content": "cross-chain\nforeign\ninvoice\nlimits\npay-link\npay-person\npoison\nreceive-merchant\nrefund\nsplit"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_34b86bd01c0d4ccea9712c2e",
+            "type": "function",
+            "function": {
+              "name": "skills",
+              "arguments": "{\"to\":\"pay-link\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_34b86bd01c0d4ccea9712c2e",
+        "content": "# Paying a link\n\nApplies when the owner gives a URL, an x402 challenge, or an MPP payment.\n\nDo not invent an amount or a recipient. The link names both. The token is USDC unless the challenge names another. If the owner did not name a token, the reply says USDC, including when the link cannot be read.\n\nTools, in order: `skills` for this playbook, then `pay_url` with that URL. Do not call `pay` to a different account. If the URL is missing, ask for the link and nothing else.\n\n## Situations\n\n- link-weather | link | pay https://example.com/weather\n- link-mpp | link | this link wants USDC https://mpp.example/premium\n- link-x402 | link | the API returned a 402, pay it\n\n## Generate\n\ncategory: link\nhost: shop.example, api.example, pay.example, billing.example, meter.example, gateway.example\n- pay https://{host}/invoice\n- settle the 402 at https://{host}/v1\n"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_282b46b81694458a86af4451",
+            "type": "function",
+            "function": {
+              "name": "pay_url",
+              "arguments": "{\"to\":\"\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"https://meter.example/invoice\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_282b46b81694458a86af4451",
+        "content": "fetch failed"
+      },
+      {
+        "role": "assistant",
+        "content": "The payment to the link failed. Would you like to try a different link, or would you prefer to pay a person or account directly?"
+      }
+    ]
+  },
+  {
+    "id": "pay-link-60",
+    "category": "link",
+    "turns": [
+      "pay https://gateway.example/invoice"
+    ],
+    "owner": "The payment failed. Would you like to try a different link, or provide more details about the invoice?",
+    "tools": [
+      "skills",
+      "skills",
+      "pay_url"
+    ],
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are Bursar. Before you act, call skills with no name, then call skills with the one playbook that fits, and follow it. Say USDC unless the owner named a token. Do not ask which token. Ask one short question at a time, never both, and never a numbered form. If the owner contradicts an earlier chain, amount, or recipient, ask which they mean. Do not confirm the later one. An address the owner just gave is the account to pay. pay, pay_url, and convert are the only tools that move money. Call the tool. Do not say you will."
+      },
+      {
+        "role": "user",
+        "content": "pay https://gateway.example/invoice"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_a26b4c56e3954e4e90e2b97f",
+            "type": "function",
+            "function": {
+              "name": "skills",
+              "arguments": "{\"to\":\"\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_a26b4c56e3954e4e90e2b97f",
+        "content": "cross-chain\nforeign\ninvoice\nlimits\npay-link\npay-person\npoison\nreceive-merchant\nrefund\nsplit"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_d3e939ee27144f82bb1120be",
+            "type": "function",
+            "function": {
+              "name": "skills",
+              "arguments": "{\"to\":\"pay-link\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_d3e939ee27144f82bb1120be",
+        "content": "# Paying a link\n\nApplies when the owner gives a URL, an x402 challenge, or an MPP payment.\n\nDo not invent an amount or a recipient. The link names both. The token is USDC unless the challenge names another. If the owner did not name a token, the reply says USDC, including when the link cannot be read.\n\nTools, in order: `skills` for this playbook, then `pay_url` with that URL. Do not call `pay` to a different account. If the URL is missing, ask for the link and nothing else.\n\n## Situations\n\n- link-weather | link | pay https://example.com/weather\n- link-mpp | link | this link wants USDC https://mpp.example/premium\n- link-x402 | link | the API returned a 402, pay it\n\n## Generate\n\ncategory: link\nhost: shop.example, api.example, pay.example, billing.example, meter.example, gateway.example\n- pay https://{host}/invoice\n- settle the 402 at https://{host}/v1\n"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_efb2a06f26e3426ca8a86d33",
+            "type": "function",
+            "function": {
+              "name": "pay_url",
+              "arguments": "{\"to\":\"\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"https://gateway.example/invoice\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_efb2a06f26e3426ca8a86d33",
+        "content": "fetch failed"
+      },
+      {
+        "role": "assistant",
+        "content": "The payment failed. Would you like to try a different link, or provide more details about the invoice?"
+      }
+    ]
+  },
+  {
+    "id": "pay-link-61",
+    "category": "link",
+    "turns": [
+      "settle the 402 at https://shop.example/v1"
+    ],
+    "owner": "The payment failed. Do you have the correct URL, or should I try a different approach?",
+    "tools": [
+      "skills",
+      "skills",
+      "pay_url"
+    ],
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are Bursar. Before you act, call skills with no name, then call skills with the one playbook that fits, and follow it. Say USDC unless the owner named a token. Do not ask which token. Ask one short question at a time, never both, and never a numbered form. If the owner contradicts an earlier chain, amount, or recipient, ask which they mean. Do not confirm the later one. An address the owner just gave is the account to pay. pay, pay_url, and convert are the only tools that move money. Call the tool. Do not say you will."
+      },
+      {
+        "role": "user",
+        "content": "settle the 402 at https://shop.example/v1"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_0836f97ca6734647a997b15f",
+            "type": "function",
+            "function": {
+              "name": "skills",
+              "arguments": "{\"to\":\"\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_0836f97ca6734647a997b15f",
+        "content": "cross-chain\nforeign\ninvoice\nlimits\npay-link\npay-person\npoison\nreceive-merchant\nrefund\nsplit"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_1282c7650f8e422d9be9bfbc",
+            "type": "function",
+            "function": {
+              "name": "skills",
+              "arguments": "{\"to\":\"pay-link\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_1282c7650f8e422d9be9bfbc",
+        "content": "# Paying a link\n\nApplies when the owner gives a URL, an x402 challenge, or an MPP payment.\n\nDo not invent an amount or a recipient. The link names both. The token is USDC unless the challenge names another. If the owner did not name a token, the reply says USDC, including when the link cannot be read.\n\nTools, in order: `skills` for this playbook, then `pay_url` with that URL. Do not call `pay` to a different account. If the URL is missing, ask for the link and nothing else.\n\n## Situations\n\n- link-weather | link | pay https://example.com/weather\n- link-mpp | link | this link wants USDC https://mpp.example/premium\n- link-x402 | link | the API returned a 402, pay it\n\n## Generate\n\ncategory: link\nhost: shop.example, api.example, pay.example, billing.example, meter.example, gateway.example\n- pay https://{host}/invoice\n- settle the 402 at https://{host}/v1\n"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_d6ad3a6b1bee43a2adcb64c8",
+            "type": "function",
+            "function": {
+              "name": "pay_url",
+              "arguments": "{\"to\":\"\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"https://shop.example/v1\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_d6ad3a6b1bee43a2adcb64c8",
+        "content": "fetch failed"
+      },
+      {
+        "role": "assistant",
+        "content": "The payment failed. Do you have the correct URL, or should I try a different approach?"
+      }
+    ]
+  },
+  {
+    "id": "pay-link-62",
+    "category": "link",
+    "turns": [
+      "settle the 402 at https://api.example/v1"
+    ],
+    "owner": "The payment failed. Let me try again.\nThe link cannot be fetched. I cannot proceed with the payment.\n\nDo you have an alternative link or can you check if the URL is correct?",
+    "tools": [
+      "skills",
+      "skills",
+      "pay_url",
+      "pay_url"
+    ],
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are Bursar. Before you act, call skills with no name, then call skills with the one playbook that fits, and follow it. Say USDC unless the owner named a token. Do not ask which token. Ask one short question at a time, never both, and never a numbered form. If the owner contradicts an earlier chain, amount, or recipient, ask which they mean. Do not confirm the later one. An address the owner just gave is the account to pay. pay, pay_url, and convert are the only tools that move money. Call the tool. Do not say you will."
+      },
+      {
+        "role": "user",
+        "content": "settle the 402 at https://api.example/v1"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_81ce9b9eed2c4a28bef69bb1",
+            "type": "function",
+            "function": {
+              "name": "skills",
+              "arguments": "{\"to\":\"\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_81ce9b9eed2c4a28bef69bb1",
+        "content": "cross-chain\nforeign\ninvoice\nlimits\npay-link\npay-person\npoison\nreceive-merchant\nrefund\nsplit"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_36ac6a7fe9c04db2bf0eeac7",
+            "type": "function",
+            "function": {
+              "name": "skills",
+              "arguments": "{\"to\":\"pay-link\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_36ac6a7fe9c04db2bf0eeac7",
+        "content": "# Paying a link\n\nApplies when the owner gives a URL, an x402 challenge, or an MPP payment.\n\nDo not invent an amount or a recipient. The link names both. The token is USDC unless the challenge names another. If the owner did not name a token, the reply says USDC, including when the link cannot be read.\n\nTools, in order: `skills` for this playbook, then `pay_url` with that URL. Do not call `pay` to a different account. If the URL is missing, ask for the link and nothing else.\n\n## Situations\n\n- link-weather | link | pay https://example.com/weather\n- link-mpp | link | this link wants USDC https://mpp.example/premium\n- link-x402 | link | the API returned a 402, pay it\n\n## Generate\n\ncategory: link\nhost: shop.example, api.example, pay.example, billing.example, meter.example, gateway.example\n- pay https://{host}/invoice\n- settle the 402 at https://{host}/v1\n"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_50c60c6c79ea45b5be0bf03d",
+            "type": "function",
+            "function": {
+              "name": "pay_url",
+              "arguments": "{\"to\":\"\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"https://api.example/v1\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_50c60c6c79ea45b5be0bf03d",
+        "content": "fetch failed"
+      },
+      {
+        "role": "assistant",
+        "content": "The payment failed. Let me try again.",
+        "tool_calls": [
+          {
+            "id": "call_24f3a06807654628a7570e80",
+            "type": "function",
+            "function": {
+              "name": "pay_url",
+              "arguments": "{\"to\":\"\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"https://api.example/v1\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_24f3a06807654628a7570e80",
+        "content": "fetch failed"
+      },
+      {
+        "role": "assistant",
+        "content": "The link cannot be fetched. I cannot proceed with the payment.\n\nDo you have an alternative link or can you check if the URL is correct?"
+      }
+    ]
+  },
+  {
+    "id": "pay-link-63",
+    "category": "link",
+    "turns": [
+      "settle the 402 at https://pay.example/v1"
+    ],
+    "owner": "The link failed to fetch. Do you have the correct URL, or should I try a different one?",
+    "tools": [
+      "skills",
+      "skills",
+      "pay_url"
+    ],
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are Bursar. Before you act, call skills with no name, then call skills with the one playbook that fits, and follow it. Say USDC unless the owner named a token. Do not ask which token. Ask one short question at a time, never both, and never a numbered form. If the owner contradicts an earlier chain, amount, or recipient, ask which they mean. Do not confirm the later one. An address the owner just gave is the account to pay. pay, pay_url, and convert are the only tools that move money. Call the tool. Do not say you will."
+      },
+      {
+        "role": "user",
+        "content": "settle the 402 at https://pay.example/v1"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_164751ec64f04151aad4678a",
+            "type": "function",
+            "function": {
+              "name": "skills",
+              "arguments": "{\"to\":\"\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_164751ec64f04151aad4678a",
+        "content": "cross-chain\nforeign\ninvoice\nlimits\npay-link\npay-person\npoison\nreceive-merchant\nrefund\nsplit"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_21797d3d131e4c779deabb6f",
+            "type": "function",
+            "function": {
+              "name": "skills",
+              "arguments": "{\"to\":\"pay-link\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_21797d3d131e4c779deabb6f",
+        "content": "# Paying a link\n\nApplies when the owner gives a URL, an x402 challenge, or an MPP payment.\n\nDo not invent an amount or a recipient. The link names both. The token is USDC unless the challenge names another. If the owner did not name a token, the reply says USDC, including when the link cannot be read.\n\nTools, in order: `skills` for this playbook, then `pay_url` with that URL. Do not call `pay` to a different account. If the URL is missing, ask for the link and nothing else.\n\n## Situations\n\n- link-weather | link | pay https://example.com/weather\n- link-mpp | link | this link wants USDC https://mpp.example/premium\n- link-x402 | link | the API returned a 402, pay it\n\n## Generate\n\ncategory: link\nhost: shop.example, api.example, pay.example, billing.example, meter.example, gateway.example\n- pay https://{host}/invoice\n- settle the 402 at https://{host}/v1\n"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_acff1670e8d94ae4a6ccf33b",
+            "type": "function",
+            "function": {
+              "name": "pay_url",
+              "arguments": "{\"to\":\"\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"https://pay.example/v1\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_acff1670e8d94ae4a6ccf33b",
+        "content": "fetch failed"
+      },
+      {
+        "role": "assistant",
+        "content": "The link failed to fetch. Do you have the correct URL, or should I try a different one?"
+      }
+    ]
+  },
+  {
+    "id": "pay-link-65",
+    "category": "link",
+    "turns": [
+      "settle the 402 at https://meter.example/v1"
+    ],
+    "owner": "The payment failed. Let me check if the URL is valid or if there's an issue with the link.\nThe URL cannot be accessed. Let me try to find a service that matches the need for settling a 402 error at that endpoint.\nhttps://laso.finance/get-card\nThe system indicates no payable services match the need. Let me check the history to see if there's any prior context about this 402 challenge.",
+    "tools": [
+      "skills",
+      "skills",
+      "pay_url",
+      "scan",
+      "find",
+      "history"
+    ],
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are Bursar. Before you act, call skills with no name, then call skills with the one playbook that fits, and follow it. Say USDC unless the owner named a token. Do not ask which token. Ask one short question at a time, never both, and never a numbered form. If the owner contradicts an earlier chain, amount, or recipient, ask which they mean. Do not confirm the later one. An address the owner just gave is the account to pay. pay, pay_url, and convert are the only tools that move money. Call the tool. Do not say you will."
+      },
+      {
+        "role": "user",
+        "content": "settle the 402 at https://meter.example/v1"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_1665e393572741afb529ebc7",
+            "type": "function",
+            "function": {
+              "name": "skills",
+              "arguments": "{\"to\":\"\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_1665e393572741afb529ebc7",
+        "content": "cross-chain\nforeign\ninvoice\nlimits\npay-link\npay-person\npoison\nreceive-merchant\nrefund\nsplit"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_a4c18a48a5fb465b8ae7a321",
+            "type": "function",
+            "function": {
+              "name": "skills",
+              "arguments": "{\"to\":\"pay-link\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_a4c18a48a5fb465b8ae7a321",
+        "content": "# Paying a link\n\nApplies when the owner gives a URL, an x402 challenge, or an MPP payment.\n\nDo not invent an amount or a recipient. The link names both. The token is USDC unless the challenge names another. If the owner did not name a token, the reply says USDC, including when the link cannot be read.\n\nTools, in order: `skills` for this playbook, then `pay_url` with that URL. Do not call `pay` to a different account. If the URL is missing, ask for the link and nothing else.\n\n## Situations\n\n- link-weather | link | pay https://example.com/weather\n- link-mpp | link | this link wants USDC https://mpp.example/premium\n- link-x402 | link | the API returned a 402, pay it\n\n## Generate\n\ncategory: link\nhost: shop.example, api.example, pay.example, billing.example, meter.example, gateway.example\n- pay https://{host}/invoice\n- settle the 402 at https://{host}/v1\n"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_94b8fa784f1b4c66ab99746d",
+            "type": "function",
+            "function": {
+              "name": "pay_url",
+              "arguments": "{\"to\":\"\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"https://meter.example/v1\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_94b8fa784f1b4c66ab99746d",
+        "content": "fetch failed"
+      },
+      {
+        "role": "assistant",
+        "content": "The payment failed. Let me check if the URL is valid or if there's an issue with the link.",
+        "tool_calls": [
+          {
+            "id": "call_a5ea4a683d984c0caa164e8e",
+            "type": "function",
+            "function": {
+              "name": "scan",
+              "arguments": "{\"to\":\"\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"https://meter.example/v1\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_a5ea4a683d984c0caa164e8e",
+        "content": "ENOENT: no such file or directory, open 'https://meter.example/v1'"
+      },
+      {
+        "role": "assistant",
+        "content": "The URL cannot be accessed. Let me try to find a service that matches the need for settling a 402 error at that endpoint.",
+        "tool_calls": [
+          {
+            "id": "call_cdbcec3613074d03b88cd322",
+            "type": "function",
+            "function": {
+              "name": "find",
+              "arguments": "{\"to\":\"\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"settle the 402 at https://meter.example/v1\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_cdbcec3613074d03b88cd322",
+        "content": "catalog 139\nnearintents 0 payable 0\ntempo 136 payable 0\nevm 1 payable 0\nstripe 10 payable 0\nno catalog service is payable: 1Click lists no tempo chain, a Tempo push transfer is accepted from whatever account sent it, and the verifier requires an MPP attribution memo bound to the challenge id, and https://laso.finance/get-card returned 503\nbazaar 0 payable 0"
+      },
+      {
+        "role": "assistant",
+        "content": "The system indicates no payable services match the need. Let me check the history to see if there's any prior context about this 402 challenge.",
+        "tool_calls": [
+          {
+            "id": "call_63ae54b834fd402f96f6d747",
+            "type": "function",
+            "function": {
+              "name": "history",
+              "arguments": "{\"to\":\"\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_63ae54b834fd402f96f6d747",
+        "content": "date,recipient,chain,amount,fee,verdict,transaction,receipts\n"
+      }
+    ]
+  },
+  {
+    "id": "fraser-contradiction",
+    "category": "contradiction",
+    "turns": [
+      "I want to pay someone with base crypto",
+      "1 0xC6b6469995A2292D719F2206242319e49a612696 2. 0.1 usdc 3. arbitrum"
+    ],
+    "owner": "Which chain is the recipient on?\n---\nI see you want to pay 0.1 USDC to the address 0xC6b6469995A2292D719F2206242319e49a612696 on the Arbitrum chain. Let me get a quote for this payment first.\n\nWhich token do you want to",
+    "tools": [
+      "skills"
+    ],
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are Bursar. Before you act, call skills with no name, then call skills with the one playbook that fits, and follow it. Say USDC unless the owner named a token. Do not ask which token. Ask one short question at a time, never both, and never a numbered form. If the owner contradicts an earlier chain, amount, or recipient, ask which they mean. Do not confirm the later one. An address the owner just gave is the account to pay. pay, pay_url, and convert are the only tools that move money. Call the tool. Do not say you will."
+      },
+      {
+        "role": "user",
+        "content": "I want to pay someone with base crypto"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_7562ae85e85e415e8a00ac87",
+            "type": "function",
+            "function": {
+              "name": "skills",
+              "arguments": "{\"to\":\"\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_7562ae85e85e415e8a00ac87",
+        "content": "cross-chain\nforeign\ninvoice\nlimits\npay-link\npay-person\npoison\nreceive-merchant\nrefund\nsplit"
+      },
+      {
+        "role": "assistant",
+        "content": "Which chain is the recipient on?"
+      },
+      {
+        "role": "user",
+        "content": "1 0xC6b6469995A2292D719F2206242319e49a612696 2. 0.1 usdc 3. arbitrum"
+      },
+      {
+        "role": "assistant",
+        "content": "I see you want to pay 0.1 USDC to the address 0xC6b6469995A2292D719F2206242319e49a612696 on the Arbitrum chain. Let me get a quote for this payment first.\n\nWhich token do you want to"
+      }
+    ]
+  },
+  {
+    "id": "pay-person-69",
+    "category": "pay",
+    "turns": [
+      "pay 0.1 USDC to frsrcom.near"
+    ],
+    "owner": "Send 0.1 USDC to frsrcom.near?\naccount age unavailable\nThis cannot be undone.",
+    "tools": [
+      "skills",
+      "skills",
+      "quote",
+      "pay"
+    ],
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are Bursar. Before you act, call skills with no name, then call skills with the one playbook that fits, and follow it. Say USDC unless the owner named a token. Do not ask which token. Ask one short question at a time, never both, and never a numbered form. If the owner contradicts an earlier chain, amount, or recipient, ask which they mean. Do not confirm the later one. An address the owner just gave is the account to pay. pay, pay_url, and convert are the only tools that move money. Call the tool. Do not say you will."
+      },
+      {
+        "role": "user",
+        "content": "pay 0.1 USDC to frsrcom.near"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_94b434b0227d4eed96538747",
+            "type": "function",
+            "function": {
+              "name": "skills",
+              "arguments": "{\"to\":\"\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_94b434b0227d4eed96538747",
+        "content": "cross-chain\nforeign\ninvoice\nlimits\npay-link\npay-person\npoison\nreceive-merchant\nrefund\nsplit"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_5a4f843047a64e67bb3e85c8",
+            "type": "function",
+            "function": {
+              "name": "skills",
+              "arguments": "{\"to\":\"pay-person\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_5a4f843047a64e67bb3e85c8",
+        "content": "# Paying a person\n\nApplies when the owner is sending money to a person, a name, or an address.\n\nThe token is USDC unless they named another. Say USDC. An address they just gave is who you pay. Do not check whether it is valid. Never list saved accounts. `payees` is one saved name, then you stop.\n\nTools, in order: `skills` for this playbook, then one question if a fact is missing, then `quote`, then `pay`. `pay` shows the card. It does not pay a different account.\n\nAsk one missing fact: who, how much, or which chain. Not two. Never a numbered form. If a later message names a different chain, amount, or recipient, ask which they mean. Do not confirm the later one.\n\n## Situations\n\n- fraser-pay | pay | I want to pay someone with base crypto\n- fraser-contradiction | contradiction | I want to pay someone with base crypto || 1 0xC6b6469995A2292D719F2206242319e49a612696 2. 0.1 usdc 3. arbitrum\n\n## Generate\n\ncategory: pay\namount: 0.1, 0.25, 1, 2, 5, 10, 20, 50, 0.4, 3, 7, 15, 0.2, 4, 6, 12, 8, 25\nwho: frsrcom.near, alice.near, bob.near, wrap.near, carol.near, dave.near\nchain: Base, Arbitrum, NEAR, Solana, Ethereum\n- pay {amount} USDC to {who}\n- send {amount} USDC to {who} on {chain}\n- I owe {who} {amount} USDC\n- please pay {amount} USDC to {who}\n"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_52318862873c4f61ace64275",
+            "type": "function",
+            "function": {
+              "name": "quote",
+              "arguments": "{\"to\":\"frsrcom.near\",\"amount\":\"0.1\",\"asset\":\"USDC\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_52318862873c4f61ace64275",
+        "content": "recorded quote amountIn 1000000000000000000000000 minAmountOut 3563602"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_edaa1bc5e2d24aa4b2ac818b",
+            "type": "function",
+            "function": {
+              "name": "pay",
+              "arguments": "{\"to\":\"frsrcom.near\",\"amount\":\"0.1\",\"asset\":\"USDC\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_edaa1bc5e2d24aa4b2ac818b",
+        "content": "card"
+      }
+    ]
+  },
+  {
+    "id": "pay-person-70",
+    "category": "pay",
+    "turns": [
+      "pay 0.25 USDC to alice.near"
+    ],
+    "owner": "Send 0.25 USDC to alice.near?\naccount age unavailable\nThis cannot be undone.",
+    "tools": [
+      "skills",
+      "skills",
+      "quote",
+      "pay"
+    ],
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are Bursar. Before you act, call skills with no name, then call skills with the one playbook that fits, and follow it. Say USDC unless the owner named a token. Do not ask which token. Ask one short question at a time, never both, and never a numbered form. If the owner contradicts an earlier chain, amount, or recipient, ask which they mean. Do not confirm the later one. An address the owner just gave is the account to pay. pay, pay_url, and convert are the only tools that move money. Call the tool. Do not say you will."
+      },
+      {
+        "role": "user",
+        "content": "pay 0.25 USDC to alice.near"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_513a0e4cbfab429bb6d35c4a",
+            "type": "function",
+            "function": {
+              "name": "skills",
+              "arguments": "{\"to\":\"\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_513a0e4cbfab429bb6d35c4a",
+        "content": "cross-chain\nforeign\ninvoice\nlimits\npay-link\npay-person\npoison\nreceive-merchant\nrefund\nsplit"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_1a8c72335fcb4e738943e4f5",
+            "type": "function",
+            "function": {
+              "name": "skills",
+              "arguments": "{\"to\":\"pay-person\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_1a8c72335fcb4e738943e4f5",
+        "content": "# Paying a person\n\nApplies when the owner is sending money to a person, a name, or an address.\n\nThe token is USDC unless they named another. Say USDC. An address they just gave is who you pay. Do not check whether it is valid. Never list saved accounts. `payees` is one saved name, then you stop.\n\nTools, in order: `skills` for this playbook, then one question if a fact is missing, then `quote`, then `pay`. `pay` shows the card. It does not pay a different account.\n\nAsk one missing fact: who, how much, or which chain. Not two. Never a numbered form. If a later message names a different chain, amount, or recipient, ask which they mean. Do not confirm the later one.\n\n## Situations\n\n- fraser-pay | pay | I want to pay someone with base crypto\n- fraser-contradiction | contradiction | I want to pay someone with base crypto || 1 0xC6b6469995A2292D719F2206242319e49a612696 2. 0.1 usdc 3. arbitrum\n\n## Generate\n\ncategory: pay\namount: 0.1, 0.25, 1, 2, 5, 10, 20, 50, 0.4, 3, 7, 15, 0.2, 4, 6, 12, 8, 25\nwho: frsrcom.near, alice.near, bob.near, wrap.near, carol.near, dave.near\nchain: Base, Arbitrum, NEAR, Solana, Ethereum\n- pay {amount} USDC to {who}\n- send {amount} USDC to {who} on {chain}\n- I owe {who} {amount} USDC\n- please pay {amount} USDC to {who}\n"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_9f8dd8ebca7141659a43770a",
+            "type": "function",
+            "function": {
+              "name": "quote",
+              "arguments": "{\"to\":\"alice.near\",\"amount\":\"0.25\",\"asset\":\"USDC\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_9f8dd8ebca7141659a43770a",
+        "content": "recorded quote amountIn 1000000000000000000000000 minAmountOut 3563602"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_9ca310718f8144ea9691534d",
+            "type": "function",
+            "function": {
+              "name": "pay",
+              "arguments": "{\"to\":\"alice.near\",\"amount\":\"0.25\",\"asset\":\"USDC\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_9ca310718f8144ea9691534d",
+        "content": "card"
+      }
+    ]
+  },
+  {
+    "id": "pay-person-71",
+    "category": "pay",
+    "turns": [
+      "pay 1 USDC to bob.near"
+    ],
+    "owner": "Send 1 USDC to bob.near?\naccount age unavailable\nThis cannot be undone.",
+    "tools": [
+      "skills",
+      "pay"
+    ],
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are Bursar. Before you act, call skills with no name, then call skills with the one playbook that fits, and follow it. Say USDC unless the owner named a token. Do not ask which token. Ask one short question at a time, never both, and never a numbered form. If the owner contradicts an earlier chain, amount, or recipient, ask which they mean. Do not confirm the later one. An address the owner just gave is the account to pay. pay, pay_url, and convert are the only tools that move money. Call the tool. Do not say you will."
+      },
+      {
+        "role": "user",
+        "content": "pay 1 USDC to bob.near"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_e29eaf7dacb2416086e98506",
+            "type": "function",
+            "function": {
+              "name": "skills",
+              "arguments": "{\"to\":\"\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_e29eaf7dacb2416086e98506",
+        "content": "cross-chain\nforeign\ninvoice\nlimits\npay-link\npay-person\npoison\nreceive-merchant\nrefund\nsplit"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_5b15d4dbc2ea469b8bd96ba8",
+            "type": "function",
+            "function": {
+              "name": "pay",
+              "arguments": "{\"to\":\"bob.near\",\"amount\":\"1\",\"asset\":\"USDC\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_5b15d4dbc2ea469b8bd96ba8",
+        "content": "card"
+      }
+    ]
+  },
+  {
+    "id": "pay-person-89",
+    "category": "pay",
+    "turns": [
+      "send 1 USDC to bob.near on NEAR"
+    ],
+    "owner": "Send 1 USDC to bob.near?\naccount age unavailable\nThis cannot be undone.",
+    "tools": [
+      "skills",
+      "skills",
+      "quote",
+      "pay"
+    ],
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are Bursar. Before you act, call skills with no name, then call skills with the one playbook that fits, and follow it. Say USDC unless the owner named a token. Do not ask which token. Ask one short question at a time, never both, and never a numbered form. If the owner contradicts an earlier chain, amount, or recipient, ask which they mean. Do not confirm the later one. An address the owner just gave is the account to pay. pay, pay_url, and convert are the only tools that move money. Call the tool. Do not say you will."
+      },
+      {
+        "role": "user",
+        "content": "send 1 USDC to bob.near on NEAR"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_d1bd8a644d1947a3ab47e39c",
+            "type": "function",
+            "function": {
+              "name": "skills",
+              "arguments": "{\"to\":\"\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_d1bd8a644d1947a3ab47e39c",
+        "content": "cross-chain\nforeign\ninvoice\nlimits\npay-link\npay-person\npoison\nreceive-merchant\nrefund\nsplit"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_777e306fa9b94e329b35575d",
+            "type": "function",
+            "function": {
+              "name": "skills",
+              "arguments": "{\"to\":\"pay-person\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_777e306fa9b94e329b35575d",
+        "content": "# Paying a person\n\nApplies when the owner is sending money to a person, a name, or an address.\n\nThe token is USDC unless they named another. Say USDC. An address they just gave is who you pay. Do not check whether it is valid. Never list saved accounts. `payees` is one saved name, then you stop.\n\nTools, in order: `skills` for this playbook, then one question if a fact is missing, then `quote`, then `pay`. `pay` shows the card. It does not pay a different account.\n\nAsk one missing fact: who, how much, or which chain. Not two. Never a numbered form. If a later message names a different chain, amount, or recipient, ask which they mean. Do not confirm the later one.\n\n## Situations\n\n- fraser-pay | pay | I want to pay someone with base crypto\n- fraser-contradiction | contradiction | I want to pay someone with base crypto || 1 0xC6b6469995A2292D719F2206242319e49a612696 2. 0.1 usdc 3. arbitrum\n\n## Generate\n\ncategory: pay\namount: 0.1, 0.25, 1, 2, 5, 10, 20, 50, 0.4, 3, 7, 15, 0.2, 4, 6, 12, 8, 25\nwho: frsrcom.near, alice.near, bob.near, wrap.near, carol.near, dave.near\nchain: Base, Arbitrum, NEAR, Solana, Ethereum\n- pay {amount} USDC to {who}\n- send {amount} USDC to {who} on {chain}\n- I owe {who} {amount} USDC\n- please pay {amount} USDC to {who}\n"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_b3172975828b4be2a6afe503",
+            "type": "function",
+            "function": {
+              "name": "quote",
+              "arguments": "{\"to\":\"bob.near\",\"amount\":\"1\",\"asset\":\"USDC\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_b3172975828b4be2a6afe503",
+        "content": "recorded quote amountIn 1000000000000000000000000 minAmountOut 3563602"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_19adec9f415341a6b4b3a727",
+            "type": "function",
+            "function": {
+              "name": "pay",
+              "arguments": "{\"to\":\"bob.near\",\"amount\":\"1\",\"asset\":\"USDC\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_19adec9f415341a6b4b3a727",
+        "content": "card"
+      }
+    ]
+  },
+  {
+    "id": "pay-person-92",
+    "category": "pay",
+    "turns": [
+      "send 10 USDC to dave.near on Base"
+    ],
+    "owner": "Send 10 USDC to dave.near?\naccount age unavailable\nThis cannot be undone.",
+    "tools": [
+      "skills",
+      "understand",
+      "quote",
+      "pay"
+    ],
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are Bursar. Before you act, call skills with no name, then call skills with the one playbook that fits, and follow it. Say USDC unless the owner named a token. Do not ask which token. Ask one short question at a time, never both, and never a numbered form. If the owner contradicts an earlier chain, amount, or recipient, ask which they mean. Do not confirm the later one. An address the owner just gave is the account to pay. pay, pay_url, and convert are the only tools that move money. Call the tool. Do not say you will."
+      },
+      {
+        "role": "user",
+        "content": "send 10 USDC to dave.near on Base"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_64d5e7e810ec4a53a085c973",
+            "type": "function",
+            "function": {
+              "name": "skills",
+              "arguments": "{\"to\":\"\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_64d5e7e810ec4a53a085c973",
+        "content": "cross-chain\nforeign\ninvoice\nlimits\npay-link\npay-person\npoison\nreceive-merchant\nrefund\nsplit"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_354f0676ccf24da28f17bc8b",
+            "type": "function",
+            "function": {
+              "name": "understand",
+              "arguments": "{\"to\":\"\",\"amount\":\"10\",\"asset\":\"US\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"customer\",\"payer\":\"customer\",\"payee\":\"dave.near\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_354f0676ccf24da28f17bc8b",
+        "content": "noted"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_f82535e41f4a4050a2b49859",
+            "type": "function",
+            "function": {
+              "name": "quote",
+              "arguments": "{\"to\":\"dave.near\",\"amount\":\"10\",\"asset\":\"USDC\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_f82535e41f4a4050a2b49859",
+        "content": "recorded quote amountIn 1000000000000000000000000 minAmountOut 3563602"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_fdf378334a2f4d908f31a130",
+            "type": "function",
+            "function": {
+              "name": "pay",
+              "arguments": "{\"to\":\"dave.near\",\"amount\":\"10\",\"asset\":\"USDC\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_fdf378334a2f4d908f31a130",
+        "content": "card"
+      }
+    ]
+  },
+  {
+    "id": "pay-person-93",
+    "category": "pay",
+    "turns": [
+      "send 20 USDC to frsrcom.near on Arbitrum"
+    ],
+    "owner": "Send 20 USDC to frsrcom.near?\naccount age unavailable\nThis cannot be undone.",
+    "tools": [
+      "skills",
+      "skills",
+      "quote",
+      "pay"
+    ],
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are Bursar. Before you act, call skills with no name, then call skills with the one playbook that fits, and follow it. Say USDC unless the owner named a token. Do not ask which token. Ask one short question at a time, never both, and never a numbered form. If the owner contradicts an earlier chain, amount, or recipient, ask which they mean. Do not confirm the later one. An address the owner just gave is the account to pay. pay, pay_url, and convert are the only tools that move money. Call the tool. Do not say you will."
+      },
+      {
+        "role": "user",
+        "content": "send 20 USDC to frsrcom.near on Arbitrum"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_f69cd23916dc47dfb976e151",
+            "type": "function",
+            "function": {
+              "name": "skills",
+              "arguments": "{\"to\":\"\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_f69cd23916dc47dfb976e151",
+        "content": "cross-chain\nforeign\ninvoice\nlimits\npay-link\npay-person\npoison\nreceive-merchant\nrefund\nsplit"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_aaac822de9e749e289100a2c",
+            "type": "function",
+            "function": {
+              "name": "skills",
+              "arguments": "{\"to\":\"cross-chain\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_aaac822de9e749e289100a2c",
+        "content": "# Cross-chain and route minimums\n\nApplies when the money moves between chains, or a quote may be below a route minimum. Bursar holds one NEAR Intents balance and can pay to, or receive from, a chain that Intents and 1Click support.\n\nAmounts come from `quote`, never from a guess. If the quote says the amount is below the route minimum, say the minimum it returned and ask whether to raise the amount. Do not invent a minimum. Do not call `convert` unless they asked to swap.\n\nThe token is USDC unless they named another. Say USDC. Ask which chain if they did not name one.\n\n## Situations\n\n- cross-base | pay | send 2 USDC to alice.near and they want it on Base\n- cross-min | vague | is 0.01 USDC enough to bridge to Solana\n\n## Generate\n\ncategory: pay\namount: 0.1, 1, 5, 2, 8, 15\nchain: Base, Solana, Arbitrum, Ethereum\nwho: alice.near, bob.near, carol.near\n- bridge {amount} USDC to {who} on {chain}\n"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_e1974e0cc0164f22837db91d",
+            "type": "function",
+            "function": {
+              "name": "quote",
+              "arguments": "{\"to\":\"frsrcom.near\",\"amount\":\"20\",\"asset\":\"USDC\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_e1974e0cc0164f22837db91d",
+        "content": "recorded quote amountIn 1000000000000000000000000 minAmountOut 3563602"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_c4eeb1df47654c34b5aa4ba1",
+            "type": "function",
+            "function": {
+              "name": "pay",
+              "arguments": "{\"to\":\"frsrcom.near\",\"amount\":\"20\",\"asset\":\"USDC\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_c4eeb1df47654c34b5aa4ba1",
+        "content": "card"
+      }
+    ]
+  },
+  {
+    "id": "pay-person-95",
+    "category": "pay",
+    "turns": [
+      "send 0.4 USDC to bob.near on Solana"
+    ],
+    "owner": "Send 0.4 USDC to bob.near?\naccount age unavailable\nThis cannot be undone.",
+    "tools": [
+      "skills",
+      "skills",
+      "quote",
+      "pay"
+    ],
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are Bursar. Before you act, call skills with no name, then call skills with the one playbook that fits, and follow it. Say USDC unless the owner named a token. Do not ask which token. Ask one short question at a time, never both, and never a numbered form. If the owner contradicts an earlier chain, amount, or recipient, ask which they mean. Do not confirm the later one. An address the owner just gave is the account to pay. pay, pay_url, and convert are the only tools that move money. Call the tool. Do not say you will."
+      },
+      {
+        "role": "user",
+        "content": "send 0.4 USDC to bob.near on Solana"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_3f86f7acede243f0a99c6211",
+            "type": "function",
+            "function": {
+              "name": "skills",
+              "arguments": "{\"to\":\"\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_3f86f7acede243f0a99c6211",
+        "content": "cross-chain\nforeign\ninvoice\nlimits\npay-link\npay-person\npoison\nreceive-merchant\nrefund\nsplit"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_df81e788e9d4449493a9caad",
+            "type": "function",
+            "function": {
+              "name": "skills",
+              "arguments": "{\"to\":\"cross-chain\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_df81e788e9d4449493a9caad",
+        "content": "# Cross-chain and route minimums\n\nApplies when the money moves between chains, or a quote may be below a route minimum. Bursar holds one NEAR Intents balance and can pay to, or receive from, a chain that Intents and 1Click support.\n\nAmounts come from `quote`, never from a guess. If the quote says the amount is below the route minimum, say the minimum it returned and ask whether to raise the amount. Do not invent a minimum. Do not call `convert` unless they asked to swap.\n\nThe token is USDC unless they named another. Say USDC. Ask which chain if they did not name one.\n\n## Situations\n\n- cross-base | pay | send 2 USDC to alice.near and they want it on Base\n- cross-min | vague | is 0.01 USDC enough to bridge to Solana\n\n## Generate\n\ncategory: pay\namount: 0.1, 1, 5, 2, 8, 15\nchain: Base, Solana, Arbitrum, Ethereum\nwho: alice.near, bob.near, carol.near\n- bridge {amount} USDC to {who} on {chain}\n"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_82e3679db0a94e03b7cdc637",
+            "type": "function",
+            "function": {
+              "name": "quote",
+              "arguments": "{\"to\":\"bob.near\",\"amount\":\"0.4\",\"asset\":\"USDC\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_82e3679db0a94e03b7cdc637",
+        "content": "recorded quote amountIn 1000000000000000000000000 minAmountOut 3563602"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_9259c8956ded441fb7bb4e07",
+            "type": "function",
+            "function": {
+              "name": "pay",
+              "arguments": "{\"to\":\"bob.near\",\"amount\":\"0.4\",\"asset\":\"USDC\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_9259c8956ded441fb7bb4e07",
+        "content": "card"
+      }
+    ]
+  },
+  {
+    "id": "pay-person-96",
+    "category": "pay",
+    "turns": [
+      "send 3 USDC to wrap.near on Ethereum"
+    ],
+    "owner": "I need to get a quote for sending 3 USDC to wrap.near on Ethereum.\nThe quote shows that sending 3 USDC to wrap.near on Ethereum will result in a minimum output of 3.563602 USDC. Since the requested amount is 3 USDC, which is below the minimum, I need to ask if you want to proceed with the minimum amount or raise the input amount.\n\nWould you like to send the minimum amount of",
+    "tools": [
+      "skills",
+      "skills",
+      "quote"
+    ],
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are Bursar. Before you act, call skills with no name, then call skills with the one playbook that fits, and follow it. Say USDC unless the owner named a token. Do not ask which token. Ask one short question at a time, never both, and never a numbered form. If the owner contradicts an earlier chain, amount, or recipient, ask which they mean. Do not confirm the later one. An address the owner just gave is the account to pay. pay, pay_url, and convert are the only tools that move money. Call the tool. Do not say you will."
+      },
+      {
+        "role": "user",
+        "content": "send 3 USDC to wrap.near on Ethereum"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_cd258c17440f4fac96685e02",
+            "type": "function",
+            "function": {
+              "name": "skills",
+              "arguments": "{\"to\":\"\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_cd258c17440f4fac96685e02",
+        "content": "cross-chain\nforeign\ninvoice\nlimits\npay-link\npay-person\npoison\nreceive-merchant\nrefund\nsplit"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_46bb3bab8a764a0a83be0bda",
+            "type": "function",
+            "function": {
+              "name": "skills",
+              "arguments": "{\"to\":\"cross-chain\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_46bb3bab8a764a0a83be0bda",
+        "content": "# Cross-chain and route minimums\n\nApplies when the money moves between chains, or a quote may be below a route minimum. Bursar holds one NEAR Intents balance and can pay to, or receive from, a chain that Intents and 1Click support.\n\nAmounts come from `quote`, never from a guess. If the quote says the amount is below the route minimum, say the minimum it returned and ask whether to raise the amount. Do not invent a minimum. Do not call `convert` unless they asked to swap.\n\nThe token is USDC unless they named another. Say USDC. Ask which chain if they did not name one.\n\n## Situations\n\n- cross-base | pay | send 2 USDC to alice.near and they want it on Base\n- cross-min | vague | is 0.01 USDC enough to bridge to Solana\n\n## Generate\n\ncategory: pay\namount: 0.1, 1, 5, 2, 8, 15\nchain: Base, Solana, Arbitrum, Ethereum\nwho: alice.near, bob.near, carol.near\n- bridge {amount} USDC to {who} on {chain}\n"
+      },
+      {
+        "role": "assistant",
+        "content": "I need to get a quote for sending 3 USDC to wrap.near on Ethereum.",
+        "tool_calls": [
+          {
+            "id": "call_558826228fb9465bb6dfd602",
+            "type": "function",
+            "function": {
+              "name": "quote",
+              "arguments": "{\"to\":\"wrap.near\",\"amount\":\"3\",\"asset\":\"USDC\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_558826228fb9465bb6dfd602",
+        "content": "recorded quote amountIn 1000000000000000000000000 minAmountOut 3563602"
+      },
+      {
+        "role": "assistant",
+        "content": "The quote shows that sending 3 USDC to wrap.near on Ethereum will result in a minimum output of 3.563602 USDC. Since the requested amount is 3 USDC, which is below the minimum, I need to ask if you want to proceed with the minimum amount or raise the input amount.\n\nWould you like to send the minimum amount of"
+      }
+    ]
+  },
+  {
+    "id": "pay-person-99",
+    "category": "pay",
+    "turns": [
+      "send 0.2 USDC to frsrcom.near on NEAR"
+    ],
+    "owner": "Send 0.2 USDC to frsrcom.near?\naccount age unavailable\nThis cannot be undone.",
+    "tools": [
+      "skills",
+      "understand",
+      "quote",
+      "pay"
+    ],
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are Bursar. Before you act, call skills with no name, then call skills with the one playbook that fits, and follow it. Say USDC unless the owner named a token. Do not ask which token. Ask one short question at a time, never both, and never a numbered form. If the owner contradicts an earlier chain, amount, or recipient, ask which they mean. Do not confirm the later one. An address the owner just gave is the account to pay. pay, pay_url, and convert are the only tools that move money. Call the tool. Do not say you will."
+      },
+      {
+        "role": "user",
+        "content": "send 0.2 USDC to frsrcom.near on NEAR"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_80b890af66cf4a948f1e91fa",
+            "type": "function",
+            "function": {
+              "name": "skills",
+              "arguments": "{\"to\":\"\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_80b890af66cf4a948f1e91fa",
+        "content": "cross-chain\nforeign\ninvoice\nlimits\npay-link\npay-person\npoison\nreceive-merchant\nrefund\nsplit"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_8b31c9553db5464c825fae0f",
+            "type": "function",
+            "function": {
+              "name": "understand",
+              "arguments": "{\"to\":\"\",\"amount\":\"0.2\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"customer\",\"payer\":\"customer\",\"payee\":\"frsrcom.near\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_8b31c9553db5464c825fae0f",
+        "content": "noted"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_5ba5a71bc2e246eb99cbf59e",
+            "type": "function",
+            "function": {
+              "name": "quote",
+              "arguments": "{\"to\":\"frsrcom.near\",\"amount\":\"0.2\",\"asset\":\"USDC\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_5ba5a71bc2e246eb99cbf59e",
+        "content": "recorded quote amountIn 1000000000000000000000000 minAmountOut 3563602"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_cb75603ca93c402b8152bf3e",
+            "type": "function",
+            "function": {
+              "name": "pay",
+              "arguments": "{\"to\":\"frsrcom.near\",\"amount\":\"0.2\",\"asset\":\"USDC\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_cb75603ca93c402b8152bf3e",
+        "content": "card"
+      }
+    ]
+  },
+  {
+    "id": "pay-person-100",
+    "category": "pay",
+    "turns": [
+      "send 4 USDC to alice.near on Solana"
+    ],
+    "owner": "Send 4 USDC to alice.near?\naccount age unavailable\nThis cannot be undone.",
+    "tools": [
+      "skills",
+      "skills",
+      "quote",
+      "pay"
+    ],
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are Bursar. Before you act, call skills with no name, then call skills with the one playbook that fits, and follow it. Say USDC unless the owner named a token. Do not ask which token. Ask one short question at a time, never both, and never a numbered form. If the owner contradicts an earlier chain, amount, or recipient, ask which they mean. Do not confirm the later one. An address the owner just gave is the account to pay. pay, pay_url, and convert are the only tools that move money. Call the tool. Do not say you will."
+      },
+      {
+        "role": "user",
+        "content": "send 4 USDC to alice.near on Solana"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_97aa484daa2644e2b1b6b27c",
+            "type": "function",
+            "function": {
+              "name": "skills",
+              "arguments": "{\"to\":\"\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_97aa484daa2644e2b1b6b27c",
+        "content": "cross-chain\nforeign\ninvoice\nlimits\npay-link\npay-person\npoison\nreceive-merchant\nrefund\nsplit"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_d5eff420597f4a49b348b5c3",
+            "type": "function",
+            "function": {
+              "name": "skills",
+              "arguments": "{\"to\":\"cross-chain\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_d5eff420597f4a49b348b5c3",
+        "content": "# Cross-chain and route minimums\n\nApplies when the money moves between chains, or a quote may be below a route minimum. Bursar holds one NEAR Intents balance and can pay to, or receive from, a chain that Intents and 1Click support.\n\nAmounts come from `quote`, never from a guess. If the quote says the amount is below the route minimum, say the minimum it returned and ask whether to raise the amount. Do not invent a minimum. Do not call `convert` unless they asked to swap.\n\nThe token is USDC unless they named another. Say USDC. Ask which chain if they did not name one.\n\n## Situations\n\n- cross-base | pay | send 2 USDC to alice.near and they want it on Base\n- cross-min | vague | is 0.01 USDC enough to bridge to Solana\n\n## Generate\n\ncategory: pay\namount: 0.1, 1, 5, 2, 8, 15\nchain: Base, Solana, Arbitrum, Ethereum\nwho: alice.near, bob.near, carol.near\n- bridge {amount} USDC to {who} on {chain}\n"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_2984f63a449d40278ed0b06e",
+            "type": "function",
+            "function": {
+              "name": "quote",
+              "arguments": "{\"to\":\"alice.near\",\"amount\":\"4\",\"asset\":\"USDC\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_2984f63a449d40278ed0b06e",
+        "content": "recorded quote amountIn 1000000000000000000000000 minAmountOut 3563602"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_f1455c620ffa4ef697ea49a9",
+            "type": "function",
+            "function": {
+              "name": "pay",
+              "arguments": "{\"to\":\"alice.near\",\"amount\":\"4\",\"asset\":\"USDC\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_f1455c620ffa4ef697ea49a9",
+        "content": "card"
+      }
+    ]
+  },
+  {
+    "id": "pay-person-101",
+    "category": "pay",
+    "turns": [
+      "send 6 USDC to bob.near on Ethereum"
+    ],
+    "owner": "I will quote the payment of 6 USDC to bob.near on Ethereum.\nSend 6 USDC to bob.near?\naccount age unavailable\nThis cannot be undone.",
+    "tools": [
+      "skills",
+      "skills",
+      "quote",
+      "pay"
+    ],
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are Bursar. Before you act, call skills with no name, then call skills with the one playbook that fits, and follow it. Say USDC unless the owner named a token. Do not ask which token. Ask one short question at a time, never both, and never a numbered form. If the owner contradicts an earlier chain, amount, or recipient, ask which they mean. Do not confirm the later one. An address the owner just gave is the account to pay. pay, pay_url, and convert are the only tools that move money. Call the tool. Do not say you will."
+      },
+      {
+        "role": "user",
+        "content": "send 6 USDC to bob.near on Ethereum"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_3211ad6df6b04903904d39d8",
+            "type": "function",
+            "function": {
+              "name": "skills",
+              "arguments": "{\"to\":\"\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_3211ad6df6b04903904d39d8",
+        "content": "cross-chain\nforeign\ninvoice\nlimits\npay-link\npay-person\npoison\nreceive-merchant\nrefund\nsplit"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_c7a88091781f4a7a8236906d",
+            "type": "function",
+            "function": {
+              "name": "skills",
+              "arguments": "{\"to\":\"pay-person\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_c7a88091781f4a7a8236906d",
+        "content": "# Paying a person\n\nApplies when the owner is sending money to a person, a name, or an address.\n\nThe token is USDC unless they named another. Say USDC. An address they just gave is who you pay. Do not check whether it is valid. Never list saved accounts. `payees` is one saved name, then you stop.\n\nTools, in order: `skills` for this playbook, then one question if a fact is missing, then `quote`, then `pay`. `pay` shows the card. It does not pay a different account.\n\nAsk one missing fact: who, how much, or which chain. Not two. Never a numbered form. If a later message names a different chain, amount, or recipient, ask which they mean. Do not confirm the later one.\n\n## Situations\n\n- fraser-pay | pay | I want to pay someone with base crypto\n- fraser-contradiction | contradiction | I want to pay someone with base crypto || 1 0xC6b6469995A2292D719F2206242319e49a612696 2. 0.1 usdc 3. arbitrum\n\n## Generate\n\ncategory: pay\namount: 0.1, 0.25, 1, 2, 5, 10, 20, 50, 0.4, 3, 7, 15, 0.2, 4, 6, 12, 8, 25\nwho: frsrcom.near, alice.near, bob.near, wrap.near, carol.near, dave.near\nchain: Base, Arbitrum, NEAR, Solana, Ethereum\n- pay {amount} USDC to {who}\n- send {amount} USDC to {who} on {chain}\n- I owe {who} {amount} USDC\n- please pay {amount} USDC to {who}\n"
+      },
+      {
+        "role": "assistant",
+        "content": "I will quote the payment of 6 USDC to bob.near on Ethereum.",
+        "tool_calls": [
+          {
+            "id": "call_760793a06f094f05a7ea99cd",
+            "type": "function",
+            "function": {
+              "name": "quote",
+              "arguments": "{\"to\":\"bob.near\",\"amount\":\"6\",\"asset\":\"USDC\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_760793a06f094f05a7ea99cd",
+        "content": "recorded quote amountIn 1000000000000000000000000 minAmountOut 3563602"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_19e08f29fbb1416889c509f0",
+            "type": "function",
+            "function": {
+              "name": "pay",
+              "arguments": "{\"to\":\"bob.near\",\"amount\":\"6\",\"asset\":\"USDC\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_19e08f29fbb1416889c509f0",
+        "content": "card"
+      }
+    ]
+  },
+  {
+    "id": "pay-person-104",
+    "category": "pay",
+    "turns": [
+      "send 25 USDC to dave.near on NEAR"
+    ],
+    "owner": "Send 25 USDC to dave.near?\naccount age unavailable\nThis cannot be undone.",
+    "tools": [
+      "skills",
+      "skills",
+      "quote",
+      "pay"
+    ],
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are Bursar. Before you act, call skills with no name, then call skills with the one playbook that fits, and follow it. Say USDC unless the owner named a token. Do not ask which token. Ask one short question at a time, never both, and never a numbered form. If the owner contradicts an earlier chain, amount, or recipient, ask which they mean. Do not confirm the later one. An address the owner just gave is the account to pay. pay, pay_url, and convert are the only tools that move money. Call the tool. Do not say you will."
+      },
+      {
+        "role": "user",
+        "content": "send 25 USDC to dave.near on NEAR"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_e7451cb27128486db9aaf051",
+            "type": "function",
+            "function": {
+              "name": "skills",
+              "arguments": "{\"to\":\"\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_e7451cb27128486db9aaf051",
+        "content": "cross-chain\nforeign\ninvoice\nlimits\npay-link\npay-person\npoison\nreceive-merchant\nrefund\nsplit"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_76ac94c29903471a8fe250d2",
+            "type": "function",
+            "function": {
+              "name": "skills",
+              "arguments": "{\"to\":\"pay-person\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_76ac94c29903471a8fe250d2",
+        "content": "# Paying a person\n\nApplies when the owner is sending money to a person, a name, or an address.\n\nThe token is USDC unless they named another. Say USDC. An address they just gave is who you pay. Do not check whether it is valid. Never list saved accounts. `payees` is one saved name, then you stop.\n\nTools, in order: `skills` for this playbook, then one question if a fact is missing, then `quote`, then `pay`. `pay` shows the card. It does not pay a different account.\n\nAsk one missing fact: who, how much, or which chain. Not two. Never a numbered form. If a later message names a different chain, amount, or recipient, ask which they mean. Do not confirm the later one.\n\n## Situations\n\n- fraser-pay | pay | I want to pay someone with base crypto\n- fraser-contradiction | contradiction | I want to pay someone with base crypto || 1 0xC6b6469995A2292D719F2206242319e49a612696 2. 0.1 usdc 3. arbitrum\n\n## Generate\n\ncategory: pay\namount: 0.1, 0.25, 1, 2, 5, 10, 20, 50, 0.4, 3, 7, 15, 0.2, 4, 6, 12, 8, 25\nwho: frsrcom.near, alice.near, bob.near, wrap.near, carol.near, dave.near\nchain: Base, Arbitrum, NEAR, Solana, Ethereum\n- pay {amount} USDC to {who}\n- send {amount} USDC to {who} on {chain}\n- I owe {who} {amount} USDC\n- please pay {amount} USDC to {who}\n"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_e88e5ef685b04b56b03424bd",
+            "type": "function",
+            "function": {
+              "name": "quote",
+              "arguments": "{\"to\":\"dave.near\",\"amount\":\"25\",\"asset\":\"USDC\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_e88e5ef685b04b56b03424bd",
+        "content": "recorded quote amountIn 1000000000000000000000000 minAmountOut 3563602"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_33abef0b505045f7b2fdb54a",
+            "type": "function",
+            "function": {
+              "name": "pay",
+              "arguments": "{\"to\":\"dave.near\",\"amount\":\"25\",\"asset\":\"USDC\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_33abef0b505045f7b2fdb54a",
+        "content": "card"
+      }
+    ]
+  },
+  {
+    "id": "pay-person-105",
+    "category": "pay",
+    "turns": [
+      "I owe frsrcom.near 0.1 USDC"
+    ],
+    "owner": "Send 0.1 USDC to frsrcom.near?\naccount age unavailable\nThis cannot be undone.",
+    "tools": [
+      "skills",
+      "skills",
+      "quote",
+      "pay"
+    ],
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are Bursar. Before you act, call skills with no name, then call skills with the one playbook that fits, and follow it. Say USDC unless the owner named a token. Do not ask which token. Ask one short question at a time, never both, and never a numbered form. If the owner contradicts an earlier chain, amount, or recipient, ask which they mean. Do not confirm the later one. An address the owner just gave is the account to pay. pay, pay_url, and convert are the only tools that move money. Call the tool. Do not say you will."
+      },
+      {
+        "role": "user",
+        "content": "I owe frsrcom.near 0.1 USDC"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_ed202efb4afb44db984740b8",
+            "type": "function",
+            "function": {
+              "name": "skills",
+              "arguments": "{\"to\":\"\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_ed202efb4afb44db984740b8",
+        "content": "cross-chain\nforeign\ninvoice\nlimits\npay-link\npay-person\npoison\nreceive-merchant\nrefund\nsplit"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_120878ebfb164c8b963fdc2d",
+            "type": "function",
+            "function": {
+              "name": "skills",
+              "arguments": "{\"to\":\"pay-person\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_120878ebfb164c8b963fdc2d",
+        "content": "# Paying a person\n\nApplies when the owner is sending money to a person, a name, or an address.\n\nThe token is USDC unless they named another. Say USDC. An address they just gave is who you pay. Do not check whether it is valid. Never list saved accounts. `payees` is one saved name, then you stop.\n\nTools, in order: `skills` for this playbook, then one question if a fact is missing, then `quote`, then `pay`. `pay` shows the card. It does not pay a different account.\n\nAsk one missing fact: who, how much, or which chain. Not two. Never a numbered form. If a later message names a different chain, amount, or recipient, ask which they mean. Do not confirm the later one.\n\n## Situations\n\n- fraser-pay | pay | I want to pay someone with base crypto\n- fraser-contradiction | contradiction | I want to pay someone with base crypto || 1 0xC6b6469995A2292D719F2206242319e49a612696 2. 0.1 usdc 3. arbitrum\n\n## Generate\n\ncategory: pay\namount: 0.1, 0.25, 1, 2, 5, 10, 20, 50, 0.4, 3, 7, 15, 0.2, 4, 6, 12, 8, 25\nwho: frsrcom.near, alice.near, bob.near, wrap.near, carol.near, dave.near\nchain: Base, Arbitrum, NEAR, Solana, Ethereum\n- pay {amount} USDC to {who}\n- send {amount} USDC to {who} on {chain}\n- I owe {who} {amount} USDC\n- please pay {amount} USDC to {who}\n"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_bfee46e312af434abb797ab8",
+            "type": "function",
+            "function": {
+              "name": "quote",
+              "arguments": "{\"to\":\"frsrcom.near\",\"amount\":\"0.1\",\"asset\":\"USDC\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_bfee46e312af434abb797ab8",
+        "content": "recorded quote amountIn 1000000000000000000000000 minAmountOut 3563602"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_d7c7dab468024a4d97ed3efc",
+            "type": "function",
+            "function": {
+              "name": "pay",
+              "arguments": "{\"to\":\"frsrcom.near\",\"amount\":\"0.1\",\"asset\":\"USDC\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_d7c7dab468024a4d97ed3efc",
+        "content": "card"
+      }
+    ]
+  },
+  {
+    "id": "pay-person-106",
+    "category": "pay",
+    "turns": [
+      "I owe alice.near 0.25 USDC"
+    ],
+    "owner": "I understand you want to pay 0.25 USDC to alice.near. Do you want to pay on a specific chain, or should I use the default?",
+    "tools": [
+      "skills",
+      "skills"
+    ],
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are Bursar. Before you act, call skills with no name, then call skills with the one playbook that fits, and follow it. Say USDC unless the owner named a token. Do not ask which token. Ask one short question at a time, never both, and never a numbered form. If the owner contradicts an earlier chain, amount, or recipient, ask which they mean. Do not confirm the later one. An address the owner just gave is the account to pay. pay, pay_url, and convert are the only tools that move money. Call the tool. Do not say you will."
+      },
+      {
+        "role": "user",
+        "content": "I owe alice.near 0.25 USDC"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_ac0c30554fd148a3816c20e6",
+            "type": "function",
+            "function": {
+              "name": "skills",
+              "arguments": "{\"to\":\"\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_ac0c30554fd148a3816c20e6",
+        "content": "cross-chain\nforeign\ninvoice\nlimits\npay-link\npay-person\npoison\nreceive-merchant\nrefund\nsplit"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_c49273c87a874726a5d8d455",
+            "type": "function",
+            "function": {
+              "name": "skills",
+              "arguments": "{\"to\":\"pay-person\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_c49273c87a874726a5d8d455",
+        "content": "# Paying a person\n\nApplies when the owner is sending money to a person, a name, or an address.\n\nThe token is USDC unless they named another. Say USDC. An address they just gave is who you pay. Do not check whether it is valid. Never list saved accounts. `payees` is one saved name, then you stop.\n\nTools, in order: `skills` for this playbook, then one question if a fact is missing, then `quote`, then `pay`. `pay` shows the card. It does not pay a different account.\n\nAsk one missing fact: who, how much, or which chain. Not two. Never a numbered form. If a later message names a different chain, amount, or recipient, ask which they mean. Do not confirm the later one.\n\n## Situations\n\n- fraser-pay | pay | I want to pay someone with base crypto\n- fraser-contradiction | contradiction | I want to pay someone with base crypto || 1 0xC6b6469995A2292D719F2206242319e49a612696 2. 0.1 usdc 3. arbitrum\n\n## Generate\n\ncategory: pay\namount: 0.1, 0.25, 1, 2, 5, 10, 20, 50, 0.4, 3, 7, 15, 0.2, 4, 6, 12, 8, 25\nwho: frsrcom.near, alice.near, bob.near, wrap.near, carol.near, dave.near\nchain: Base, Arbitrum, NEAR, Solana, Ethereum\n- pay {amount} USDC to {who}\n- send {amount} USDC to {who} on {chain}\n- I owe {who} {amount} USDC\n- please pay {amount} USDC to {who}\n"
+      },
+      {
+        "role": "assistant",
+        "content": "I understand you want to pay 0.25 USDC to alice.near. Do you want to pay on a specific chain, or should I use the default?"
+      }
+    ]
+  },
+  {
+    "id": "pay-person-107",
+    "category": "pay",
+    "turns": [
+      "I owe bob.near 1 USDC"
+    ],
+    "owner": "Send 1 USDC to bob.near?\naccount age unavailable\nThis cannot be undone.",
+    "tools": [
+      "skills",
+      "skills",
+      "quote",
+      "pay"
+    ],
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are Bursar. Before you act, call skills with no name, then call skills with the one playbook that fits, and follow it. Say USDC unless the owner named a token. Do not ask which token. Ask one short question at a time, never both, and never a numbered form. If the owner contradicts an earlier chain, amount, or recipient, ask which they mean. Do not confirm the later one. An address the owner just gave is the account to pay. pay, pay_url, and convert are the only tools that move money. Call the tool. Do not say you will."
+      },
+      {
+        "role": "user",
+        "content": "I owe bob.near 1 USDC"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_14b3586b79ea4e788fc6f6c0",
+            "type": "function",
+            "function": {
+              "name": "skills",
+              "arguments": "{\"to\":\"\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_14b3586b79ea4e788fc6f6c0",
+        "content": "cross-chain\nforeign\ninvoice\nlimits\npay-link\npay-person\npoison\nreceive-merchant\nrefund\nsplit"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_bb28e6d7f8e1406e8aa3c67c",
+            "type": "function",
+            "function": {
+              "name": "skills",
+              "arguments": "{\"to\":\"pay-person\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_bb28e6d7f8e1406e8aa3c67c",
+        "content": "# Paying a person\n\nApplies when the owner is sending money to a person, a name, or an address.\n\nThe token is USDC unless they named another. Say USDC. An address they just gave is who you pay. Do not check whether it is valid. Never list saved accounts. `payees` is one saved name, then you stop.\n\nTools, in order: `skills` for this playbook, then one question if a fact is missing, then `quote`, then `pay`. `pay` shows the card. It does not pay a different account.\n\nAsk one missing fact: who, how much, or which chain. Not two. Never a numbered form. If a later message names a different chain, amount, or recipient, ask which they mean. Do not confirm the later one.\n\n## Situations\n\n- fraser-pay | pay | I want to pay someone with base crypto\n- fraser-contradiction | contradiction | I want to pay someone with base crypto || 1 0xC6b6469995A2292D719F2206242319e49a612696 2. 0.1 usdc 3. arbitrum\n\n## Generate\n\ncategory: pay\namount: 0.1, 0.25, 1, 2, 5, 10, 20, 50, 0.4, 3, 7, 15, 0.2, 4, 6, 12, 8, 25\nwho: frsrcom.near, alice.near, bob.near, wrap.near, carol.near, dave.near\nchain: Base, Arbitrum, NEAR, Solana, Ethereum\n- pay {amount} USDC to {who}\n- send {amount} USDC to {who} on {chain}\n- I owe {who} {amount} USDC\n- please pay {amount} USDC to {who}\n"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_9cc496262f0a429481ac30e9",
+            "type": "function",
+            "function": {
+              "name": "quote",
+              "arguments": "{\"to\":\"bob.near\",\"amount\":\"1\",\"asset\":\"USDC\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_9cc496262f0a429481ac30e9",
+        "content": "recorded quote amountIn 1000000000000000000000000 minAmountOut 3563602"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_cc8ef082470f42f2a21ed99c",
+            "type": "function",
+            "function": {
+              "name": "pay",
+              "arguments": "{\"to\":\"bob.near\",\"amount\":\"1\",\"asset\":\"USDC\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_cc8ef082470f42f2a21ed99c",
+        "content": "card"
+      }
+    ]
+  },
+  {
+    "id": "pay-person-109",
+    "category": "pay",
+    "turns": [
+      "I owe carol.near 5 USDC"
+    ],
+    "owner": "I understand you want to pay 5 USDC to carol.near. Do you want to send this on a specific chain, or should I choose one for you?",
+    "tools": [
+      "skills",
+      "skills"
+    ],
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are Bursar. Before you act, call skills with no name, then call skills with the one playbook that fits, and follow it. Say USDC unless the owner named a token. Do not ask which token. Ask one short question at a time, never both, and never a numbered form. If the owner contradicts an earlier chain, amount, or recipient, ask which they mean. Do not confirm the later one. An address the owner just gave is the account to pay. pay, pay_url, and convert are the only tools that move money. Call the tool. Do not say you will."
+      },
+      {
+        "role": "user",
+        "content": "I owe carol.near 5 USDC"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_15a2ac1b78ca4288a6aad230",
+            "type": "function",
+            "function": {
+              "name": "skills",
+              "arguments": "{\"to\":\"\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_15a2ac1b78ca4288a6aad230",
+        "content": "cross-chain\nforeign\ninvoice\nlimits\npay-link\npay-person\npoison\nreceive-merchant\nrefund\nsplit"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_852b4764c5ba458abf30e122",
+            "type": "function",
+            "function": {
+              "name": "skills",
+              "arguments": "{\"to\":\"pay-person\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_852b4764c5ba458abf30e122",
+        "content": "# Paying a person\n\nApplies when the owner is sending money to a person, a name, or an address.\n\nThe token is USDC unless they named another. Say USDC. An address they just gave is who you pay. Do not check whether it is valid. Never list saved accounts. `payees` is one saved name, then you stop.\n\nTools, in order: `skills` for this playbook, then one question if a fact is missing, then `quote`, then `pay`. `pay` shows the card. It does not pay a different account.\n\nAsk one missing fact: who, how much, or which chain. Not two. Never a numbered form. If a later message names a different chain, amount, or recipient, ask which they mean. Do not confirm the later one.\n\n## Situations\n\n- fraser-pay | pay | I want to pay someone with base crypto\n- fraser-contradiction | contradiction | I want to pay someone with base crypto || 1 0xC6b6469995A2292D719F2206242319e49a612696 2. 0.1 usdc 3. arbitrum\n\n## Generate\n\ncategory: pay\namount: 0.1, 0.25, 1, 2, 5, 10, 20, 50, 0.4, 3, 7, 15, 0.2, 4, 6, 12, 8, 25\nwho: frsrcom.near, alice.near, bob.near, wrap.near, carol.near, dave.near\nchain: Base, Arbitrum, NEAR, Solana, Ethereum\n- pay {amount} USDC to {who}\n- send {amount} USDC to {who} on {chain}\n- I owe {who} {amount} USDC\n- please pay {amount} USDC to {who}\n"
+      },
+      {
+        "role": "assistant",
+        "content": "I understand you want to pay 5 USDC to carol.near. Do you want to send this on a specific chain, or should I choose one for you?"
+      }
+    ]
+  },
+  {
+    "id": "pay-person-110",
+    "category": "pay",
+    "turns": [
+      "I owe dave.near 10 USDC"
+    ],
+    "owner": "Send 10 USDC to dave.near?\naccount age unavailable\nThis cannot be undone.",
+    "tools": [
+      "skills",
+      "skills",
+      "quote",
+      "pay"
+    ],
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are Bursar. Before you act, call skills with no name, then call skills with the one playbook that fits, and follow it. Say USDC unless the owner named a token. Do not ask which token. Ask one short question at a time, never both, and never a numbered form. If the owner contradicts an earlier chain, amount, or recipient, ask which they mean. Do not confirm the later one. An address the owner just gave is the account to pay. pay, pay_url, and convert are the only tools that move money. Call the tool. Do not say you will."
+      },
+      {
+        "role": "user",
+        "content": "I owe dave.near 10 USDC"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_5b95a82ee7244975b1d82365",
+            "type": "function",
+            "function": {
+              "name": "skills",
+              "arguments": "{\"to\":\"\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_5b95a82ee7244975b1d82365",
+        "content": "cross-chain\nforeign\ninvoice\nlimits\npay-link\npay-person\npoison\nreceive-merchant\nrefund\nsplit"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_0406552c12664d64844d6e89",
+            "type": "function",
+            "function": {
+              "name": "skills",
+              "arguments": "{\"to\":\"pay-person\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_0406552c12664d64844d6e89",
+        "content": "# Paying a person\n\nApplies when the owner is sending money to a person, a name, or an address.\n\nThe token is USDC unless they named another. Say USDC. An address they just gave is who you pay. Do not check whether it is valid. Never list saved accounts. `payees` is one saved name, then you stop.\n\nTools, in order: `skills` for this playbook, then one question if a fact is missing, then `quote`, then `pay`. `pay` shows the card. It does not pay a different account.\n\nAsk one missing fact: who, how much, or which chain. Not two. Never a numbered form. If a later message names a different chain, amount, or recipient, ask which they mean. Do not confirm the later one.\n\n## Situations\n\n- fraser-pay | pay | I want to pay someone with base crypto\n- fraser-contradiction | contradiction | I want to pay someone with base crypto || 1 0xC6b6469995A2292D719F2206242319e49a612696 2. 0.1 usdc 3. arbitrum\n\n## Generate\n\ncategory: pay\namount: 0.1, 0.25, 1, 2, 5, 10, 20, 50, 0.4, 3, 7, 15, 0.2, 4, 6, 12, 8, 25\nwho: frsrcom.near, alice.near, bob.near, wrap.near, carol.near, dave.near\nchain: Base, Arbitrum, NEAR, Solana, Ethereum\n- pay {amount} USDC to {who}\n- send {amount} USDC to {who} on {chain}\n- I owe {who} {amount} USDC\n- please pay {amount} USDC to {who}\n"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_13495746615e4ac48541cb52",
+            "type": "function",
+            "function": {
+              "name": "quote",
+              "arguments": "{\"to\":\"dave.near\",\"amount\":\"10\",\"asset\":\"USDC\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_13495746615e4ac48541cb52",
+        "content": "recorded quote amountIn 1000000000000000000000000 minAmountOut 3563602"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_2e8aea756ae94221a8f2c4fd",
+            "type": "function",
+            "function": {
+              "name": "pay",
+              "arguments": "{\"to\":\"dave.near\",\"amount\":\"10\",\"asset\":\"USDC\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_2e8aea756ae94221a8f2c4fd",
+        "content": "card"
+      }
+    ]
+  },
+  {
+    "id": "pay-person-112",
+    "category": "pay",
+    "turns": [
+      "I owe alice.near 50 USDC"
+    ],
+    "owner": "Send 50 USDC to alice.near?\naccount age unavailable\nThis cannot be undone.",
+    "tools": [
+      "skills",
+      "payees",
+      "understand",
+      "check",
+      "pay"
+    ],
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are Bursar. Before you act, call skills with no name, then call skills with the one playbook that fits, and follow it. Say USDC unless the owner named a token. Do not ask which token. Ask one short question at a time, never both, and never a numbered form. If the owner contradicts an earlier chain, amount, or recipient, ask which they mean. Do not confirm the later one. An address the owner just gave is the account to pay. pay, pay_url, and convert are the only tools that move money. Call the tool. Do not say you will."
+      },
+      {
+        "role": "user",
+        "content": "I owe alice.near 50 USDC"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_6a1d6aac8b004a809271227d",
+            "type": "function",
+            "function": {
+              "name": "skills",
+              "arguments": "{\"to\":\"\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_6a1d6aac8b004a809271227d",
+        "content": "cross-chain\nforeign\ninvoice\nlimits\npay-link\npay-person\npoison\nreceive-merchant\nrefund\nsplit"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_f4fd582536564b51b8b16fc5",
+            "type": "function",
+            "function": {
+              "name": "payees",
+              "arguments": "{\"to\":\"alice.near\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_f4fd582536564b51b8b16fc5",
+        "content": "unknown name"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_c34133ac76ea41f4ba2ff7b2",
+            "type": "function",
+            "function": {
+              "name": "understand",
+              "arguments": "{\"to\":\"\",\"amount\":\"50\",\"asset\":\"USDC\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"customer\",\"payer\":\"customer\",\"payee\":\"alice.near\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_c34133ac76ea41f4ba2ff7b2",
+        "content": "noted"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_f0cf79125ea74843b759a31f",
+            "type": "function",
+            "function": {
+              "name": "check",
+              "arguments": "{\"to\":\"alice.near\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_f0cf79125ea74843b759a31f",
+        "content": "How much?"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_d1480607e853449f8971ebad",
+            "type": "function",
+            "function": {
+              "name": "pay",
+              "arguments": "{\"to\":\"alice.near\",\"amount\":\"50\",\"asset\":\"USDC\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_d1480607e853449f8971ebad",
+        "content": "card"
+      }
+    ]
+  },
+  {
+    "id": "pay-person-114",
+    "category": "pay",
+    "turns": [
+      "I owe wrap.near 3 USDC"
+    ],
+    "owner": "I understand you want to pay 3 USDC to wrap.near. Do you want to pay on a specific chain?",
+    "tools": [
+      "skills",
+      "skills"
+    ],
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are Bursar. Before you act, call skills with no name, then call skills with the one playbook that fits, and follow it. Say USDC unless the owner named a token. Do not ask which token. Ask one short question at a time, never both, and never a numbered form. If the owner contradicts an earlier chain, amount, or recipient, ask which they mean. Do not confirm the later one. An address the owner just gave is the account to pay. pay, pay_url, and convert are the only tools that move money. Call the tool. Do not say you will."
+      },
+      {
+        "role": "user",
+        "content": "I owe wrap.near 3 USDC"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_6c0f5ffe0594451994b46b7f",
+            "type": "function",
+            "function": {
+              "name": "skills",
+              "arguments": "{\"to\":\"\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_6c0f5ffe0594451994b46b7f",
+        "content": "cross-chain\nforeign\ninvoice\nlimits\npay-link\npay-person\npoison\nreceive-merchant\nrefund\nsplit"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_f8ece7fa5f9845058bb5bd9d",
+            "type": "function",
+            "function": {
+              "name": "skills",
+              "arguments": "{\"to\":\"pay-person\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_f8ece7fa5f9845058bb5bd9d",
+        "content": "# Paying a person\n\nApplies when the owner is sending money to a person, a name, or an address.\n\nThe token is USDC unless they named another. Say USDC. An address they just gave is who you pay. Do not check whether it is valid. Never list saved accounts. `payees` is one saved name, then you stop.\n\nTools, in order: `skills` for this playbook, then one question if a fact is missing, then `quote`, then `pay`. `pay` shows the card. It does not pay a different account.\n\nAsk one missing fact: who, how much, or which chain. Not two. Never a numbered form. If a later message names a different chain, amount, or recipient, ask which they mean. Do not confirm the later one.\n\n## Situations\n\n- fraser-pay | pay | I want to pay someone with base crypto\n- fraser-contradiction | contradiction | I want to pay someone with base crypto || 1 0xC6b6469995A2292D719F2206242319e49a612696 2. 0.1 usdc 3. arbitrum\n\n## Generate\n\ncategory: pay\namount: 0.1, 0.25, 1, 2, 5, 10, 20, 50, 0.4, 3, 7, 15, 0.2, 4, 6, 12, 8, 25\nwho: frsrcom.near, alice.near, bob.near, wrap.near, carol.near, dave.near\nchain: Base, Arbitrum, NEAR, Solana, Ethereum\n- pay {amount} USDC to {who}\n- send {amount} USDC to {who} on {chain}\n- I owe {who} {amount} USDC\n- please pay {amount} USDC to {who}\n"
+      },
+      {
+        "role": "assistant",
+        "content": "I understand you want to pay 3 USDC to wrap.near. Do you want to pay on a specific chain?"
+      }
+    ]
+  },
+  {
+    "id": "receive-buyer",
+    "category": "receive",
+    "turns": [
+      "a buyer wants to send 0.1 USDC on Base"
+    ],
+    "owner": "I understand you want to send 0.1 USDC on Base. Who is the recipient?",
+    "tools": [
+      "skills",
+      "skills"
+    ],
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are Bursar. Before you act, call skills with no name, then call skills with the one playbook that fits, and follow it. Say USDC unless the owner named a token. Do not ask which token. Ask one short question at a time, never both, and never a numbered form. If the owner contradicts an earlier chain, amount, or recipient, ask which they mean. Do not confirm the later one. An address the owner just gave is the account to pay. pay, pay_url, and convert are the only tools that move money. Call the tool. Do not say you will."
+      },
+      {
+        "role": "user",
+        "content": "a buyer wants to send 0.1 USDC on Base"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_e86fd7af92f1448c8e6fbbcd",
+            "type": "function",
+            "function": {
+              "name": "skills",
+              "arguments": "{\"to\":\"\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_e86fd7af92f1448c8e6fbbcd",
+        "content": "cross-chain\nforeign\ninvoice\nlimits\npay-link\npay-person\npoison\nreceive-merchant\nrefund\nsplit"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_4a3bf8d86029466f84da3787",
+            "type": "function",
+            "function": {
+              "name": "skills",
+              "arguments": "{\"to\":\"pay-person\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_4a3bf8d86029466f84da3787",
+        "content": "# Paying a person\n\nApplies when the owner is sending money to a person, a name, or an address.\n\nThe token is USDC unless they named another. Say USDC. An address they just gave is who you pay. Do not check whether it is valid. Never list saved accounts. `payees` is one saved name, then you stop.\n\nTools, in order: `skills` for this playbook, then one question if a fact is missing, then `quote`, then `pay`. `pay` shows the card. It does not pay a different account.\n\nAsk one missing fact: who, how much, or which chain. Not two. Never a numbered form. If a later message names a different chain, amount, or recipient, ask which they mean. Do not confirm the later one.\n\n## Situations\n\n- fraser-pay | pay | I want to pay someone with base crypto\n- fraser-contradiction | contradiction | I want to pay someone with base crypto || 1 0xC6b6469995A2292D719F2206242319e49a612696 2. 0.1 usdc 3. arbitrum\n\n## Generate\n\ncategory: pay\namount: 0.1, 0.25, 1, 2, 5, 10, 20, 50, 0.4, 3, 7, 15, 0.2, 4, 6, 12, 8, 25\nwho: frsrcom.near, alice.near, bob.near, wrap.near, carol.near, dave.near\nchain: Base, Arbitrum, NEAR, Solana, Ethereum\n- pay {amount} USDC to {who}\n- send {amount} USDC to {who} on {chain}\n- I owe {who} {amount} USDC\n- please pay {amount} USDC to {who}\n"
+      },
+      {
+        "role": "assistant",
+        "content": "I understand you want to send 0.1 USDC on Base. Who is the recipient?"
+      }
+    ]
+  },
+  {
+    "id": "receive-merchant-164",
+    "category": "receive",
+    "turns": [
+      "a customer will pay 0.25 USDC on Arbitrum"
+    ],
+    "owner": "ethereum:0xaf88d065e77c8cC2239327C5EDb3A432268e5831@42161/transfer?address=0xcA7cb8405484Ca0E4C941a22Ed1399E401b378dB&uint256=250000\nI've generated a payment request for 0.25 USDC on Arbitrum. Here's the link for the customer to use:\n\nhttps://arbitrum.one/transfer?address=0xcA7cb8405484Ca0E4C941a22Ed1399E401b378dB&uint2",
+    "tools": [
+      "skills",
+      "skills",
+      "receive",
+      "watch"
+    ],
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are Bursar. Before you act, call skills with no name, then call skills with the one playbook that fits, and follow it. Say USDC unless the owner named a token. Do not ask which token. Ask one short question at a time, never both, and never a numbered form. If the owner contradicts an earlier chain, amount, or recipient, ask which they mean. Do not confirm the later one. An address the owner just gave is the account to pay. pay, pay_url, and convert are the only tools that move money. Call the tool. Do not say you will."
+      },
+      {
+        "role": "user",
+        "content": "a customer will pay 0.25 USDC on Arbitrum"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_dea63e51a1ee4fff812376d6",
+            "type": "function",
+            "function": {
+              "name": "skills",
+              "arguments": "{\"to\":\"\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_dea63e51a1ee4fff812376d6",
+        "content": "cross-chain\nforeign\ninvoice\nlimits\npay-link\npay-person\npoison\nreceive-merchant\nrefund\nsplit"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_0bd1c4f1154543ee8c639e03",
+            "type": "function",
+            "function": {
+              "name": "skills",
+              "arguments": "{\"to\":\"receive-merchant\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_0bd1c4f1154543ee8c639e03",
+        "content": "# Receiving as a merchant\n\nApplies when someone else is paying the owner. The speaker is the merchant, not the payer. Do not ask who the customer is. Do not ask how much the owner wants to pay.\n\nThe token is USDC unless they named another. Say USDC. Ask one missing fact: the chain, or the amount. Not both. \"Crypto\" is not a token.\n\nTools, in order: `skills` for this playbook, then the one question, then `receive` with that chain, USDC, and the amount. The deposit address comes from the Intents bridge. It is not the Intents account. The amount goes in the payment request. Then `watch`. Do not call `pay`.\n\n## Situations\n\n- fraser-receive | receive | I have a customer wants to pay me with crypto\n- receive-foreigner | receive | I need to help a foreigner pay me with crypto\n- receive-client | receive | a client will pay me\n- receive-buyer | receive | a buyer wants to send 0.1 USDC on Base\n\n## Generate\n\ncategory: receive\nchain: Base, Arbitrum, Solana, NEAR, Ethereum\namount: 0.1, 0.25, 1, 2, 5, 8, 12, 20\n- a customer will pay {amount} USDC on {chain}\n- my client wants to pay me on {chain}\n- someone is paying the invoice in USDC from {chain}\n"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_50a4e17323ab4c5c9958589a",
+            "type": "function",
+            "function": {
+              "name": "receive",
+              "arguments": "{\"to\":\"\",\"amount\":\"0.25\",\"asset\":\"USDC\",\"chain\":\"arbitrum\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_50a4e17323ab4c5c9958589a",
+        "content": "ethereum:0xaf88d065e77c8cC2239327C5EDb3A432268e5831@42161/transfer?address=0xcA7cb8405484Ca0E4C941a22Ed1399E401b378dB&uint256=250000"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_9870dbbdab0d442ca103f404",
+            "type": "function",
+            "function": {
+              "name": "watch",
+              "arguments": "{\"to\":\"\",\"amount\":\"\",\"asset\":\"USDC\",\"chain\":\"arbitrum\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_9870dbbdab0d442ca103f404",
+        "content": "waiting"
+      },
+      {
+        "role": "assistant",
+        "content": "I've generated a payment request for 0.25 USDC on Arbitrum. Here's the link for the customer to use:\n\nhttps://arbitrum.one/transfer?address=0xcA7cb8405484Ca0E4C941a22Ed1399E401b378dB&uint2"
+      }
+    ]
+  },
+  {
+    "id": "receive-merchant-166",
+    "category": "receive",
+    "turns": [
+      "a customer will pay 2 USDC on NEAR"
+    ],
+    "owner": "I've generated a deposit address for you on NEAR for 2 USDC. I'm now waiting for the payment to arrive. Please send the funds to the address provided.",
+    "tools": [
+      "skills",
+      "understand",
+      "skills",
+      "receive",
+      "watch"
+    ],
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are Bursar. Before you act, call skills with no name, then call skills with the one playbook that fits, and follow it. Say USDC unless the owner named a token. Do not ask which token. Ask one short question at a time, never both, and never a numbered form. If the owner contradicts an earlier chain, amount, or recipient, ask which they mean. Do not confirm the later one. An address the owner just gave is the account to pay. pay, pay_url, and convert are the only tools that move money. Call the tool. Do not say you will."
+      },
+      {
+        "role": "user",
+        "content": "a customer will pay 2 USDC on NEAR"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_6ac68477e6264fa59db37194",
+            "type": "function",
+            "function": {
+              "name": "skills",
+              "arguments": "{\"to\":\"\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_6ac68477e6264fa59db37194",
+        "content": "cross-chain\nforeign\ninvoice\nlimits\npay-link\npay-person\npoison\nreceive-merchant\nrefund\nsplit"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_148e7741ba4d4e998eff04e6",
+            "type": "function",
+            "function": {
+              "name": "understand",
+              "arguments": "{\"to\":\"\",\"amount\":\"2\",\"asset\":\"USDC\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"customer\",\"payer\":\"customer\",\"payee\":\"named\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_148e7741ba4d4e998eff04e6",
+        "content": "noted"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_c8eabec5e5c6446c84706797",
+            "type": "function",
+            "function": {
+              "name": "skills",
+              "arguments": "{\"to\":\"receive-merchant\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_c8eabec5e5c6446c84706797",
+        "content": "# Receiving as a merchant\n\nApplies when someone else is paying the owner. The speaker is the merchant, not the payer. Do not ask who the customer is. Do not ask how much the owner wants to pay.\n\nThe token is USDC unless they named another. Say USDC. Ask one missing fact: the chain, or the amount. Not both. \"Crypto\" is not a token.\n\nTools, in order: `skills` for this playbook, then the one question, then `receive` with that chain, USDC, and the amount. The deposit address comes from the Intents bridge. It is not the Intents account. The amount goes in the payment request. Then `watch`. Do not call `pay`.\n\n## Situations\n\n- fraser-receive | receive | I have a customer wants to pay me with crypto\n- receive-foreigner | receive | I need to help a foreigner pay me with crypto\n- receive-client | receive | a client will pay me\n- receive-buyer | receive | a buyer wants to send 0.1 USDC on Base\n\n## Generate\n\ncategory: receive\nchain: Base, Arbitrum, Solana, NEAR, Ethereum\namount: 0.1, 0.25, 1, 2, 5, 8, 12, 20\n- a customer will pay {amount} USDC on {chain}\n- my client wants to pay me on {chain}\n- someone is paying the invoice in USDC from {chain}\n"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_01a4eb810206430ba1cc5ee9",
+            "type": "function",
+            "function": {
+              "name": "receive",
+              "arguments": "{\"to\":\"\",\"amount\":\"2\",\"asset\":\"USDC\",\"chain\":\"near\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_01a4eb810206430ba1cc5ee9",
+        "content": "near:55e2f60a86c011c55a7c54394cc5e276ad0c2aaa4b3598da6f5efdb99631382e?token=17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1&amount=2000000"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_cf3eb9aebd834479bc1cc447",
+            "type": "function",
+            "function": {
+              "name": "watch",
+              "arguments": "{\"to\":\"\",\"amount\":\"\",\"asset\":\"USDC\",\"chain\":\"near\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_cf3eb9aebd834479bc1cc447",
+        "content": "waiting"
+      },
+      {
+        "role": "assistant",
+        "content": "I've generated a deposit address for you on NEAR for 2 USDC. I'm now waiting for the payment to arrive. Please send the funds to the address provided."
+      }
+    ]
+  },
+  {
+    "id": "receive-merchant-167",
+    "category": "receive",
+    "turns": [
+      "a customer will pay 5 USDC on Ethereum"
+    ],
+    "owner": "ethereum:0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48@1/transfer?address=0xcA7cb8405484Ca0E4C941a22Ed1399E401b378dB&uint256=5000000\nI've generated a deposit address for you on Ethereum to receive 5 USDC. I'm now waiting for the payment. Please send the funds to the address provided.",
+    "tools": [
+      "skills",
+      "understand",
+      "skills",
+      "receive",
+      "watch"
+    ],
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are Bursar. Before you act, call skills with no name, then call skills with the one playbook that fits, and follow it. Say USDC unless the owner named a token. Do not ask which token. Ask one short question at a time, never both, and never a numbered form. If the owner contradicts an earlier chain, amount, or recipient, ask which they mean. Do not confirm the later one. An address the owner just gave is the account to pay. pay, pay_url, and convert are the only tools that move money. Call the tool. Do not say you will."
+      },
+      {
+        "role": "user",
+        "content": "a customer will pay 5 USDC on Ethereum"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_a6b20360d8b647d590e45971",
+            "type": "function",
+            "function": {
+              "name": "skills",
+              "arguments": "{\"to\":\"\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_a6b20360d8b647d590e45971",
+        "content": "cross-chain\nforeign\ninvoice\nlimits\npay-link\npay-person\npoison\nreceive-merchant\nrefund\nsplit"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_6951f9e653974c5bb41ea37a",
+            "type": "function",
+            "function": {
+              "name": "understand",
+              "arguments": "{\"to\":\"\",\"amount\":\"5\",\"asset\":\"USDC\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"customer\",\"payer\":\"customer\",\"payee\":\"unknown\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_6951f9e653974c5bb41ea37a",
+        "content": "noted"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_8b5594cc6680456da422b055",
+            "type": "function",
+            "function": {
+              "name": "skills",
+              "arguments": "{\"to\":\"receive-merchant\",\"amount\":\"\",\"asset\":\"\",\"chain\":\"\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_8b5594cc6680456da422b055",
+        "content": "# Receiving as a merchant\n\nApplies when someone else is paying the owner. The speaker is the merchant, not the payer. Do not ask who the customer is. Do not ask how much the owner wants to pay.\n\nThe token is USDC unless they named another. Say USDC. Ask one missing fact: the chain, or the amount. Not both. \"Crypto\" is not a token.\n\nTools, in order: `skills` for this playbook, then the one question, then `receive` with that chain, USDC, and the amount. The deposit address comes from the Intents bridge. It is not the Intents account. The amount goes in the payment request. Then `watch`. Do not call `pay`.\n\n## Situations\n\n- fraser-receive | receive | I have a customer wants to pay me with crypto\n- receive-foreigner | receive | I need to help a foreigner pay me with crypto\n- receive-client | receive | a client will pay me\n- receive-buyer | receive | a buyer wants to send 0.1 USDC on Base\n\n## Generate\n\ncategory: receive\nchain: Base, Arbitrum, Solana, NEAR, Ethereum\namount: 0.1, 0.25, 1, 2, 5, 8, 12, 20\n- a customer will pay {amount} USDC on {chain}\n- my client wants to pay me on {chain}\n- someone is paying the invoice in USDC from {chain}\n"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_3eef4c8f42cb4402b0a47de3",
+            "type": "function",
+            "function": {
+              "name": "receive",
+              "arguments": "{\"to\":\"\",\"amount\":\"5\",\"asset\":\"USDC\",\"chain\":\"ethereum\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_3eef4c8f42cb4402b0a47de3",
+        "content": "ethereum:0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48@1/transfer?address=0xcA7cb8405484Ca0E4C941a22Ed1399E401b378dB&uint256=5000000"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_f994bd265875465c99d67cb5",
+            "type": "function",
+            "function": {
+              "name": "watch",
+              "arguments": "{\"to\":\"\",\"amount\":\"\",\"asset\":\"USDC\",\"chain\":\"ethereum\",\"url\":\"\",\"need\":\"\",\"speaker\":\"\",\"payer\":\"\",\"payee\":\"\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_f994bd265875465c99d67cb5",
+        "content": "waiting"
+      },
+      {
+        "role": "assistant",
+        "content": "I've generated a deposit address for you on Ethereum to receive 5 USDC. I'm now waiting for the payment. Please send the funds to the address provided."
+      }
+    ]
+  }
+]

@@ -13,8 +13,4 @@ The computer in the weights runs this bridge ELF.
 | libc | picolibc rv32im/ilp32, `experimental/riscv/toolchain/picolibc-rv32im`. Not newlib |
 | solc | 0.8.38, used by `gen_builtins.py` |
 
-The source is not in this repository yet. `npm run verify:firmware` builds it from `BURSAR_FIRMWARE_SRC`, or from `../ethereus/experimental/riscv` when that checkout is next to this one. The build command is `chipformer/rv/env/eth/build_eth.sh OUT eth-bridge --bridge`, with `PYTHON` set to a interpreter that has `eth_hash` and `solcx` (the tree's `.venv`).
-
-A rebuild from that tree produces the same loadable segments as the pinned ELF. The file SHA-256 differs in 17 bytes, all in `.strtab`: `gcc` writes a fresh temporary object name into the symbol strings (`ccWSunzj.o` in the pinned file). Those names are not loaded. `verify:firmware` requires the loadable segments to match, and it runs the pinned file, whose SHA-256 is the one in the receipts.
-
-Publishing this source into `firmware/` waits for Fraser.
+The source is not in this repository. `eth-bridge.elf` in this directory is the pinned file. `npm run verify:firmware -- <receipt-hash>` checks that file against the SHA-256 above, then runs it in the chipformer emulator on the receipt's input and compares the output. Install the emulator with `python3.13 -m pip install -e ../ethereus/experimental/riscv`.

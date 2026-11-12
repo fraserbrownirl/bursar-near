@@ -1,5 +1,5 @@
 import { isNearAccount } from "./account.js";
-import { requestStops, runAgent, statedPayment } from "./agent.js";
+import { requestStops, runAgent, statedPayment, Talk } from "./agent.js";
 import { loadBlocklist } from "./blocklist.js";
 import { decide, formatCheck } from "./decide.js";
 import { historyCsv } from "./history.js";
@@ -29,7 +29,9 @@ async function callTool(name: string, args: Record<string, string>, accountId: s
     const injected = requestStops(request, stated?.to ?? "");
     if (injected) return textResult(`STOP\nreason: ${injected}`, true);
     if (!accountId) return textResult("STOP: request", true);
-    const report = await runAgent(request, accountId);
+    const talk = new Talk();
+    if (process.env.BURSAR_NO_SETTLE === "1") talk.settle = false;
+    const report = await runAgent(request, accountId, talk);
     return textResult(report.text, stopped(report.text));
   }
   if (name === "check") {

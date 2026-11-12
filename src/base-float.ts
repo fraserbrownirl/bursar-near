@@ -4,7 +4,7 @@ import { createPublicClient, http, parseAbi } from "viem";
 import { base } from "viem/chains";
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 import { NEAR_USDC, resolveAsset, rowsFor } from "./assets.js";
-import { checkIntentInModel, checkQuoteInModel } from "./model-checks.js";
+import { checkIntentInModel, checkQuoteInModel, requireLive } from "./model-checks.js";
 import { referenceUi } from "./model.js";
 import { settle } from "./pay.js";
 import { touchSigner } from "./signer.js";
@@ -134,8 +134,11 @@ export async function topUpFloat(accountId: string, paymentAtomic: bigint): Prom
   const nowSec = Math.floor(nowMs / 1000);
   const checked = await checkQuoteInModel(quote as never, request, nowSec);
   process.stdout.write(checked.lines + "\n");
-  if (checked.stop) throw new Error(checked.stop);
-  const signer = await touchSigner(accountId, quote as never, () => nowMs);
+  const quoteLive = requireLive(checked);
+  if (quoteLive) throw new Error(quoteLive);
+  const exactPayload = { text: "" };
+  const { generateSwapIntent } = await import("./swap-intent.js");
+  const signer = await touchSigner(accountId, quote as never, () => nowMs, () => exactPayload.text || undefined);
   const line = await settle({
     quote: quote as never,
     request,
@@ -145,14 +148,9 @@ export async function topUpFloat(accountId: string, paymentAtomic: bigint): Prom
     checkIntent: async (generated) => {
       const decoded = await checkIntentInModel(generated, accountId);
       process.stdout.write(decoded.lines + "\n");
-      return decoded.stop;
+      return requireLive(decoded);
     },
-    generateIntent: async (depositAddress, signerId) => OneClickService.generateIntent({
-      type: "swap_transfer",
-      standard: "nep413",
-      signerId,
-      depositAddress,
-    } as never) as never,
+    generateIntent: (depositAddress, signerId) => generateSwapIntent(depositAddress, signerId, exactPayload),
     submitIntent: async (signed) => OneClickService.submitIntent({ type: "swap_transfer", signedData: signed } as never),
   });
   if (line !== "submitted") throw new Error(line);

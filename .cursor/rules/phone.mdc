@@ -1,0 +1,20 @@
+---
+description: Install the iPhone app when a change affects what Fraser runs on it
+alwaysApply: true
+---
+
+# Update the phone
+
+A change Fraser would see on the iPhone is not done until that build is installed and launched. Do not tell him to tap Check, Scan, or Yes on a build that does not contain the change.
+
+This includes `phone/hear.ts`, `Bursar/Hear.js`, anything under `bursar-phone/Bursar/`, and the relay address or token the app loads. A README-only edit, an attack scenario, or a receipt does not.
+
+Build and install from `bursar-phone`:
+
+```
+xcodebuild -project Bursar.xcodeproj -scheme Bursar -destination 'generic/platform=iOS' -allowProvisioningUpdates CODE_SIGNING_ALLOWED=YES DEVELOPMENT_TEAM=9T559K6M24 CODE_SIGN_STYLE=Automatic build
+xcrun devicectl device install app --device A570EBDA-E764-5A0B-A782-CBB3977F449E <Debug-iphoneos/Bursar.app>
+xcrun devicectl device process launch --device A570EBDA-E764-5A0B-A782-CBB3977F449E app.bursar.phone
+```
+
+`9T559K6M24` is the team. `87RRHL5P97` is the certificate id. Passing it as `DEVELOPMENT_TEAM` fails. The device is FRSR’s iPhone. If `devicectl` says it is unavailable, say the phone still has the previous build. Do not ask him to press Run when the install succeeded.

@@ -28,6 +28,21 @@ export function imageFile(line: string): string | null {
   return existsSync(text) ? text : null;
 }
 
+/** An image path anywhere in the line. The whole line can be the path, or the path can follow a sentence. */
+export function imageIn(text: string): string | null {
+  const whole = imageFile(text);
+  if (whole) return whole;
+  for (let i = 0; i < text.length; i += 1) {
+    if (text[i] !== "/" && text.slice(i, i + 2) !== "~/") continue;
+    const rest = text.slice(i);
+    const ext = rest.match(/\.(?:png|jpe?g|gif|webp|heic)\b/i);
+    if (!ext || ext.index === undefined) continue;
+    const found = imageFile(rest.slice(0, ext.index + ext[0].length));
+    if (found) return found;
+  }
+  return null;
+}
+
 /** Words in the image, from macOS text recognition. Empty when none were found. */
 export async function readScreenshot(path: string): Promise<string> {
   const stale = !existsSync(binary) || statSync(source).mtimeMs > statSync(binary).mtimeMs;

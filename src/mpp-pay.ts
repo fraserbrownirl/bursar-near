@@ -7,7 +7,7 @@ import { askApprove } from "./agent.js";
 import { loadBlocklist } from "./blocklist.js";
 import { decide, type ChainFacts } from "./decide.js";
 import { checkQuoteInModel } from "./model-checks.js";
-import { ACCOUNT_HEADER, assetsMatch, reviewMpp, type MppRequest } from "./mpp.js";
+import { ACCOUNT_HEADER, assetsMatch, challengeLine, reviewMpp, type MppRequest } from "./mpp.js";
 import { readPayeeMap } from "./payees.js";
 import type { SignedQuote } from "./quote.js";
 import { sendGuardedUsdc } from "./signer.js";
@@ -84,6 +84,7 @@ export async function sendDeposit(input: {
   nowMs?: number;
 }): Promise<string> {
   const nowMs = input.nowMs ?? Date.now();
+  process.stdout.write(challengeLine(input.request) + "\n");
   let quote: SignedQuote | null = null;
   try {
     quote = await quoteBehind(input.request.recipient);
@@ -143,7 +144,6 @@ async function payUrlOnce(url: string, accountId: string): Promise<number> {
   process.stdout.write(`HTTP ${response.status}\n${body}\n`);
   if (!response.ok) return 1;
   const receipt = Receipt.fromResponse(response) as Types.NearIntentsReceipt;
-  process.stdout.write(`origin: ${receipt.originTxHash}\n`);
-  process.stdout.write(`delivery: ${receipt.reference}\n`);
+  process.stdout.write(`https://nearblocks.io/txns/${receipt.reference}\n`);
   return 0;
 }

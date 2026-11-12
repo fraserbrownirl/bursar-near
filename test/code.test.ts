@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
-import { decode, encode } from "../src/code.js";
+import { decode, encode, terminalQr } from "../src/code.js";
 
 const IMPLICIT = "515ead208df187f146f2ae5f7e24522cf2ca977df95bdee7bb5f957bbe142c54";
 const root = fileURLToPath(new URL("..", import.meta.url));
@@ -24,6 +24,14 @@ function scan(file: string) {
     encoding: "utf8",
   });
 }
+
+test("a Solana payment QR fits a normal terminal without wrapping", () => {
+  const uri = "solana:BHQBpzsUNHzhZfD2jrxwwcp1FcduvdLjTh5x4DkzvEkp?spl-token=EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v&amount=0.15";
+  const drawn = terminalQr(uri, 80);
+  const lines = drawn.replace(/\n$/, "").split("\n");
+  assert.ok(lines.every((line) => line.length === lines[0]?.length && line.length <= 80));
+  assert.match(drawn, /[█▀▄]/);
+});
 
 test("a QR of frsrcom.near decodes to that account", async () => {
   const drawn = await encode("frsrcom.near");

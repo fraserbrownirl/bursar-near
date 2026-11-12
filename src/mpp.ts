@@ -72,6 +72,11 @@ function cardOf(request: MppRequest): string {
   return `Pay ${referenceUi(request.amount, 6)} USDC to ${name}?`;
 }
 
+/** The 402 price and the merchant who receives it. Printed before the card. */
+export function challengeLine(request: MppRequest): string {
+  return `402 ${referenceUi(request.methodDetails.amountOut, 6)} USDC to ${request.methodDetails.destinationRecipient}`;
+}
+
 /**
  * Fields of the signed quote that must equal the challenge.
  * `recipient` on the quote request is the merchant's destination account.

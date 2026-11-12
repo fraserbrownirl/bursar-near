@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import { chargeParameters, payerRefund } from "../src/merchant.js";
 import { referenceUi } from "../src/model.js";
-import { assetsMatch, BASE_USDC_CAIP, MPP_LIMIT_ATOMIC, NEAR_USDC_CAIP, reviewMpp } from "../src/mpp.js";
+import { assetsMatch, BASE_USDC_CAIP, challengeLine, MPP_LIMIT_ATOMIC, NEAR_USDC_CAIP, reviewMpp } from "../src/mpp.js";
 import { payMppChallenge } from "../src/mpp-pay.js";
 import type { SignedQuote } from "../src/quote.js";
 import { signGuardedTransfer, usdcTransfer, type FtTransfer } from "../src/signer.js";
@@ -35,6 +35,14 @@ test("a CAIP-19 id matches the 1Click id for the same asset", () => {
   assert.equal(assetsMatch("nep141:17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1", NEAR_USDC_CAIP), true);
   assert.equal(assetsMatch("nep141:base-0x833589fcd6edb6e08f4c7c32d4f71b54bda02913.omft.near", BASE_USDC_CAIP), true);
   assert.equal(assetsMatch("nep141:wrap.near", "nep141:usdt.tether-token.near"), false);
+});
+
+test("the 402 line names the price and the recipient", () => {
+  const asked = request(live());
+  assert.equal(
+    challengeLine(asked),
+    `402 ${referenceUi(asked.methodDetails.amountOut, 6)} USDC to ${asked.methodDetails.destinationRecipient}`,
+  );
 });
 
 test("the card names the amount and the merchant, and a passing review is under the cap", () => {

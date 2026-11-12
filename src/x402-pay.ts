@@ -52,10 +52,13 @@ export async function payX402(url: string, accountId: string): Promise<number> {
     process.stdout.write(`STOP: ${chain.reasons[0] ?? "block"}\n`);
     return 1;
   }
-  const yes = await askApprove(chain.reasons.length > 0 ? chain.reasons : ["new api"], review.card);
-  if (!yes) {
-    process.stdout.write("STOP\n");
-    return 1;
+  const { withinDemoCap } = await import("./swap-intent.js");
+  if (!withinDemoCap(review.accept.amount)) {
+    const yes = await askApprove(chain.reasons.length > 0 ? chain.reasons : ["new api"], review.card);
+    if (!yes) {
+      process.stdout.write("STOP\n");
+      return 1;
+    }
   }
   ensureFloat();
   await topUpFloat(accountId, BigInt(review.accept.amount));

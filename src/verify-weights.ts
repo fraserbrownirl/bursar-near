@@ -2,7 +2,7 @@ import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { listReceipts } from "./receipt.js";
+import { listReceipts, type Receipt } from "./receipt.js";
 import { referenceCommand } from "./reference.js";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -16,7 +16,7 @@ function python(): string {
 
 type Run = { output: string; trace_tokens: number; trace_sha256: string; wall_ms: number };
 
-function computer(cmd: string, files?: Record<string, string>): Run {
+function computer(cmd: string, files?: Record<string, string>, elf?: string): Run {
   const args = [join(root, "scripts/computer_run.py"), cmd];
   if (files && Object.keys(files).length > 0) {
     const path = join(root, "receipts/inputs", `.${process.pid}.json`);
@@ -25,7 +25,7 @@ function computer(cmd: string, files?: Record<string, string>): Run {
   }
   const result = spawnSync(python(), args, {
     encoding: "utf8",
-    env: process.env,
+    env: { ...process.env, ...(elf ? { BURSAR_RECEIPT_ELF: elf } : {}) },
   });
   if (result.status !== 0) {
     process.stderr.write(result.stderr || result.stdout || "computer run failed\n");
@@ -52,6 +52,15 @@ async function main(): Promise<void> {
     return;
   }
   const rows = listReceipts().filter((row) => only.size === 0 || only.has(row.hash));
+  if (only.size > 0) {
+    const found = new Set(rows.map((row) => row.hash));
+    for (const hash of only) {
+      if (found.has(hash)) continue;
+      const path = join(root, "receipts", `${hash}.json`);
+      if (!existsSync(path)) continue;
+      rows.push({ hash, receipt: JSON.parse(readFileSync(path, "utf8")) as Receipt });
+    }
+  }
   if (rows.length === 0) {
     process.stdout.write("no receipts\n");
     process.exit(1);
@@ -65,10 +74,10 @@ async function main(): Promise<void> {
       const path = existsSync(hashed) ? hashed : named;
       files[name] = readFileSync(path, "utf8");
     }
-    const run = computer(receipt.cmd, files);
+    const run = computer(receipt.cmd, files, receipt.firmware_elf_sha256);
     const ok = run.output === receipt.output && run.trace_sha256 === receipt.trace_sha256;
     bad += ok ? 0 : 1;
-    process.stdout.write(`${hash} ${ok ? "match" : "MISMATCH"} ${receipt.cmd}\n`);
+    process.stdout.write(`${hash} ${ok ? "match" : "MISMATCH"} ${receipt.cmd} wall_ms ${run.wall_ms}\n`);
   }
   process.exit(bad === 0 ? 0 : 1);
 }

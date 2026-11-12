@@ -156,9 +156,9 @@ export function addressHit(
 ): string | null {
   if (blocklistMissing) return "The blocklist file is missing.";
   const prior = poisonedBy(receiver, previous);
-  if (prior) return `That address matches the start and end of ${prior}, which was paid before.`;
+  if (prior) return `Stopped. ${receiver} matches the start and end of ${prior}, which was paid before.`;
   for (const report of reports) {
-    if (report.reporter !== "" && trusted.has(report.reporter)) return `That address was reported by ${report.reporter}.`;
+    if (report.reporter !== "" && trusted.has(report.reporter)) return `Stopped. ${receiver} was reported by ${report.reporter}.`;
   }
   return null;
 }

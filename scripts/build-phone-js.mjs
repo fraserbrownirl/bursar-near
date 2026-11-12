@@ -38,6 +38,6 @@ await esbuild.build({
 globalThis.process = globalThis.process || { env: {} };`,
   },
   footer: {
-    js: "globalThis.bursarHearJson = (text) => JSON.stringify(BursarHear.hear(text));",
+    js: "globalThis.bursarHearJson = (text) => JSON.stringify(BursarHear.hear(text));\nglobalThis.bursarScanJson = (text) => JSON.stringify(BursarHear.scan(text));",
   },
 });

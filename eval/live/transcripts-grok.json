@@ -1,0 +1,11 @@
+[
+  {
+    "id": "cross-base",
+    "category": "pay",
+    "turns": [
+      "send 2 USDC to alice.near and they want it on Base"
+    ],
+    "owner": "XAI_API_KEY is not set",
+    "tools": []
+  }
+]

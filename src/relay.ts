@@ -2,7 +2,7 @@ import { OneClickService } from "@defuse-protocol/one-click-sdk-typescript";
 import { deadlineProblem } from "./deadline.js";
 import { inspectIntent, type IntentRecord } from "./intent.js";
 import { reviewQuote, type BursarRequest, type SignedQuote } from "./quote.js";
-import { isNearAccount } from "./account.js";
+import { recipientTypeFor } from "./account.js";
 
 /** The mode after `hostile:`, or null when no relay is set. */
 export function relayMode(): string | null {
@@ -35,7 +35,7 @@ export async function quoteThroughRelay(request: BursarRequest): Promise<SignedQ
     destinationAsset: request.destinationAsset,
     amount: request.amount,
     recipient: request.recipient,
-    recipientType: isNearAccount(request.recipient) ? "INTENTS" : "DESTINATION_CHAIN",
+    recipientType: recipientTypeFor(request.recipient, request.destinationAsset),
     refundTo: request.refundTo,
     refundType: "INTENTS",
     deadline: request.deadline,

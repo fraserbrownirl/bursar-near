@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 import { OneClickService } from "@defuse-protocol/one-click-sdk-typescript";
-import { isNearAccount } from "./account.js";
+import { isNearAccount, recipientTypeFor } from "./account.js";
 import { loadBlocklist } from "./blocklist.js";
 import { decide, formatCheck, type ChainFacts } from "./decide.js";
 import { loadFacts } from "./load.js";
@@ -44,7 +44,8 @@ function usage(): never {
     + "bursar find \"<need>\"\n"
     + "bursar merchant --mpp [--port 8402] [--name <name>] [--to <base address>]\n"
     + "bursar merchant --attack <inject|inflate|switch|pressure> [--port 8402]\n"
-    + "bursar log --verify",
+    + "bursar log --verify\n"
+    + "bursar model-relay",
   );
 }
 
@@ -118,7 +119,7 @@ async function pay(argv: readonly string[]): Promise<void> {
       destinationAsset: dest,
       amount,
       recipient: to,
-      recipientType: isNearAccount(to) ? "INTENTS" : "DESTINATION_CHAIN",
+      recipientType: recipientTypeFor(to, dest),
       refundTo: accountId,
       refundType: "INTENTS",
       deadline: request.deadline,
@@ -129,10 +130,12 @@ async function pay(argv: readonly string[]): Promise<void> {
     process.stdout.write(quoteStop + "\n");
     return;
   }
+  const { requireLive } = await import("./model-checks.js");
   const quoteCheck = await checkQuoteInModel(response, request, nowSec);
   process.stdout.write(quoteCheck.lines + "\n");
-  if (quoteCheck.stop) {
-    process.stdout.write(quoteCheck.stop + "\n");
+  const quoteLive = requireLive(quoteCheck);
+  if (quoteLive) {
+    process.stdout.write(quoteLive + "\n");
     return;
   }
   const plain = await printAmounts(request, response.quote.minAmountOut);
@@ -154,11 +157,14 @@ async function pay(argv: readonly string[]): Promise<void> {
     return;
   }
   if (check.verdict === "warn") {
-    const { askApprove } = await import("./agent.js");
-    const yes = await askApprove(check.reasons, plain);
-    if (!yes) {
-      process.stdout.write("STOP\n");
-      return;
+    const { withinDemoCap } = await import("./swap-intent.js");
+    if (!withinDemoCap(amount)) {
+      const { askApprove } = await import("./agent.js");
+      const yes = await askApprove(check.reasons, plain);
+      if (!yes) {
+        process.stdout.write("STOP\n");
+        return;
+      }
     }
   }
   process.stdout.write(`depositAddress: ${response.quote.depositAddress ?? ""}\n`);
@@ -166,8 +172,9 @@ async function pay(argv: readonly string[]): Promise<void> {
     process.stdout.write("fixture replay: not submitted\n");
     return;
   }
-  let exactPayload = "";
-  const signer = await touchSigner(accountId, response, () => nowMs, () => exactPayload || undefined);
+  const exactPayload = { text: "" };
+  const signer = await touchSigner(accountId, response, () => nowMs, () => exactPayload.text || undefined);
+  const { generateSwapIntent } = await import("./swap-intent.js");
   const line = await settle({
     quote: response,
     request,
@@ -176,29 +183,9 @@ async function pay(argv: readonly string[]): Promise<void> {
     signer,
     checkIntent: (generated) => checkIntentInModel(generated, accountId).then((result) => {
       process.stdout.write(result.lines + "\n");
-      return result.stop;
+      return requireLive(result);
     }),
-    generateIntent: async (depositAddress, signerId) => {
-      const webauthn = !/^[0-9a-f]{64}$/i.test(signerId);
-      const generated = await OneClickService.generateIntent({
-        type: "swap_transfer",
-        standard: webauthn ? "webauthn" : "nep413",
-        signerId,
-        depositAddress,
-      } as never) as { intent: { payload: { message: string; nonce: string; recipient: string } | string } };
-      if (typeof generated.intent.payload !== "string") return generated as { intent: { payload: { message: string; nonce: string; recipient: string } } };
-      exactPayload = generated.intent.payload;
-      const parsed = JSON.parse(exactPayload) as { deadline: string; nonce: string; verifying_contract: string; signer_id: string; intents: unknown };
-      return {
-        intent: {
-          payload: {
-            message: JSON.stringify({ deadline: parsed.deadline, intents: parsed.intents, signer_id: parsed.signer_id }),
-            nonce: parsed.nonce,
-            recipient: parsed.verifying_contract,
-          },
-        },
-      };
-    },
+    generateIntent: (depositAddress, signerId) => generateSwapIntent(depositAddress, signerId, exactPayload),
     submitIntent: async (signed) => OneClickService.submitIntent({ type: "swap_transfer", signedData: signed } as never),
   });
   process.stdout.write(line + "\n");
@@ -247,9 +234,15 @@ async function fund(argv: readonly string[]): Promise<void> {
 }
 
 async function main(): Promise<void> {
+  const argv = process.argv.slice(2);
+  if (argv[0] === "model-relay") {
+    if (argv.length !== 1) usage();
+    const { serveModelRelay } = await import("./model-relay.js");
+    await serveModelRelay();
+    return;
+  }
   const { selfTestModel } = await import("./model.js");
   await selfTestModel();
-  const argv = process.argv.slice(2);
   if (argv.length === 0) {
     const { createInterface } = await import("node:readline");
     const { Talk, talkSession, READY } = await import("./agent.js");
@@ -382,10 +375,11 @@ async function main(): Promise<void> {
   }
   if (argv[0] === "agent") {
     const text = argv.slice(1).join(" ").trim();
-    const { runAgent } = await import("./agent.js");
+    const { Talk, runAgent } = await import("./agent.js");
     const { enclaveIdentity } = await import("./signer.js");
-    const report = await runAgent(text, (await enclaveIdentity()).accountId);
-    process.stdout.write(report.text + "\n");
+    const talk = new Talk();
+    talk.onOwner = (text) => process.stdout.write(text.endsWith("\n") ? text : `${text}\n`);
+    const report = await runAgent(text, (await enclaveIdentity()).accountId, talk);
     process.exit(report.code);
   }
   if (argv[0] === "demo") {
@@ -417,12 +411,13 @@ async function main(): Promise<void> {
     if (text === "STOP: account") process.exit(1);
     return;
   }
-  const commands = new Set(["check", "pay", "fund", "balance", "find", "pays", "merchant", "anchor", "history", "signer", "mcp", "agent", "demo", "code", "scan"]);
+  const commands = new Set(["check", "pay", "fund", "balance", "find", "pays", "merchant", "anchor", "history", "signer", "mcp", "agent", "demo", "code", "scan", "model-relay"]);
   if (!commands.has(argv[0])) {
-    const { runAgent } = await import("./agent.js");
+    const { Talk, runAgent } = await import("./agent.js");
     const { enclaveIdentity } = await import("./signer.js");
-    const report = await runAgent(argv.join(" "), (await enclaveIdentity()).accountId);
-    process.stdout.write(report.text.endsWith("\n") ? report.text : `${report.text}\n`);
+    const talk = new Talk();
+    talk.onOwner = (text) => process.stdout.write(text.endsWith("\n") ? text : `${text}\n`);
+    const report = await runAgent(argv.join(" "), (await enclaveIdentity()).accountId, talk);
     process.exit(report.code);
   }
   const args = parseArgs(argv);

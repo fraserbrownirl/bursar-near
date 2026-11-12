@@ -86,15 +86,14 @@ export function paymentUri(input: {
   return atomic ? `${base}&amount=${atomic}` : base;
 }
 
-export async function receive(input: {
+/** This account's deposit address on a chain. No code is drawn. */
+export async function depositAccount(input: {
   accountId: string;
   chain: string;
   token: string;
-  amount?: string;
-  dir?: string;
   fetchImpl?: typeof fetch;
   tokens?: BridgeToken[];
-}): Promise<{ uri: string; address: string; chain: string; qr: string }> {
+}): Promise<{ address: string; chain: string; token: BridgeToken; rail: ChainRail }> {
   const chosen = rail(input.chain);
   if (!chosen) throw new Error("STOP: chain");
   const fetchImpl = input.fetchImpl ?? fetch;
@@ -107,9 +106,22 @@ export async function receive(input: {
   if (result.chain !== chosen.id || !result.address) throw new Error("STOP: address");
   const stop = receivable(result.address, input.accountId, chosen.kind);
   if (stop) throw new Error(stop);
-  const uri = paymentUri({ rail: chosen, token, address: result.address, amount: input.amount });
+  return { address: result.address, chain: chosen.label, token, rail: chosen };
+}
+
+export async function receive(input: {
+  accountId: string;
+  chain: string;
+  token: string;
+  amount?: string;
+  dir?: string;
+  fetchImpl?: typeof fetch;
+  tokens?: BridgeToken[];
+}): Promise<{ uri: string; address: string; chain: string; qr: string }> {
+  const found = await depositAccount(input);
+  const uri = paymentUri({ rail: found.rail, token: found.token, address: found.address, amount: input.amount });
   const qr = await writeAccountCode(uri, input.dir);
-  return { uri, address: result.address, chain: chosen.label, qr };
+  return { uri, address: found.address, chain: found.chain, qr };
 }
 
 async function tokensOn(chainId: string, fetchImpl: typeof fetch): Promise<BridgeToken[]> {
@@ -126,14 +138,93 @@ export async function recentDeposits(accountId: string, chain: string, fetchImpl
   return { deposits: result.deposits ?? [], total: result.total ?? 0 };
 }
 
+/**
+ * Poll the bridge until a deposit row is a Received line.
+ * `maxPolls` bounds a test. A live call waits up to fifteen minutes.
+ */
+export async function watchUntilReceived(input: {
+  accountId: string;
+  chain: string;
+  token: string;
+  amount?: string;
+  fetchImpl?: typeof fetch;
+  wait?: (ms: number) => Promise<void>;
+  maxPolls?: number;
+}): Promise<string> {
+  const chosen = rail(input.chain);
+  if (!chosen) throw new Error("STOP: chain");
+  const fetchImpl = input.fetchImpl ?? fetch;
+  const wait = input.wait ?? ((ms: number) => new Promise((resolve) => setTimeout(resolve, ms)));
+  const polls = input.maxPolls ?? 180;
+  const seen = new Set<string>();
+  let line = "waiting";
+  for (let i = 0; i < polls; i += 1) {
+    const list = await recentDeposits(input.accountId, input.chain, fetchImpl);
+    if (i === 0) {
+      for (const row of list.deposits) seen.add(depositId(row));
+    }
+    line = freshLine(chosen.id, chosen.label, input.token, list.deposits, seen, input.amount);
+    if (line.startsWith("Received")) return line;
+    if (i + 1 < polls) await wait(5_000);
+  }
+  return line;
+}
+
+/** A bridge amount is a decimal string, or an atomic integer with `decimals`. */
+function amountText(row: Record<string, unknown>): string | null {
+  if (typeof row.amount === "string" && row.amount !== "") return row.amount;
+  if (typeof row.amount !== "number" || !Number.isFinite(row.amount)) return null;
+  const decimals = row.decimals;
+  if (typeof decimals !== "number" || decimals < 0) return String(row.amount);
+  const atomic = BigInt(Math.trunc(row.amount));
+  const scale = 10n ** BigInt(decimals);
+  const whole = atomic / scale;
+  const fraction = (atomic % scale).toString().padStart(decimals, "0").replace(/0+$/, "");
+  return fraction === "" ? whole.toString() : `${whole}.${fraction}`;
+}
+
+function depositId(row: Record<string, unknown>): string {
+  if (typeof row.tx_hash === "string" && row.tx_hash) return row.tx_hash;
+  if (typeof row.hash === "string" && row.hash) return row.hash;
+  return `${amountText(row) ?? ""}|${String(row.from ?? row.sender ?? "")}|${String(row.created_at ?? "")}`;
+}
+
+function sameAmount(got: string, want: string): boolean {
+  const norm = (value: string) => {
+    if (!/^\d+(\.\d+)?$/.test(value)) return value;
+    const [whole, frac = ""] = value.split(".");
+    const trimmed = `${whole.replace(/^0+(?=\d)/, "")}.${frac.replace(/0+$/, "")}`;
+    return trimmed.endsWith(".") ? trimmed.slice(0, -1) : trimmed;
+  };
+  return norm(got) === norm(want);
+}
+
+/** A deposit that was not already listed when the code was shown, for this amount when one was asked. */
+export function freshLine(
+  chainId: string,
+  chainLabel: string,
+  token: string,
+  deposits: Record<string, unknown>[],
+  seen: ReadonlySet<string>,
+  amount?: string,
+): string {
+  const row = deposits.find((item) => {
+    if (seen.has(depositId(item))) return false;
+    const text = amountText(item);
+    if (text === null || !(typeof item.sender === "string" || typeof item.from === "string")) return false;
+    return amount === undefined || amount === "" || sameAmount(text, amount);
+  });
+  return row ? watchLine(chainId, chainLabel, token, [row]) : "waiting";
+}
+
 /** Observed empty list is waiting. A deposit row is reported only from its own fields. */
 export function watchLine(chainId: string, chainLabel: string, token: string, deposits: Record<string, unknown>[]): string {
-  const row = deposits.find((item) => typeof item.amount === "string" && (typeof item.sender === "string" || typeof item.from === "string"));
+  const row = deposits.find((item) => amountText(item) !== null && (typeof item.sender === "string" || typeof item.from === "string"));
   if (!row) return "waiting";
   const from = String(row.sender ?? row.from);
   const hash = typeof row.tx_hash === "string" ? row.tx_hash : typeof row.hash === "string" ? row.hash : "";
   const link = hash ? explorer(chainId, hash) : "";
-  return `Received ${row.amount} ${token} on ${chainLabel} from ${from}.${link}`.trim();
+  return `Received ${amountText(row)} ${token} on ${chainLabel} from ${from}.${link}`.trim();
 }
 
 function explorer(chainId: string, hash: string): string {

@@ -9,7 +9,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "test": "tsx --test test/check.test.ts test/quote.test.ts test/signer.test.ts test/touch.test.ts test/p256-intent.test.ts test/intents-dec.test.ts test/pay.test.ts test/mpp.test.ts test/catalog.test.ts test/agents.test.ts test/agent.test.ts test/assets.test.ts test/screenshot.test.ts test/x402.test.ts test/history.test.ts test/mcp.test.ts test/decimals.test.ts test/recorded.test.ts test/verify.test.ts test/eval-agent.test.ts test/phone-hear.test.ts test/code.test.ts test/receive.test.ts test/attack-demo.test.ts",
+    "test": "tsx --test test/check.test.ts test/quote.test.ts test/signer.test.ts test/touch.test.ts test/p256-intent.test.ts test/intents-dec.test.ts test/pay.test.ts test/mpp.test.ts test/catalog.test.ts test/agents.test.ts test/agent.test.ts test/assets.test.ts test/screenshot.test.ts test/x402.test.ts test/history.test.ts test/mcp.test.ts test/decimals.test.ts test/recorded.test.ts test/verify.test.ts test/eval-agent.test.ts test/phone-hear.test.ts test/model-relay.test.ts test/bill.test.ts test/code.test.ts test/receive.test.ts test/attack-demo.test.ts",
     "test:count": "node scripts/test-count.mjs",
     "eval:agent": "tsx src/eval-agent-cli.ts",
     "eval:live": "tsx src/eval-live-cli.ts",

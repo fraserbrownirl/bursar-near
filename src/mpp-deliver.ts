@@ -5,7 +5,7 @@ import { loadBlocklist } from "./blocklist.js";
 import { decide } from "./decide.js";
 import { append } from "./guard/ledger.js";
 import { referenceUi } from "./model.js";
-import { checkQuoteInModel } from "./model-checks.js";
+import { checkIntentInModel, checkQuoteInModel, requireLive } from "./model-checks.js";
 import { reviewMpp, type MppRequest } from "./mpp.js";
 import { readPayeeMap } from "./payees.js";
 import { settle } from "./pay.js";
@@ -93,7 +93,8 @@ export async function deliverFromIntents(input: {
   if (quoteStop) throw new Error(quoteStop);
   const checked = await checkQuoteInModel(quote, request, nowSec);
   process.stdout.write(checked.lines + "\n");
-  if (checked.stop) throw new Error(checked.stop);
+  const quoteLive = requireLive(checked);
+  if (quoteLive) throw new Error(quoteLive);
   const receiver = input.request.methodDetails.destinationRecipient;
   const guard = decide({
     receiver,
@@ -113,19 +114,21 @@ export async function deliverFromIntents(input: {
   const deposit = quote.quote.depositAddress;
   if (!deposit) throw new Error("STOP: deposit");
   process.stdout.write(`amountIn: ${quote.quote.amountIn}\n`);
-  const signer = await touchSigner(input.accountId, quote, () => nowMs);
+  const exactPayload = { text: "" };
+  const { generateSwapIntent } = await import("./swap-intent.js");
+  const signer = await touchSigner(input.accountId, quote, () => nowMs, () => exactPayload.text || undefined);
   const settled = await settle({
     quote,
     request,
     accountId: input.accountId,
     nowSec,
     signer,
-    generateIntent: async (depositAddress, signerId) => OneClickService.generateIntent({
-      type: "swap_transfer",
-      standard: "nep413",
-      signerId,
-      depositAddress,
-    } as never) as Promise<{ intent: { payload: { message: string; nonce: string; recipient: string } } }>,
+    checkIntent: async (generated) => {
+      const decoded = await checkIntentInModel(generated, input.accountId);
+      process.stdout.write(decoded.lines + "\n");
+      return requireLive(decoded);
+    },
+    generateIntent: (depositAddress, signerId) => generateSwapIntent(depositAddress, signerId, exactPayload),
     submitIntent: async (signed) => OneClickService.submitIntent({ type: "swap_transfer", signedData: signed } as never),
   });
   if (settled !== "submitted") throw new Error(settled.startsWith("STOP") ? settled : `STOP: ${settled}`);

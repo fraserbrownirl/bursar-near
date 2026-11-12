@@ -1,7 +1,9 @@
+import { spawn } from "node:child_process";
 import { writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { join } from "node:path";
-import { toBuffer, toString } from "qrcode";
+import { fileURLToPath } from "node:url";
+import { create, toBuffer } from "qrcode";
 import { PNG } from "pngjs";
 import { isNearAccount } from "./account.js";
 
@@ -18,18 +20,49 @@ const render = {
   color: { dark: "#000000ff", light: "#ffffffff" },
 };
 
-/** PNG bytes and a terminal drawing. The QR payload is `text` alone. */
-export async function encode(text: string): Promise<{ png: Buffer; terminal: string }> {
-  const png = await toBuffer(text, { ...render, type: "png", scale: 4 });
-  const terminal = await toString(text, { errorCorrectionLevel: "M", type: "utf8", margin: 2 });
-  return { png, terminal };
+function moduleOn(modules: { size: number; get: (row: number, col: number) => boolean }, row: number, col: number): boolean {
+  if (row < 0 || col < 0 || row >= modules.size || col >= modules.size) return false;
+  return Boolean(modules.get(row, col));
 }
 
-/** The owner's account as a QR in the terminal, and `bursar-code.png` in `dir`. */
+/**
+ * Half-block QR. One module is one character wide, and two module rows share
+ * a line, so the code stays square in a terminal and does not wrap. Blocks
+ * are the light modules, so the code reads dark-on-light on a black terminal,
+ * the way a phone camera and jsQR scan it.
+ */
+export function terminalQr(text: string, columns = process.stdout.columns || 80): string {
+  const symbol = create(text, { errorCorrectionLevel: "M" });
+  const modules = symbol.modules;
+  const quiet = 4;
+  const span = modules.size + quiet * 2;
+  const scale = Math.max(1, Math.min(2, Math.floor((Math.max(columns, span) - 1) / span)));
+  const lines: string[] = [];
+  for (let row = 0; row < span; row += 2) {
+    let line = "";
+    for (let col = 0; col < span; col += 1) {
+      const top = moduleOn(modules, row - quiet, col - quiet);
+      const bottom = moduleOn(modules, row - quiet + 1, col - quiet);
+      const glyph = top && bottom ? " " : top ? "▄" : bottom ? "▀" : "█";
+      line += glyph.repeat(scale);
+    }
+    lines.push(line);
+  }
+  return lines.join("\n") + "\n";
+}
+
+/** PNG bytes and a terminal drawing. The QR payload is `text` alone. */
+export async function encode(text: string): Promise<{ png: Buffer; terminal: string }> {
+  const png = await toBuffer(text, { ...render, type: "png", scale: 20 });
+  return { png, terminal: terminalQr(text) };
+}
+
+/** The payment code in the terminal, and as `bursar-code.png` in `dir`. The PNG path prints under the code. */
 export async function writeAccountCode(accountId: string, dir = process.cwd()): Promise<string> {
   const drawn = await encode(accountId);
-  writeFileSync(join(dir, "bursar-code.png"), drawn.png);
-  return drawn.terminal.endsWith("\n") ? drawn.terminal : `${drawn.terminal}\n`;
+  const file = join(dir, "bursar-code.png");
+  writeFileSync(file, drawn.png);
+  return `${drawn.terminal}${file}\n`;
 }
 
 export function qrText(png: Buffer): string {
@@ -38,6 +71,27 @@ export function qrText(png: Buffer): string {
   const found = jsQR(pixels, image.width, image.height);
   if (!found) throw new Error("STOP: qr");
   return found.data;
+}
+
+/** The Vision helper, built from `scripts/ocr.swift`. The text is untrusted. */
+export function imageText(path: string): Promise<string> {
+  const binary = fileURLToPath(new URL("../scripts/ocr", import.meta.url));
+  return new Promise((resolve, reject) => {
+    const child = spawn(binary, [path], { stdio: ["ignore", "pipe", "pipe"] });
+    const out: Buffer[] = [];
+    const err: Buffer[] = [];
+    child.stdout.on("data", (chunk: Buffer) => out.push(chunk));
+    child.stderr.on("data", (chunk: Buffer) => err.push(chunk));
+    child.on("error", () => reject(new Error("STOP: ocr")));
+    child.on("close", (code) => {
+      const text = Buffer.concat(out).toString("utf8").trim();
+      if (code !== 0 || !text) {
+        reject(new Error(Buffer.concat(err).toString("utf8").trim() || "STOP: ocr"));
+        return;
+      }
+      resolve(text);
+    });
+  });
 }
 
 /** A NEAR account, or the enclave account (`0x` and 40 hex). Anything else is `STOP: account`. */

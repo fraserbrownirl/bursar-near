@@ -28,8 +28,8 @@ def ethereus_mac() -> Path:
 
 CHIP_SHA256 = "7d756fd40e9b6c4bd36ec3f4afea44f2d04d7269c27bc841e6f4aff96007a216"
 ELF_SHA256 = "8cb34279eb5d0528800beebb618b750c52bbddd792f61742dd1b01480523a2be"
-# The chip pack is not on Hugging Face yet. Set BURSAR_CHIP_HF_REVISION when it is.
 HF_REPO = "frsrcom/bursar-9b"
+HF_REVISION = "74eae8ef09d0d4508c60b17724a5c491bd0e3e68"
 
 
 def _sha256(path: Path) -> str:
@@ -42,15 +42,45 @@ def _sha256(path: Path) -> str:
 
 
 def pack_dir() -> Path:
-    revision = os.environ.get("BURSAR_CHIP_HF_REVISION")
-    if revision:
-        from huggingface_hub import snapshot_download
-        got = snapshot_download(HF_REPO, revision=revision, allow_patterns=["chip.safetensors", "chip.json", "snapshot.safetensors", "eth-bridge.elf"])
-        return Path(got)
     env = os.environ.get("BURSAR_CHIP_PACK")
     if env:
         return Path(env)
-    return Path.home() / ".locals" / "ethereus" / "all9b"
+    from huggingface_hub import snapshot_download
+    revision = os.environ.get("BURSAR_CHIP_HF_REVISION", HF_REVISION)
+    got = snapshot_download(
+        HF_REPO,
+        revision=revision,
+        allow_patterns=["chip.safetensors", "chip.json", "snapshot.safetensors", "eth-bridge.elf"],
+    )
+    return Path(got)
+
+
+def pack_for(want_elf: str | None) -> Path:
+    """The Hugging Face pack, with an ELF whose SHA-256 is `want_elf` when one is named."""
+    pack = pack_dir()
+    weights = pack / "chip.safetensors"
+    if not weights.is_file():
+        raise SystemExit(f"no chip.safetensors in {pack}")
+    got = _sha256(weights)
+    if got != CHIP_SHA256:
+        raise SystemExit(f"weights {got} is not {CHIP_SHA256}")
+    if not want_elf:
+        return pack
+    current = pack / "eth-bridge.elf"
+    if current.is_file() and _sha256(current) == want_elf:
+        return pack
+    repo = ROOT / "firmware" / "eth-bridge.elf"
+    if repo.is_file() and _sha256(repo) == want_elf:
+        import tempfile
+        tmp = Path(tempfile.mkdtemp(prefix="bursar-pack-"))
+        os.symlink(weights, tmp / "chip.safetensors")
+        os.symlink(pack / "chip.json", tmp / "chip.json")
+        snapshot = pack / "snapshot.safetensors"
+        if snapshot.is_file():
+            os.symlink(snapshot, tmp / "snapshot.safetensors")
+        os.symlink(repo, tmp / "eth-bridge.elf")
+        return tmp
+    raise SystemExit(f"no ELF with sha256 {want_elf}")
 
 
 def tokenizer_path() -> Path:
@@ -86,7 +116,9 @@ def run(cmd: str, files: dict[str, str] | None = None) -> dict:
     mac = ethereus_mac()
     sys.path.insert(0, str(mac))
     os.environ.setdefault("LOCALS_CHIPFORMER", str(Path.home() / "Dev/ethereus/experimental/riscv"))
-    os.environ["LOCALS_ETH_PACK"] = str(pack_dir())
+    want_elf = os.environ.get("BURSAR_RECEIPT_ELF") or None
+    pack = pack_for(want_elf)
+    os.environ["LOCALS_ETH_PACK"] = str(pack)
     import torch
     torch.set_num_threads(int(os.environ.get("BURSAR_TORCH_THREADS") or "4"))
     from tokenizers import Tokenizer
@@ -98,14 +130,8 @@ def run(cmd: str, files: dict[str, str] | None = None) -> dict:
     def enc(text: str) -> list[int]:
         return tok.encode(text, add_special_tokens=False).ids
 
-    pack = pack_dir()
     weights = pack / "chip.safetensors"
     elf = pack / "eth-bridge.elf"
-    if not weights.is_file():
-        raise SystemExit(f"no chip pack at {pack}")
-    got_w, got_e = _sha256(weights), _sha256(elf) if elf.is_file() else ""
-    if got_w != CHIP_SHA256 or got_e != ELF_SHA256:
-        raise SystemExit(f"chip pack hash mismatch weights {got_w} elf {got_e}")
     files = files or {}
     shown = cmd
     if files:

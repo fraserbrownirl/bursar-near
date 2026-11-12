@@ -26,6 +26,15 @@ test("USDC with no chain prefix is NEAR, and a base row is base", () => {
   assert.equal(asset(resolveAsset(rows, "USDC", "sol")).blockchain, "sol");
 });
 
+test("omni and hypercore USDC rows are not NEAR", () => {
+  const wide: TokenRow[] = [
+    ...rows,
+    { assetId: "nep245:v2_1.omni.hot.tg:10_A2ewyUyDp6qsue1jqZsGypkCxRJ", decimals: 6, symbol: "USDC" },
+    { assetId: "1cs_v1:hypercore:erc20:0xb88339CB7199b77E23DB6E890353E22632Ba630f", decimals: 6, symbol: "USDC" },
+  ];
+  assert.equal(asset(resolveAsset(wide, "USDC", "near")).assetId, NEAR);
+});
+
 test("a NEAR account spends NEAR USDC exactly, and another chain is an exact output", () => {
   const same = pricePayment(rows, { to: "frsrcom.near", human: "0.25", asset: "USDC", chain: "" });
   assert.equal("ask" in same, false);

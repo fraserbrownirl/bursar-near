@@ -17,9 +17,11 @@ export type Asset = { assetId: string; decimals: number; blockchain: string; sym
 /** Chain from the token row, or from a `nep141:<chain>-` id. Anything else is NEAR. */
 export function chainOf(row: TokenRow): string {
   if (row.blockchain) return row.blockchain.toLowerCase();
-  const prefixed = row.assetId.toLowerCase().match(/^nep141:([a-z0-9]+)-/);
+  const id = row.assetId.toLowerCase();
+  const prefixed = id.match(/^nep141:([a-z0-9]+)-/);
   if (prefixed?.[1]) return prefixed[1];
-  return "near";
+  if (id.startsWith("nep141:")) return "near";
+  return id.split(":")[0] ?? id;
 }
 
 /** One symbol on one chain. Several matches, or none, is a question. */

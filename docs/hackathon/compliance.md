@@ -1,6 +1,6 @@
 # Compliance
 
-Snapshot fetched 2026-11-12T09:37:23Z. The body hash is unchanged. An `open` row is unfinished.
+Snapshot fetched 2026-11-12T10:16:00Z. The body hash is unchanged. An `open` row is unfinished.
 
 | Rule | Quoted text | What this repo does | Proof | Status |
 | --- | --- | --- | --- | --- |

@@ -32,6 +32,9 @@ export function intentsDecText(payload: {
   const missing = intentsDec(payload);
   if (missing.result.startsWith("error")) return missing.result.trim();
   const intents = Array.isArray(payload.intents) ? payload.intents as IntentRecord[] : [];
+  if (intents.some((item) => item.intent !== "transfer" || !item.receiver_id || !item.tokens)) {
+    return "error (unsupported intent)";
+  }
   const lines = [
     `signer: ${String(payload.signer_id)}`,
     `verifying-contract: ${String(payload.verifying_contract)}`,
@@ -40,11 +43,7 @@ export function intentsDecText(payload: {
     `intents: ${intents.length}`,
   ];
   intents.forEach((item, index) => {
-    if (item.intent !== "transfer" || !item.receiver_id || !item.tokens) {
-      lines.push(`intent[${index}]: error (unsupported)`);
-      return;
-    }
-    const pairs = Object.entries(item.tokens).map(([token, amount]) => {
+    const pairs = Object.entries(item.tokens ?? {}).map(([token, amount]) => {
       const normalized = amount.replace(/^\+/, "").replace(/^0+(?=\d)/, "");
       return `${token}=${normalized}`;
     });
