@@ -1,0 +1,6 @@
+id: wrong-receive
+title: Wrong receive address
+stop: the Intents account is not the deposit address
+also: "ethereum:"
+turns:
+  - use your account id for this Base payment

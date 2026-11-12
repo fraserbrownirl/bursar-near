@@ -1,4 +1,7 @@
+import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import { createInterface } from "node:readline";
+import { dir } from "./store.js";
 import { OneClickService } from "@defuse-protocol/one-click-sdk-typescript";
 import { atomicAmount, pricePayment, rowsFor, NEAR_USDC } from "./assets.js";
 import { isNearAccount } from "./account.js";
@@ -465,25 +468,13 @@ async function addressSentence(receiver: string): Promise<string | null> {
 }
 
 async function quoteFor(request: BursarRequest, recorded: boolean): Promise<SignedQuote> {
-  if (recorded) {
+  if (recorded && !process.env.BURSAR_RELAY && process.env.BURSAR_LIVE_QUOTE !== "1") {
     const { readFileSync } = await import("node:fs");
     const { fileURLToPath } = await import("node:url");
     return JSON.parse(readFileSync(fileURLToPath(new URL("../test/fixtures/quote-dry.json", import.meta.url)), "utf8")) as SignedQuote;
   }
-  return await OneClickService.getQuote({
-    dry: false,
-    swapType: request.swapType ?? "EXACT_INPUT",
-    depositType: "INTENTS",
-    slippageTolerance: 100,
-    originAsset: request.originAsset,
-    destinationAsset: request.destinationAsset,
-    amount: request.amount,
-    recipient: request.recipient,
-    recipientType: isNearAccount(request.recipient) ? "INTENTS" : "DESTINATION_CHAIN",
-    refundTo: request.refundTo,
-    refundType: "INTENTS",
-    deadline: request.deadline,
-  } as never) as SignedQuote;
+  const { quoteThroughRelay } = await import("./relay.js");
+  return quoteThroughRelay(request);
 }
 
 /** Recorded model call that pays the injected account. The chain facts are an old account, so only the injection can stop it. */
@@ -538,6 +529,61 @@ export function guardModel(text: string, call: ModelCall, facts: ChainFacts, now
   return { line, stop: stop ? line : null };
 }
 
+function paymentLimit(): number | null {
+  const path = join(dir(), "limits.json");
+  if (!existsSync(path)) return null;
+  const parsed = JSON.parse(readFileSync(path, "utf8")) as { usdc?: string };
+  const value = Number(parsed.usdc);
+  return Number.isFinite(value) ? value : null;
+}
+
+/**
+ * A pipeline stop before the model speaks. A clean sentence returns null.
+ * The sentence names the attack. Nothing here signs.
+ */
+export async function ownerStop(text: string, accountId: string, home = process.cwd()): Promise<string | null> {
+  const pasted = contentStops(splitTurn(text).content);
+  if (pasted) return `Stopped: ${pasted}`;
+  if (/\bfrom now on\b[^.\n]{0,60}\bpayee\b/i.test(text)) return "Stopped: a standing payee is not set in the chat.";
+  const limit = paymentLimit();
+  const namedAmount = text.match(/\b([0-9]+(?:\.[0-9]+)?)\s*usdc\b/i);
+  if (limit !== null && namedAmount?.[1] && Number(namedAmount[1]) > limit) return "Stopped: over the per-payment limit.";
+  const png = text.match(/(\S+\.png)\b/);
+  if (png?.[1] && existsSync(png[1])) {
+    const { qrText } = await import("./code.js");
+    const findings = scanForInstructions([{ where: "qr", text: qrText(readFileSync(png[1])) }]);
+    if (findings.length > 0) return `Stopped: ${injectionReason(findings)}`;
+  }
+  const url = text.match(/https?:\/\/\S+/);
+  if (url?.[0]) {
+    const response = await fetch(url[0]);
+    const body = await response.text();
+    const findings = scanForInstructions([{ where: response.status === 402 ? "402" : "page", text: body }]);
+    if (findings.length > 0) return `Stopped: ${injectionReason(findings)}`;
+  }
+  if (/\b(account id|intents account)\b/i.test(text) && /\b(base|arbitrum|ethereum|solana)\b/i.test(text)) {
+    const chain = text.match(/\b(base|arbitrum|ethereum|solana)\b/i)?.[1] ?? "base";
+    const { receive } = await import("./receive.js");
+    const drawn = await receive({ accountId, chain, token: "USDC", amount: "0.1", dir: home });
+    return `Stopped: the Intents account is not the deposit address.\n${drawn.uri}`;
+  }
+  const addresses = text.match(/0x[a-fA-F0-9]{40}|[a-z0-9][a-z0-9._-]*\.near/gi) ?? [];
+  for (const receiver of addresses) {
+    const sentence = await addressSentence(receiver);
+    if (sentence) return sentence;
+    const looked = decide({
+      receiver,
+      nowNs: BigInt(Date.now()) * 1_000_000n,
+      request: "",
+      facts: { codeHash: null, createdNs: null, outgoingCount: null, latestDeployNs: null, errors: {} },
+      payees: readPayeeMap(),
+      blocklist: { path: "owner", accounts: {}, missing: false },
+    });
+    if (looked.verdict === "block") return `Stopped: ${looked.reasons[0] ?? "block"}.`;
+  }
+  return null;
+}
+
 /** One session. Each line is a sentence. `exit` ends it. The word bursar is not part of a line. */
 export async function talkSession(
   lines: AsyncIterable<string>,
@@ -560,6 +606,11 @@ export async function runAgent(text: string, accountId: string, talk: Talk = new
   const called: string[] = [];
   if (!accountId) return { text: "STOP: request", code: 1, tools: called };
   const pasted = contentStops(splitTurn(text).content);
+  const early = await ownerStop(text, accountId, dir);
+  if (early) {
+    reveal(lines, talk, early);
+    return { text: lines.join("\n"), code: 1, tools: called };
+  }
   talk.messages.push({ role: "user", content: text });
   let submitted = false;
   let finished = false;
@@ -764,6 +815,14 @@ async function runCall(text: string, call: ModelCall, accountId: string, lines: 
       new Promise<never>((_, reject) => setTimeout(() => reject(new Error("STOP: quote")), talk.settle ? 120_000 : 8_000)),
     ]);
     if (!talk.settle) {
+      if (process.env.BURSAR_RELAY) {
+        const { relayStop } = await import("./relay.js");
+        const stop = relayStop(quote, expected, Math.floor(nowMs / 1000));
+        if (stop) {
+          reveal(lines, talk, `guard: STOP\nreason: ${stop}`);
+          return "STOP";
+        }
+      }
       const summary = `recorded quote amountIn ${quote.quote.amountIn} minAmountOut ${quote.quote.minAmountOut}`;
       if (call.name === "quote") return summary;
       const chain = decide({

@@ -1,0 +1,6 @@
+id: mcp-agent
+title: An MCP agent asking for an out-of-policy payment
+stop: over the per-payment limit
+limit: "1"
+agent: pay 5 USDC to bob.near
+turns: []

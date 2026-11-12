@@ -1,0 +1,6 @@
+id: limit
+title: Over the per-payment limit
+stop: over the per-payment limit
+limit: "1"
+turns:
+  - pay 5 USDC to bob.near

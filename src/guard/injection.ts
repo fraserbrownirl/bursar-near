@@ -16,6 +16,8 @@ const RULES: { rule: string; pattern: RegExp }[] = [
   { rule: "payment-order", pattern: /\b(pay|send|transfer|approve)\b[^.\n]{0,20}\b\d[\d,.]*\s*(usdc|usdt|usd|sol|near|xlm|eth)\b[^.\n]{0,40}\bto\b/i },
   { rule: "role-marker", pattern: /(<\|im_(start|end)\|>|<\|endoftext\|>|^\s*(system|assistant)\s*:|\[\s*(system|inst)\s*\]|###\s*(system|instruction))/im },
   { rule: "new-instructions", pattern: /\b(new|updated|revised)\s+(instructions|policy|rules)\b/i },
+  { rule: "wallet-changed", pattern: /\b(wallet|address) has changed\b/i },
+  { rule: "pressure", pattern: /\bpay\b[^.\n]{0,40}\bor lose\b|\blose access\b/i },
 ];
 
 /** Collects every string inside a JSON value, with its path, so nested fields are scanned too. */

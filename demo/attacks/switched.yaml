@@ -1,0 +1,9 @@
+id: switched
+title: Switched details in an email
+stop: wallet has changed
+turns:
+  - |
+    the merchant emailed me
+    """
+    our wallet has changed
+    """

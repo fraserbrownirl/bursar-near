@@ -11,7 +11,7 @@ import { checkIntentInModel, checkQuoteInModel } from "./model-checks.js";
 import { readPayeeMap } from "./payees.js";
 import { settle } from "./pay.js";
 import { reviewQuote, type BursarRequest, type SignedQuote } from "./quote.js";
-import { secretFromKeychain, signerFromSecret } from "./signer.js";
+import { touchSigner } from "./signer.js";
 
 function emptyFacts(): ChainFacts {
   return { codeHash: null, createdNs: null, outgoingCount: null, latestDeployNs: null, errors: {} };
@@ -34,12 +34,17 @@ function usage(): never {
     + "bursar anchor\n"
     + "bursar agent \"<request>\"\n"
     + "bursar mcp\n"
+    + "bursar signer account\n"
+    + "bursar code\n"
+    + "bursar scan <png>\n"
     + "bursar history --csv\n"
     + "bursar demo\n"
     + "bursar balance\n"
     + "bursar pay <url>\n"
     + "bursar find \"<need>\"\n"
-    + "bursar merchant --mpp [--port 8402] [--name <name>] [--to <base address>]",
+    + "bursar merchant --mpp [--port 8402] [--name <name>] [--to <base address>]\n"
+    + "bursar merchant --attack <inject|inflate|switch|pressure> [--port 8402]\n"
+    + "bursar log --verify",
   );
 }
 
@@ -87,7 +92,8 @@ async function pay(argv: readonly string[]): Promise<void> {
   const fixture = flagValue(argv, "--fixture");
   const requestText = flagValue(argv, "--request");
   if (!to || !amount || !origin || !dest) usage();
-  const accountId = process.env.BURSAR_NEAR_ACCOUNT;
+  const { enclaveIdentity } = await import("./signer.js");
+  const accountId = fixture ? process.env.BURSAR_NEAR_ACCOUNT : (await enclaveIdentity()).accountId;
   if (!accountId) throw new Error("BURSAR_NEAR_ACCOUNT is required");
   const nowMs = Date.now();
   const request: BursarRequest = {
@@ -160,7 +166,7 @@ async function pay(argv: readonly string[]): Promise<void> {
     process.stdout.write("fixture replay: not submitted\n");
     return;
   }
-  const signer = signerFromSecret(secretFromKeychain(accountId), accountId, response, () => nowMs);
+  const signer = await touchSigner(accountId, response, () => nowMs);
   const line = await settle({
     quote: response,
     request,
@@ -226,7 +232,29 @@ async function fund(argv: readonly string[]): Promise<void> {
 
 async function main(): Promise<void> {
   const argv = process.argv.slice(2);
-  if (argv.length === 0) usage();
+  if (argv.length === 0) {
+    const { createInterface } = await import("node:readline");
+    const { Talk, talkSession, READY } = await import("./agent.js");
+    const { enclaveIdentity } = await import("./signer.js");
+    const accountId = (await enclaveIdentity()).accountId;
+    process.stdout.write(`${READY}\n`);
+    const rl = createInterface({ input: process.stdin, output: process.stdout, prompt: "> " });
+    const lines = (async function* () {
+      try {
+        rl.prompt();
+        for await (const line of rl) {
+          const text = line.trim();
+          if (text === "exit" || text === "quit") return;
+          yield line;
+          rl.prompt();
+        }
+      } finally {
+        rl.close();
+      }
+    })();
+    await talkSession(lines, accountId, new Talk());
+    return;
+  }
   if (argv[0] === "fund") {
     await fund(argv.slice(1));
     return;
@@ -256,12 +284,41 @@ async function main(): Promise<void> {
   if (argv[0] === "pays") {
     const url = argv[1] && !argv[1].startsWith("--") ? argv[1] : "http://127.0.0.1:8402/";
     if (argv[1]?.startsWith("--")) usage();
-    const accountId = process.env.BURSAR_NEAR_ACCOUNT;
-    if (!accountId) throw new Error("BURSAR_NEAR_ACCOUNT is required");
+    const { enclaveIdentity } = await import("./signer.js");
     const { payUrl } = await import("./mpp-pay.js");
-    process.exit(await payUrl(url, accountId));
+    process.exit(await payUrl(url, (await enclaveIdentity()).accountId));
+  }
+  if (argv[0] === "log" && argv[1] === "--verify") {
+    const { verify, head, ledgerPath } = await import("./guard/ledger.js");
+    const { readFileSync, existsSync } = await import("node:fs");
+    const { join } = await import("node:path");
+    const { dir } = await import("./store.js");
+    const result = verify();
+    const anchoredPath = join(dir(), "anchor.txt");
+    const anchored = existsSync(anchoredPath) ? readFileSync(anchoredPath, "utf8").trim() : "";
+    const top = head();
+    if (!result.ok) {
+      process.stdout.write(`STOP: ledger line ${result.badAt}: ${result.problem}\n`);
+      if (anchored) process.stdout.write(`anchor ${anchored} does not match a verified head\n`);
+      process.stdout.write(`file ${ledgerPath()}\n`);
+      process.exit(1);
+    }
+    if (anchored && anchored !== top.hash) {
+      process.stdout.write(`STOP: anchor ${anchored} does not match ${top.hash}\n`);
+      process.exit(1);
+    }
+    process.stdout.write(`ok ${result.entries} ${result.head}\n`);
+    return;
   }
   if (argv[0] === "merchant") {
+    if (argv[1] === "--attack") {
+      const mode = flagValue(argv, "--attack");
+      if (!mode) usage();
+      const port = Number(flagValue(argv, "--port") ?? "8402");
+      const { serveAttack } = await import("./merchant.js");
+      await serveAttack({ mode, port });
+      await new Promise(() => undefined);
+    }
     if (argv[1] !== "--mpp") usage();
     const port = Number(flagValue(argv, "--port") ?? "8402");
     const name = flagValue(argv, "--name") ?? "demo merchant";
@@ -289,6 +346,17 @@ async function main(): Promise<void> {
     process.stdout.write(historyCsv());
     return;
   }
+  if (argv[0] === "signer" && argv[1] === "account") {
+    const { enclaveIdentity } = await import("./signer.js");
+    const identity = await enclaveIdentity();
+    process.stdout.write(`${identity.accountId}\n${identity.publicKey}\n`);
+    return;
+  }
+  if (argv[0] === "signer" && argv[1] === "sweep") {
+    const { sweepAfterPremium } = await import("./sweep.js");
+    process.stdout.write(await sweepAfterPremium() + "\n");
+    return;
+  }
   if (argv[0] === "mcp") {
     const { serveMcp } = await import("./mcp.js");
     await serveMcp();
@@ -297,9 +365,8 @@ async function main(): Promise<void> {
   if (argv[0] === "agent") {
     const text = argv.slice(1).join(" ").trim();
     const { runAgent } = await import("./agent.js");
-    const accountId = process.env.BURSAR_NEAR_ACCOUNT;
-    if (!accountId) throw new Error("BURSAR_NEAR_ACCOUNT is required");
-    const report = await runAgent(text, accountId);
+    const { enclaveIdentity } = await import("./signer.js");
+    const report = await runAgent(text, (await enclaveIdentity()).accountId);
     process.stdout.write(report.text + "\n");
     process.exit(report.code);
   }
@@ -307,6 +374,37 @@ async function main(): Promise<void> {
     const { demoReport } = await import("./demo.js");
     const report = demoReport();
     process.stdout.write(report.text + "\n");
+    process.exit(report.code);
+  }
+  if (argv[0] === "code") {
+    if (argv.length !== 1) usage();
+    const { enclaveIdentity } = await import("./signer.js");
+    const { writeAccountCode } = await import("./code.js");
+    process.stdout.write(await writeAccountCode((await enclaveIdentity()).accountId));
+    return;
+  }
+  if (argv[0] === "scan") {
+    const file = argv[1];
+    if (!file || file.startsWith("--") || argv.length !== 2) usage();
+    const { decode } = await import("./code.js");
+    let text: string;
+    try {
+      text = decode(readFileSync(file));
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      if (message !== "STOP: account") throw error;
+      text = message;
+    }
+    process.stdout.write(`${text}\n`);
+    if (text === "STOP: account") process.exit(1);
+    return;
+  }
+  const commands = new Set(["check", "pay", "fund", "balance", "find", "pays", "merchant", "anchor", "history", "signer", "mcp", "agent", "demo", "code", "scan"]);
+  if (!commands.has(argv[0])) {
+    const { runAgent } = await import("./agent.js");
+    const { enclaveIdentity } = await import("./signer.js");
+    const report = await runAgent(argv.join(" "), (await enclaveIdentity()).accountId);
+    process.stdout.write(report.text.endsWith("\n") ? report.text : `${report.text}\n`);
     process.exit(report.code);
   }
   const args = parseArgs(argv);

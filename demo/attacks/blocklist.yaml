@@ -1,0 +1,7 @@
+id: blocklist
+title: Blocklisted recipient reported by bursar-reports.near
+stop: reported by bursar-reports.near
+blocklistAccount: badlist.near
+blocklistReporter: bursar-reports.near
+turns:
+  - pay 0.25 USDC to badlist.near
