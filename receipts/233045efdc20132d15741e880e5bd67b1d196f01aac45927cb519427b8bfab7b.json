@@ -3,12 +3,12 @@
   "inputs": {
     "quote": "49f68b2a025d13d3c27b35732f8b77a945bf9681195630312e796c978928a60e"
   },
-  "firmware_elf_sha256": "3bc277a53d1ac9cc359201997281e9eb363665915533628dfe198e3b92609ddd",
+  "firmware_elf_sha256": "8cb34279eb5d0528800beebb618b750c52bbddd792f61742dd1b01480523a2be",
   "chip_weights_sha256": "7d756fd40e9b6c4bd36ec3f4afea44f2d04d7269c27bc841e6f4aff96007a216",
   "output": "ok",
-  "trace_tokens": 168064,
-  "trace_sha256": "39a2a189c56d5133deb6d6d442491a4ce52cbab0e55fc4184c28bc8833bd2be1",
-  "wall_ms": 45311,
+  "trace_tokens": 168075,
+  "trace_sha256": "012ff4660a9758874db297372d4238e27c8e2904a65af89b657726ebc0ef8fd2",
+  "wall_ms": 46174,
   "runtime": "locals-mac",
-  "date": "2026-11-10"
+  "date": "2026-11-12"
 }

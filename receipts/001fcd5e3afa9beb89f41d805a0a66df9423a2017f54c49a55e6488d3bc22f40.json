@@ -3,12 +3,12 @@
   "inputs": {
     "payload": "9180d6b6d1757dfe47fbf702168d2df2cf4ef81e6812e1c4b0db77fdc34591fc"
   },
-  "firmware_elf_sha256": "3bc277a53d1ac9cc359201997281e9eb363665915533628dfe198e3b92609ddd",
+  "firmware_elf_sha256": "8cb34279eb5d0528800beebb618b750c52bbddd792f61742dd1b01480523a2be",
   "chip_weights_sha256": "7d756fd40e9b6c4bd36ec3f4afea44f2d04d7269c27bc841e6f4aff96007a216",
   "output": "signer: 0xbc77a1ef1ee04fc563ccb1d19e28dcc7385f136b\nverifying-contract: intents.near\ndeadline: 2026-11-15T06:52:56.487Z\nnonce: ERERERERERERERERERERERERERERERERERERERERERE=\nintents: 1\nintent[0]: transfer receiver=192641aeaa58eed5ea45ef04cc031d08bd4dd6b9c66de0c55429c30abaae020a tokens=1:nep141:17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1=250000",
   "trace_tokens": 156235,
-  "trace_sha256": "c1985dc1e4f7ab6f3fbc96443a806f42ee3c42f9d65d8f6942f369bd9efb439f",
-  "wall_ms": 43541,
+  "trace_sha256": "29364eb17256f2888d6756fa604ffb39dc0b90dd471f63755ca0d2beac9cc0bf",
+  "wall_ms": 50053,
   "runtime": "locals-mac",
   "date": "2026-11-12"
 }
