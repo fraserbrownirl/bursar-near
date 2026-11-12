@@ -151,8 +151,12 @@ Cause for a turn that ends with no reply: **code rule**. The same tool asked the
 
 Holdout held at 7/10, so a repeated tool question is still said once. One work case that had ended with no reply now passes.
 
+The holdout last rose at round 9, from 6/10 to 7/10. Round 10 held at 7/10. Round 11 fell to 6/10 and was reverted. Round 12 held at 7/10. Two rounds did not raise it, so the loop stops.
+
+The three holdout misses are `pay-link-56`, `pay-link-60`, and `receive-buyer`. The link replies never say USDC after a skill sentence, a prompt sentence, and a tool sentence. That cause is the model. `receive-buyer` still asks who the money is being sent to.
+
 ## Parked 207-case log
 
-The set was the 207 playbook cases. 50 were holdout. That run is not this eval.
+The set was the 207 playbook cases. 157 were work and 50 were holdout. That loop stopped after its round 3. The changes from its rounds 1–3 stay: quote and pay wait until a playbook has been read, a session has six turns, and a skills call in the same reply runs before quote or pay. The 167 cases Claude failed were not edited.
 
 Round 0 there: 9B 7/207, Claude 40/207. Round 1 holdout 3/50. Round 2 holdout 4/50.

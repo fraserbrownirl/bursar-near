@@ -1,0 +1,19 @@
+{
+  "brain": "grok",
+  "judge": "qwen",
+  "pass": 0,
+  "total": 1,
+  "at": "2026-11-11T14:23:55.533Z",
+  "scores": [
+    {
+      "id": "cross-base",
+      "category": "pay",
+      "pass": false,
+      "floor": "ok",
+      "judge": false,
+      "note": "missing judge",
+      "tools": [],
+      "owner": "XAI_API_KEY is not set"
+    }
+  ]
+}
