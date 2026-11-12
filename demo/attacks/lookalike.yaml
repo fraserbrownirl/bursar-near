@@ -1,6 +1,7 @@
 id: lookalike
 title: Look-alike name
-stop: look-alike of payee maya
+stop: look-alike
+check: look-alike
 payees:
   maya: maya.near
 turns:

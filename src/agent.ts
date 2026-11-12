@@ -8,10 +8,11 @@ import { isNearAccount } from "./account.js";
 import { loadBlocklist, trustedReporters } from "./blocklist.js";
 import { decide, formatCheck, type ChainFacts } from "./decide.js";
 import { scanForInstructions, injectionReason } from "./guard/injection.js";
+import { evidenceLine, guardReason, reasonForModel, type GuardReason } from "./guard/reason.js";
 import { append, readLedger } from "./guard/ledger.js";
 import { addressHit, paidAddresses } from "./guard/memory.js";
 import { loadFacts } from "./load.js";
-import { showAmount } from "./model.js";
+import { referenceChecksOnly, showAmount } from "./model.js";
 import { checkIntentInModel, checkQuoteInModel } from "./model-checks.js";
 import { readPayeeMap } from "./payees.js";
 import { settle } from "./pay.js";
@@ -307,6 +308,9 @@ export class Talk {
   depositShown = false;
   /** The last tool question, so a second copy is not another turn. */
   lastAsk = "";
+  /** Set when a guard blocks. The model explains it. The evidence line is printed under that sentence. */
+  evidence: { check: string; receipt: string } | null = null;
+  evidenceShown = false;
   readonly messages: unknown[];
 
   constructor() {
@@ -529,6 +533,23 @@ export function guardModel(text: string, call: ModelCall, facts: ChainFacts, now
   return { line, stop: stop ? line : null };
 }
 
+function cardLines(parts: string[]): string {
+  const lines = parts.filter((line) => line !== "");
+  if (referenceChecksOnly()) lines.push("reference checks only");
+  return lines.join("\n");
+}
+
+function showEvidence(lines: string[], talk: Talk): void {
+  if (!talk.evidence || talk.evidenceShown) return;
+  talk.evidenceShown = true;
+  reveal(lines, talk, evidenceLine(talk.evidence.check, talk.evidence.receipt));
+}
+
+function noteBlock(talk: Talk, reason: GuardReason, receipt = "none"): string {
+  talk.evidence = { check: reason.check, receipt };
+  return reasonForModel(reason);
+}
+
 function paymentLimit(): number | null {
   const path = join(dir(), "limits.json");
   if (!existsSync(path)) return null;
@@ -537,40 +558,59 @@ function paymentLimit(): number | null {
   return Number.isFinite(value) ? value : null;
 }
 
-/**
- * A pipeline stop before the model speaks. A clean sentence returns null.
- * The sentence names the attack. Nothing here signs.
- */
-export async function ownerStop(text: string, accountId: string, home = process.cwd()): Promise<string | null> {
-  const pasted = contentStops(splitTurn(text).content);
-  if (pasted) return `Stopped: ${pasted}`;
-  if (/\bfrom now on\b[^.\n]{0,60}\bpayee\b/i.test(text)) return "Stopped: a standing payee is not set in the chat.";
+function sourceOf(owner: string): string {
+  if (/\b(email|e-mail|emailed|correo)\b/i.test(owner)) return "email";
+  if (/\b(invoice|factura|发票)\b/i.test(owner)) return "pasted invoice";
+  return "pasted invoice";
+}
+
+/** Specific checks, then injection, on text the owner did not author as the instruction itself. */
+async function hostileTurn(text: string, accountId: string, home: string): Promise<GuardReason | null> {
+  const split = splitTurn(text);
+  const agreed = split.owner.match(/\b([0-9]+(?:\.[0-9]+)?)\s*usdc\b/i)?.[1];
+  if (split.content) {
+    const reason = guardReason(split.content, sourceOf(split.owner), agreed);
+    if (reason) return reason;
+  }
+  if (/\bfrom now on\b[^.\n]{0,60}\bpayee\b/i.test(text)) {
+    return { check: "standing-payee", evidence: "a standing payee is not set in the chat", attacker: "", source: "owner" };
+  }
   const limit = paymentLimit();
-  const namedAmount = text.match(/\b([0-9]+(?:\.[0-9]+)?)\s*usdc\b/i);
-  if (limit !== null && namedAmount?.[1] && Number(namedAmount[1]) > limit) return "Stopped: over the per-payment limit.";
+  if (limit !== null && agreed && Number(agreed) > limit) {
+    const source = process.env.BURSAR_ACTOR === "agent" ? "MCP agent" : "owner";
+    return { check: "limit", evidence: `asked ${agreed} USDC, limit ${limit}`, attacker: "", source };
+  }
   const png = text.match(/(\S+\.png)\b/);
   if (png?.[1] && existsSync(png[1])) {
     const { qrText } = await import("./code.js");
-    const findings = scanForInstructions([{ where: "qr", text: qrText(readFileSync(png[1])) }]);
-    if (findings.length > 0) return `Stopped: ${injectionReason(findings)}`;
+    const reason = guardReason(qrText(readFileSync(png[1])), "QR code");
+    if (reason) return reason;
   }
-  const url = text.match(/https?:\/\/\S+/);
-  if (url?.[0]) {
-    const response = await fetch(url[0]);
-    const body = await response.text();
-    const findings = scanForInstructions([{ where: response.status === 402 ? "402" : "page", text: body }]);
-    if (findings.length > 0) return `Stopped: ${injectionReason(findings)}`;
+  const local = text.match(/https?:\/\/(?:127\.0\.0\.1|localhost)(?::\d+)?\S*/);
+  if (local?.[0]) {
+    const response = await fetch(local[0]);
+    const reason = guardReason(await response.text(), "merchant", agreed);
+    if (reason) return reason;
   }
   if (/\b(account id|intents account)\b/i.test(text) && /\b(base|arbitrum|ethereum|solana)\b/i.test(text)) {
-    const chain = text.match(/\b(base|arbitrum|ethereum|solana)\b/i)?.[1] ?? "base";
-    const { receive } = await import("./receive.js");
-    const drawn = await receive({ accountId, chain, token: "USDC", amount: "0.1", dir: home });
-    return `Stopped: the Intents account is not the deposit address.\n${drawn.uri}`;
+    let evidence = "the Intents account is not the deposit address";
+    try {
+      const chain = text.match(/\b(base|arbitrum|ethereum|solana)\b/i)?.[1] ?? "base";
+      const { receive } = await import("./receive.js");
+      const drawn = await receive({ accountId, chain, token: "USDC", amount: agreed || "0.1", dir: home });
+      evidence = `${evidence}; deposit ${drawn.uri}`;
+    } catch {
+      evidence = `${evidence}; deposit lookup failed`;
+    }
+    return { check: "wrong-receive", evidence, attacker: "", source: "owner" };
   }
-  const addresses = text.match(/0x[a-fA-F0-9]{40}|[a-z0-9][a-z0-9._-]*\.near/gi) ?? [];
+  const addresses = split.owner.match(/0x[a-fA-F0-9]{40}|[a-z0-9][a-z0-9._-]*\.near/gi) ?? [];
   for (const receiver of addresses) {
     const sentence = await addressSentence(receiver);
-    if (sentence) return sentence;
+    if (sentence) {
+      const check = /reported by|blocklist/i.test(sentence) ? "blocklist" : "poison";
+      return { check, evidence: sentence, attacker: receiver, source: "owner" };
+    }
     const looked = decide({
       receiver,
       nowNs: BigInt(Date.now()) * 1_000_000n,
@@ -579,7 +619,9 @@ export async function ownerStop(text: string, accountId: string, home = process.
       payees: readPayeeMap(),
       blocklist: { path: "owner", accounts: {}, missing: false },
     });
-    if (looked.verdict === "block") return `Stopped: ${looked.reasons[0] ?? "block"}.`;
+    if (looked.verdict === "block" && /look-alike/i.test(looked.reasons[0] ?? "")) {
+      return { check: "look-alike", evidence: looked.reasons[0] ?? "look-alike", attacker: receiver, source: "owner" };
+    }
   }
   return null;
 }
@@ -606,11 +648,6 @@ export async function runAgent(text: string, accountId: string, talk: Talk = new
   const called: string[] = [];
   if (!accountId) return { text: "STOP: request", code: 1, tools: called };
   const pasted = contentStops(splitTurn(text).content);
-  const early = await ownerStop(text, accountId, dir);
-  if (early) {
-    reveal(lines, talk, early);
-    return { text: lines.join("\n"), code: 1, tools: called };
-  }
   talk.messages.push({ role: "user", content: text });
   let submitted = false;
   let finished = false;
@@ -626,7 +663,20 @@ export async function runAgent(text: string, accountId: string, talk: Talk = new
     const said = spoken(model.content ?? "");
     const receiving = model.calls.some((call) => call.name === "receive");
     if (model.calls.length === 0) {
+      if (!talk.evidence) {
+        const found = await hostileTurn(text, accountId, dir);
+        if (found) {
+          talk.messages.push({
+            role: "assistant",
+            content: said,
+            tool_calls: [{ id: "guard", type: "function", function: { name: "pay", arguments: "{}" } }],
+          });
+          talk.messages.push({ role: "tool", tool_call_id: "guard", content: noteBlock(talk, found) });
+          continue;
+        }
+      }
       say(lines, talk, said);
+      showEvidence(lines, talk);
       talk.messages.push({ role: "assistant", content: said });
       break;
     }
@@ -656,21 +706,22 @@ export async function runAgent(text: string, accountId: string, talk: Talk = new
       if (outcome === "submitted" || outcome === "card" || outcome === accountId || outcome === "STOP" || outcome.startsWith("STOP") || outcome.startsWith("Stopped")) finished = true;
       if (submitted || finished) break;
     }
-    if (submitted || finished || said.includes("?")) break;
+    if (submitted || finished) break;
+    if (said.includes("?") && !talk.evidence) break;
   }
-  const stopped = lines.some((line) => line.startsWith("Stopped:") || line.startsWith("guard: STOP") || line.startsWith("STOP"));
+  showEvidence(lines, talk);
+  const stopped = lines.some((line) => line.startsWith("Stopped:") || line.startsWith("guard: STOP") || line.startsWith("STOP") || line.startsWith("check:"));
   return { text: lines.join("\n"), code: finished || stopped || lines.length > 0 ? 0 : 1, tools: called };
 }
 
 async function runCall(text: string, call: ModelCall, accountId: string, lines: string[], talk: Talk, pasted: string | null, dir: string): Promise<string> {
+  if (talk.evidence) return `blocked\ncheck: ${talk.evidence.check}\nevidence: already blocked\nattacker:\nsource: owner\nThe payment is already blocked. Tell the owner in one or two sentences, in their language.`;
+  const found = await hostileTurn(text, accountId, dir);
+  if (found) return noteBlock(talk, found);
   if (call.name === "receive" || call.name === "quote" || call.name === "pay" || call.name === "pay_url" || call.name === "convert") {
     if (!sawSkill(talk)) return "call skills with no name, then with the playbook that fits";
   }
-  const guarded = ["understand", "pay", "quote", "convert", "receive", "watch", "scan", "balance", "find", "pay_url", "history", "payees"];
-  if (guarded.includes(call.name) && pasted) {
-    reveal(lines, talk, `Stopped: ${pasted}`);
-    return "STOP";
-  }
+  if (pasted && call.name === "pay") return noteBlock(talk, guardReason(pasted, sourceOf(splitTurn(text).owner)) ?? { check: "injection", evidence: pasted, attacker: pasted, source: sourceOf(splitTurn(text).owner) });
   if (call.name === "show_code") return "use receive";
   if (call.name === "receive") {
     if (!call.chain || !call.asset) return "missing chain or token";
@@ -803,8 +854,8 @@ async function runCall(text: string, call: ModelCall, accountId: string, lines: 
   if (call.name === "quote" || call.name === "pay") {
     const sentence = await addressSentence(expected.recipient);
     if (sentence) {
-      reveal(lines, talk, sentence);
-      return "STOP";
+      const check = /reported by|blocklist/i.test(sentence) ? "blocklist" : "poison";
+      return noteBlock(talk, { check, evidence: sentence, attacker: expected.recipient, source: "owner" });
     }
     if (call.to && call.to !== expected.recipient) {
       reveal(lines, talk, `Stopped: I understood ${expected.recipient}, and this call said ${call.to}.`);
@@ -816,12 +867,42 @@ async function runCall(text: string, call: ModelCall, accountId: string, lines: 
     ]);
     if (!talk.settle) {
       if (process.env.BURSAR_RELAY) {
-        const { relayStop } = await import("./relay.js");
-        const stop = relayStop(quote, expected, Math.floor(nowMs / 1000));
-        if (stop) {
-          reveal(lines, talk, `guard: STOP\nreason: ${stop}`);
-          return "STOP";
+        const { relayMode } = await import("./relay.js");
+        const mode = relayMode();
+        const nowSec = Math.floor(nowMs / 1000);
+        const receiptOf = (body: string) => body.match(/receipt ([0-9a-f]{64})/)?.[1] ?? "none";
+        if (mode === "extra-intent" || mode === "move-deadline") {
+          const signedDeadline = quote.quote.deadline ?? quote.quoteRequest.deadline;
+          const deadline = mode === "move-deadline" ? new Date(Date.parse(signedDeadline) + 60_000).toISOString() : signedDeadline;
+          const intents: Record<string, unknown>[] = [{
+            intent: "transfer",
+            receiver_id: quote.quote.depositAddress ?? "deposit.near",
+            tokens: { [expected.originAsset]: quote.quote.amountIn },
+          }];
+          if (mode === "extra-intent") intents.push({ intent: "add_public_key", public_key: "ed25519:x" });
+          const checked = await checkIntentInModel({
+            intent: {
+              payload: {
+                message: JSON.stringify({ signer_id: accountId, deadline, intents }),
+                nonce: Buffer.from("11".repeat(32), "hex").toString("base64"),
+                recipient: "intents.near",
+              },
+            },
+          }, accountId);
+          return noteBlock(talk, {
+            check: mode === "extra-intent" ? "extra-intent" : "deadline",
+            evidence: mode === "extra-intent" ? "2 intents; only a single transfer can be signed" : "deadline is later than the signed quote",
+            attacker: "",
+            source: "quote",
+          }, receiptOf(checked.lines));
         }
+        const checked = await checkQuoteInModel(quote, expected, nowSec);
+        return noteBlock(talk, {
+          check: "quote-signature",
+          evidence: "signature does not verify",
+          attacker: "",
+          source: "quote",
+        }, receiptOf(checked.lines));
       }
       const summary = `recorded quote amountIn ${quote.quote.amountIn} minAmountOut ${quote.quote.minAmountOut}`;
       if (call.name === "quote") return summary;
@@ -836,11 +917,10 @@ async function runCall(text: string, call: ModelCall, accountId: string, lines: 
         blocklist: await loadBlocklist(expected.recipient),
       });
       if (chain.verdict === "block") {
-        reveal(lines, talk, `Stopped: ${chain.reasons[0] ?? "block"}.`);
-        return "STOP";
+        return noteBlock(talk, { check: "block", evidence: chain.reasons[0] ?? "block", attacker: expected.recipient, source: "owner" });
       }
       const where = priced.dest.blockchain === "near" ? "" : ` on ${priced.dest.blockchain}`;
-      reveal(lines, talk, [`Send ${heard.human} ${priced.dest.symbol} to ${heard.to}${where}?`, chain.reasons[0] ?? "", "This cannot be undone."].filter((line) => line !== "").join("\n"));
+      reveal(lines, talk, cardLines([`Send ${heard.human} ${priced.dest.symbol} to ${heard.to}${where}?`, chain.reasons[0] ?? "", "This cannot be undone."]));
       return "card";
     }
     const nowSec = Math.floor(nowMs / 1000);
@@ -874,7 +954,7 @@ async function runCall(text: string, call: ModelCall, accountId: string, lines: 
       return plain;
     }
     const where = priced.dest.blockchain === "near" ? "" : ` on ${priced.dest.blockchain}`;
-    const card = [`Send ${heard.human} ${priced.dest.symbol} to ${heard.to}${where}?`, chain.reasons[0] ?? "", "This cannot be undone."].filter((line) => line !== "").join("\n");
+    const card = cardLines([`Send ${heard.human} ${priced.dest.symbol} to ${heard.to}${where}?`, chain.reasons[0] ?? "", "This cannot be undone."]);
     if (!talk.settle) {
       reveal(lines, talk, card);
       return "card";

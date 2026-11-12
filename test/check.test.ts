@@ -8,7 +8,7 @@ import { EMPTY_CODE_HASH, RECENT_NS, decide, formatCheck, type ChainFacts } from
 import { loadFacts } from "../src/load.js";
 import { parseCodeHash, parseCreatedNs, parseLatestDeployNs, parseOutgoingCount } from "../src/parse.js";
 import { verify } from "../src/guard/ledger.js";
-import { hostileList } from "../src/guard/memory.js";
+import { hostileList, addressHit, paidAddresses, poisonedBy } from "../src/guard/memory.js";
 
 const DAY = 24n * 60n * 60n * 1_000_000_000n;
 const NOW = 1_700_000_000_000_000_000n;
@@ -307,4 +307,20 @@ test("formatCheck prints the verdict and one evidence line per signal", () => {
   assert.match(text, /evidence account-age: /);
   assert.match(text, /\[NearBlocks\]/);
   assert.match(text, /^ledger: [0-9a-f]{64}$/m);
+});
+
+test("a look-alike of a paid address stops in one sentence, and a clean address says nothing", () => {
+  const paid = "0xC6b6469995A2292D719F2206242319e49a612696";
+  const twin = "0xC6b6461111111111111111111111111119a612696";
+  const other = "0x1111111111111111111111111111111111111111";
+  const entries = [{ kind: "settled", data: { recipient: paid } }, { kind: "decision", data: { recipient: other } }];
+  assert.deepEqual(paidAddresses(entries), [paid]);
+  assert.equal(poisonedBy(twin, [paid]), paid);
+  assert.equal(poisonedBy(paid, [paid]), undefined);
+  assert.equal(poisonedBy(other, [paid]), undefined);
+  const trusted = new Set(["agent-a.near"]);
+  assert.equal(addressHit(other, [paid], [], trusted, false), null);
+  assert.match(addressHit(twin, [paid], [], trusted, false) ?? "", /matches the start and end/);
+  assert.match(addressHit(other, [], [{ reporter: "agent-a.near" }], trusted, false) ?? "", /reported by agent-a.near/);
+  assert.equal(addressHit(other, [], [{ reporter: "stranger.near" }], trusted, false), null);
 });

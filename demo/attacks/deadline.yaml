@@ -1,6 +1,7 @@
 id: deadline
 title: Deadline moved past the signed quote
-stop: "STOP: deadline"
+stop: deadline
+check: deadline
 relay: hostile:move-deadline
 turns:
   - pay 0.25 USDC to frsrcom.near

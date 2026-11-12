@@ -10,7 +10,7 @@ export type TextSource = { where: string; text: string };
 export type InjectionFinding = { where: string; rule: string; excerpt: string };
 
 const RULES: { rule: string; pattern: RegExp }[] = [
-  { rule: "ignore-instructions", pattern: /\b(ignore|disregard|forget|override|bypass)\b[^.\n]{0,40}\b(instruction|instructions|limit|limits|rule|rules|polic(y|ies)|invoice|previous|prior|above|check|checks)\b/i },
+  { rule: "ignore-instructions", pattern: /\b(ignore|disregard|forget|override|bypass|ignora)\b[^.\n]{0,40}\b(instruction|instructions|limit|limits|l[ií]mites|limites|rule|rules|polic(y|ies)|invoice|previous|prior|above|check|checks)\b|忽略你的限制|忽略.{0,6}限制/i },
   { rule: "claimed-authority", pattern: /\b(operator|owner|admin|administrator|user|developer|system)\b[^.\n]{0,30}\b(has approved|approved|authori[sz]ed|pre-approved|signed off)\b/i },
   { rule: "directive-to-agent", pattern: /\b(you|agent|assistant|model|bursar)\b[^.\n]{0,20}\b(must|should|are required to|need to|will now)\b[^.\n]{0,30}\b(pay|send|transfer|approve|sign)\b/i },
   { rule: "payment-order", pattern: /\b(pay|send|transfer|approve)\b[^.\n]{0,20}\b\d[\d,.]*\s*(usdc|usdt|usd|sol|near|xlm|eth)\b[^.\n]{0,40}\bto\b/i },

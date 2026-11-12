@@ -1,6 +1,7 @@
 id: extra-intent
 title: Extra intent added to the generated intent
-stop: "STOP: 2 intents"
+stop: extra-intent
+check: extra-intent
 relay: hostile:extra-intent
 turns:
   - pay 0.25 USDC to frsrcom.near

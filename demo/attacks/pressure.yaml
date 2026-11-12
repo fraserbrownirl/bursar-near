@@ -1,6 +1,7 @@
 id: pressure
 title: Pressure from the merchant
-stop: lose access
+stop: pressure
+check: pressure
 merchant: pressure
 turns:
   - pay the 402 at {url}

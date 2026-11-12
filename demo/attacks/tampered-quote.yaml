@@ -1,6 +1,7 @@
 id: tampered-quote
 title: Tampered quote with the recipient swapped and the signature broken
-stop: "STOP: bad signature"
+stop: quote-signature
+check: quote-signature
 relay: hostile:break-signature
 turns:
   - pay 0.25 USDC to frsrcom.near

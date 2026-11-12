@@ -112,6 +112,57 @@ export function lookalikeOf(payTo: string, payees: Readonly<Record<string, strin
   return undefined;
 }
 
+/** Address poisoning: the same start and end as an address already paid, and a different middle. */
+export function poisonedBy(address: string, previous: readonly string[]): string | undefined {
+  const left = body(address);
+  if (left.length < 10) return undefined;
+  for (const prior of previous) {
+    const right = body(prior);
+    if (right.length < 10 || right === left) continue;
+    if (left.slice(0, 4) === right.slice(0, 4) && left.slice(-4) === right.slice(-4) && left.slice(4, -4) !== right.slice(4, -4)) {
+      return prior;
+    }
+  }
+  return undefined;
+}
+
+function body(address: string): string {
+  return address.trim().toLowerCase().replace(/^0x/, "");
+}
+
+/** Recipients of settled payments. `recipient` is what a settlement records. `receiver` is the older field. */
+export function paidAddresses(entries: readonly { kind: string; data: Record<string, unknown> }[]): string[] {
+  const out: string[] = [];
+  for (const entry of entries) {
+    if (entry.kind !== "settled") continue;
+    for (const key of ["recipient", "receiver"]) {
+      const value = entry.data[key];
+      if (typeof value === "string" && value !== "" && !out.includes(value)) out.push(value);
+    }
+  }
+  return out;
+}
+
+/**
+ * Silent address check. Null when the address is clean.
+ * One sentence when it shares the start and end of an address already paid, or a trusted blocklist report matches.
+ */
+export function addressHit(
+  receiver: string,
+  previous: readonly string[],
+  reports: readonly { reporter: string }[],
+  trusted: ReadonlySet<string>,
+  blocklistMissing: boolean,
+): string | null {
+  if (blocklistMissing) return "The blocklist file is missing.";
+  const prior = poisonedBy(receiver, previous);
+  if (prior) return `That address matches the start and end of ${prior}, which was paid before.`;
+  for (const report of reports) {
+    if (report.reporter !== "" && trusted.has(report.reporter)) return `That address was reported by ${report.reporter}.`;
+  }
+  return null;
+}
+
 export type MemoryVerdict =
   | { stop: false }
   | { stop: true; reason: string; mark: { kind: HostileKind; value: string }[] };

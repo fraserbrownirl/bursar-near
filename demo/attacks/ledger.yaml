@@ -1,6 +1,7 @@
 id: ledger
 title: Tampered ledger
-stop: ledger line
+stop: ledger
+check: ledger
 also: does not match
 ledger: true
 turns: []
