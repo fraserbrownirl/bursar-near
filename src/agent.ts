@@ -882,6 +882,11 @@ async function runCall(text: string, call: ModelCall, accountId: string, lines: 
     talk.depositShown = true;
     const { watchUntilReceived } = await import("./receive.js");
     const line = await watchUntilReceived({ accountId, chain: call.chain, token: call.asset, amount: call.amount });
+    if (line === "waiting") {
+      const empty = `No payment arrived in 15 minutes. The watch is over.`;
+      reveal(lines, talk, empty);
+      return `Stopped: ${empty}`;
+    }
     reveal(lines, talk, line);
     return line;
   }

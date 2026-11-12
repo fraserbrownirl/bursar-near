@@ -33,7 +33,7 @@ export type PrepareInput = {
 };
 
 export type Prepared =
-  | { ok: true; signText: string; depositAddress: string; check: CheckBody }
+  | { ok: true; signText: string; depositAddress: string; amountIn: string; check: CheckBody }
   | { ok: false; stop: string };
 
 export type CheckResult =
@@ -139,6 +139,7 @@ export async function preparePayment(input: PrepareInput, over: Partial<PrepareD
     ok: true,
     signText: exact.text,
     depositAddress: deposit,
+    amountIn: quote.quote.amountIn,
     check: { quote, request, nowSec, intent, accountId: input.accountId },
   };
 }

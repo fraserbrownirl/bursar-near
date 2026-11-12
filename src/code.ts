@@ -26,27 +26,24 @@ function moduleOn(modules: { size: number; get: (row: number, col: number) => bo
 }
 
 /**
- * Half-block QR. One module is one character wide, and two module rows share
- * a line, so the code stays square in a terminal and does not wrap. Blocks
- * are the light modules, so the code reads dark-on-light on a black terminal,
- * the way a phone camera and jsQR scan it.
+ * Solid-cell QR. Each module is a background-coloured cell, two spaces wide
+ * when the terminal is broad enough, one when it is not. Backgrounds fill
+ * the whole line box, so the cells touch: a phone camera and jsQR read the
+ * screen, where glyph rows with leading between them did not scan.
  */
 export function terminalQr(text: string, columns = process.stdout.columns || 80): string {
   const symbol = create(text, { errorCorrectionLevel: "M" });
   const modules = symbol.modules;
   const quiet = 4;
   const span = modules.size + quiet * 2;
-  const scale = Math.max(1, Math.min(2, Math.floor((Math.max(columns, span) - 1) / span)));
+  const cell = columns >= span * 2 ? "  " : " ";
   const lines: string[] = [];
-  for (let row = 0; row < span; row += 2) {
+  for (let row = -quiet; row < modules.size + quiet; row += 1) {
     let line = "";
-    for (let col = 0; col < span; col += 1) {
-      const top = moduleOn(modules, row - quiet, col - quiet);
-      const bottom = moduleOn(modules, row - quiet + 1, col - quiet);
-      const glyph = top && bottom ? " " : top ? "▄" : bottom ? "▀" : "█";
-      line += glyph.repeat(scale);
+    for (let col = -quiet; col < modules.size + quiet; col += 1) {
+      line += moduleOn(modules, row, col) ? `\x1b[40m${cell}` : `\x1b[47m${cell}`;
     }
-    lines.push(line);
+    lines.push(`${line}\x1b[0m`);
   }
   return lines.join("\n") + "\n";
 }
