@@ -56,7 +56,9 @@ The 9B request in `src/model.ts` is text. It has no image. A receipt is read by 
 
 # Split bill
 
-Run on 2026-11-12, `npm run bursar -- agent "a friend says I owe my share, 0.15 USDT on Gnosis"`.
+The scene is the restaurant receipt above: the owner gives the image and asks a friend for half, and Bursar states the share and shows a receive request. The less-common-chain version is dropped.
+
+Dropped run, 2026-11-12, `npm run bursar -- agent "a friend says I owe my share, 0.15 USDT on Gnosis"`.
 
 ```
 You mentioned USDT on Gnosis, but I only handle USDC. Do you want to pay 0.15 USDC instead?

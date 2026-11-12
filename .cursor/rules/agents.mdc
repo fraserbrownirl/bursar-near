@@ -5,8 +5,18 @@ alwaysApply: true
 
 # Agent map
 
-Read `AGENTS.md` before editing. It names the file that holds each fact. A dated note in `docs/` is not the current pin.
+Read `AGENTS.md` before editing. It names the file that holds each fact, what Bursar is, what the demo must show, and the rules that have already cost time. A dated note in `docs/` is not the current pin. There is no separate guide file.
 
 `npm run check:agents` (`scripts/check-agents.mjs`) fails when a repo path in backticks is missing, or when the enclave id, the home folder, or the firmware hashes in `AGENTS.md` differ from their sources. `npm run check:readme` runs that check. Update the map in the same change that moves a file it names or changes one of those facts.
 
-Do not spend, sign, push, submit, or post without Fraser's yes in this conversation. Do not write `~/.bursar`.
+The last check before signing runs inside the model, and you can replay it. Three attacks stop inside the model: tampered quote, extra intent, and a moved deadline. Sixteen stop in code around the model. A scam that fools the request itself is a code stop. The phone has no model. It sends the quote check and the intent check to Bursar-9B on the Mac, standing in for Bursar-2B, and the card says `checked by Bursar-9B on the Mac`.
+
+The owner types sentences in `bursar`. A flagged command is a test helper until the model calls it from a plain sentence. Done means that sentence was run and the "Owner sees" column in `AGENTS.md` was checked. Code never matches words in owner text to decide what the owner wants. The 9B gets the whole conversation each turn and chooses the tools.
+
+Agents make demo payments of 1 USDC or less without asking. Agents do not make payments above 1 USDC. Touch ID, Face ID, scanning with Fraser's phone, sending money in, making the repository public, posting, and submitting are Fraser's. If you need one, say which and why, in one line. Agents merge `demo-payments` and `demo-attacks` into `main` after each change and push `main`. Fraser has approved pushing for the rest of the hackathon.
+
+Never overwrite or delete a tracked receipt or its input. Never read or write `~/.bursar`. A key lives in the Secure Enclave or the login Keychain, not in `.env`, the repo, a command line, a log, or the model's context.
+
+`README.md`, `AGENTS.md`, `docs/`, and `receipts/` are edited on `main` only. Do not put one lane's edits on the other lane's branch.
+
+Do not restart the model server, rebuild the firmware, or rebuild the pack outside the firmware lane. Submission closes 14 November 2026, 23:59 UTC.

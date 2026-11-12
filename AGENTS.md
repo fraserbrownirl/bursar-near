@@ -58,12 +58,12 @@ The enclave id is the `p256` account in `test/fixtures/implicit-accounts.json` a
 ## Working rules
 
 - `README.md`, `AGENTS.md`, `docs/`, and `receipts/` are edited on `main` only.
-- Branch `demo-payments` owns payment demos and payment rows in `demos/results.md`. Branch `demo-attacks` owns `attacks/` and `npm run demo:attacks`. Each merges into `main` after a change. Do not put one branch's edits on the other.
+- Branch `demo-payments` owns payment demos and payment rows in `demos/results.md`. Branch `demo-attacks` owns `attacks/` and `npm run demo:attacks`. Each merges into `main` after a change, and that merge is pushed. Fraser has approved pushing `main` for the rest of the hackathon. Do not put one branch's edits on the other.
 - Two homes. `~/.bursar` is the Solana project. Do not read or write it. This project uses `~/.bursar-near`, or `BURSAR_HOME` when set.
 - Do not restart the model server, and do not rebuild firmware or the pack, outside the firmware lane.
 - A key lives in the Secure Enclave or the login Keychain. It does not go in `.env`, the repo, or a command line.
 - A change the iPhone would run is installed and launched on FRSR’s iPhone before Fraser is asked to try it. The steps are in `.cursor/rules/phone.mdc`.
-- Code does not match words in what the owner typed to decide what they want. On every turn the 9B sees the conversation so far and the tool results, and it chooses the next tool or the next question. A tool reads a file, divides a total, or builds a receive request. It does not read the sentence. The harness does one mechanical thing to owner input: a line that is a path to an image is attached to the turn. The same question twice is a bug in what the model was shown, not a new code branch.
+- Code never matches words in owner text to decide what the owner wants. The 9B gets the whole conversation each turn and chooses the tools. A tool reads a file, divides a total, or builds a receive request. It does not read the sentence. The harness does one mechanical thing to owner input: a line that is a path to an image is attached to the turn.
 
 ## Do not
 
@@ -133,7 +133,7 @@ Four real payments, run by Fraser on camera, then a film of attacks. The runshee
 | 1 | Shop sale | On the Mac: "a buyer will pay 0.15 USDC on Solana" | A QR in the terminal. The shopper's iPhone Bursar scans it, shows the card, Face ID, "Paid" and a link. The Mac prints "Received". | A phone camera decodes the QR, the phone pays it, and "Received" prints in the same session. |
 | 2 | Paid web page (MPP) | "pay http://127.0.0.1:8402/premium" | The 402 price and recipient, the card, Touch ID, the page content, a transaction link. | The official SDK example server, unmodified, returns the content and the link opens. |
 | 3 | Paid API (x402) | "find me a weather API", then "pay for one call" | The service and price, the card, the weather, a Basescan link. | The weather is returned and the link opens. |
-| 4 | Split bill | Pastes a friend's message naming a coin, chain, amount and address | "I understood…", the card, Touch ID, "Paid" and a link. | The friend's address receives that coin on that chain. The coin is one 1Click lists, on a chain other than NEAR, Ethereum, Base, Arbitrum, Solana and Bitcoin. |
+| 4 | Split bill | Gives a restaurant receipt image and asks a friend for half | The share, and a receive request the friend can pay | The stated share is half the receipt total, and the receive request is for that amount. |
 
 The attack film leads with the three in-model stops and a replay of one receipt, then shows four code stops. The table is `attacks/README.md`.
 
@@ -174,7 +174,7 @@ Do not restart the model server, rebuild the firmware, or rebuild the pack outsi
 
 ## Only Fraser does these
 
-Touch ID and Face ID, scanning with his phone, sending money in, pushing, making the repo public, posting on X, and submitting. If you need one of these, say exactly which one and why, in one line. Everything else is yours to finish.
+Touch ID and Face ID, scanning with his phone, sending money in, making the repo public, posting on X, and submitting. If you need one of these, say exactly which one and why, in one line. Everything else is yours to finish.
 
 ## When something fails
 
@@ -189,7 +189,7 @@ Report the exact error text, the command or sentence that produced it, and what 
 | iPhone | The shopper's phone scans a QR and pays it with Face ID. | The phone app and its bundle |
 | Main | The README matches reality, and a fresh clone passes `npm test`, `npm run verify`, `npm run verify:firmware` and `npm run verify:weights`. | `README.md`, `AGENTS.md`, `docs/`, `receipts/` |
 
-Do not put one lane's edits on another lane's branch. `demo-payments` and `demo-attacks` merge into `main` after each change.
+Do not put one lane's edits on another lane's branch. `demo-payments` and `demo-attacks` merge into `main` after each change, and that merge is pushed. Fraser has approved pushing `main` for the rest of the hackathon.
 
 ## Deadline
 
