@@ -1,5 +1,7 @@
 # Agent eval
 
+Superseded for the live eval by `eval/rounds.md`. This file is only the 30-conversation harness.
+
 `npm run eval:agent` scores a language model on 30 conversations. It does not use the ETH Evals coding harness. It does not submit a payment.
 
 The set is [eval/agent/conversations.json](../eval/agent/conversations.json). A test checks that the file has 30 conversations and that the categories are everyday 6, words 4, saved 4, invoice 4, injection 5, multi 4, ambiguous 3.

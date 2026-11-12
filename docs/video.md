@@ -1,5 +1,7 @@
 # Video script
 
+Superseded as a description of the product by `README.md`. This file is a recording script.
+
 Under three minutes. Every command below has been run. Do not add a Base payment or a Ping payment. Neither was sent.
 
 ## 0:00 to 0:20

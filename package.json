@@ -22,7 +22,8 @@
     "model": "sh scripts/start-model.sh",
     "demo:web": "vite --config web/vite.config.ts",
     "build:web": "vite build --config web/vite.config.ts",
-    "check:readme": "node scripts/check-readme.mjs",
+    "check:readme": "node scripts/check-readme.mjs && node scripts/check-agents.mjs",
+    "check:agents": "node scripts/check-agents.mjs",
     "demo:agents": "tsx src/demo-agents.ts",
     "bursar": "tsx src/cli.ts"
   },

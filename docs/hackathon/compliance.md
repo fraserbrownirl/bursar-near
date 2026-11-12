@@ -1,6 +1,6 @@
 # Compliance
 
-Snapshot fetched 2026-11-10T13:06:52Z. An `open` row is unfinished.
+Snapshot fetched 2026-11-11T11:27:13Z. An `open` row is unfinished.
 
 | Rule | Quoted text | What this repo does | Proof | Status |
 | --- | --- | --- | --- | --- |
@@ -21,7 +21,7 @@ Snapshot fetched 2026-11-10T13:06:52Z. An `open` row is unfinished.
 | Q-014 | "add a LICENSE file." | MIT licence file. | `LICENSE` | met |
 | Q-015 | "One person, several projects?" | There is no second NEAR Hackathon entry. The Solana payment in Links is one transaction, not another submission. | README Links | n/a |
 | Q-016 | "Single payment, no vesting, within 30 days of results." | Organizer schedule. Nothing to build. | snapshot | n/a |
-| Q-017 | "reproducibility check, feature verification" | Do this, see that has exact output fences. `npm run check:readme` re-runs them. | `scripts/check-readme.mjs` | met |
+| Q-017 | "reproducibility check, feature verification" | Do this, see that has exact output fences. `npm run check:readme` re-runs them and then runs `scripts/check-agents.mjs`. | `scripts/check-readme.mjs`, `scripts/check-agents.mjs` | met |
 | field requestId | "UUID, generated once per submission" | Not generated. | — | open |
 | field projectName | "2-80 characters" | Not submitted. | — | open |
 | field leadName | "2-80 characters" | Not submitted. | — | open |
@@ -37,10 +37,10 @@ Snapshot fetched 2026-11-10T13:06:52Z. An `open` row is unfinished.
 | never X | "Post anything on X or another network on their behalf." | Not posted. | — | open |
 | never public | "Make the repository public, push, or force-push." | Not done from this change. | — | open |
 | never sign | "Sign transactions, spend tokens or deploy to mainnet." | Deploy, reporter funding, the report, `anchor`, and the 0.25 USDC payment were sent after a yes. | README Links, `docs/hackathon/evidence.json` | open |
-| never secrets | "Commit secrets." | No key file is added here. | — | open |
+| never secrets | "Commit secrets." | No key file is added. `.env` stays gitignored. | `.gitignore` | open |
 | submit repo | "The repository is public, and the README has do X, see Y steps" | The steps are in the README. Public state is not changed here. | README Do this, see that | open |
 | submit post | "Your demo post is live on X" | No post. | — | open |
 | submit payout | "You have a mainnet NEAR account for the prize payout" | Not collected. | — | open |
 | submit tracks | "You've selected every track your project fits" | Named in the README, not submitted. | README Tracks | open |
-| submit secrets | "There are no keys or secrets anywhere in the repo history" | Not re-scanned in this change. | — | open |
+| submit secrets | "There are no keys or secrets anywhere in the repo history" | 2026-11-12 scan of every commit on the pushed branches: no private-key block, no JWT, no `ghp_`/`sk-`/`AKIA`, no `.env` path in history. A gitignored `.env` is on disk and is not committed. `ed25519:` values in `test/fixtures/quote-*.json` are quote signatures. | `git rev-list --all`; `.gitignore` | met |
 | submit deadline | "You're submitting before Nov 14, 2026, 23:59 UTC" | Not submitted. Today in the snapshot fetch is 2026-11-10. | snapshot header | open |

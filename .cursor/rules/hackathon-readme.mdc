@@ -58,7 +58,7 @@ Rules this repo must keep met (re-check them against the snapshot):
 ## Sync with the code
 
 - Any commit that changes behaviour, a command, an output line, a fixture, a contract address or a dependency updates the README and `docs/hackathon/compliance.md` in the same commit.
-- `npm run check:readme` (script in `scripts/check-readme.mjs`) must pass before every commit. It fails when:
+- `npm run check:readme` (script in `scripts/check-readme.mjs`) must pass before every commit. That script also runs `scripts/check-agents.mjs`. It fails when:
   - a required README section is missing or out of order;
   - a command shown in "Do X, see Y" is not a script in `package.json` or a valid `npm run bursar --` subcommand;
   - an expected output line in "Do X, see Y" or the demo attacks list does not appear in a fresh run of that command;
@@ -75,6 +75,6 @@ From the snapshot, quoted exactly in `compliance.md`: sending the submission, po
 
 Development and submission close 2026-11-14 23:59 UTC. Before submitting:
 1. Run the SUBMITTING.md checklist from the snapshot; every item is `met` in `compliance.md`.
-2. `npm install && npm test && npm run demo && npm run verify && npm run check:readme` pass on a fresh clone.
+2. `npm install && npm test && npm run demo && npm run verify && npm run check:readme` pass on a fresh clone. `check:readme` runs `check:agents`.
 3. Tag `hackathon-submission`; update the diff link.
 4. Show Fraser the full submission payload (name, lead, email, team size, tracks, payout account, repository link, demo post link, description of 20–2,000 characters) and wait for a yes.

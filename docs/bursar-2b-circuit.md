@@ -1,6 +1,8 @@
 # Bursar-2B circuit
 
-Measured 2026-11-11. The 9B circuit is the same build as before this slimming: 11 layers, 2918 dims, 103 heads, 42114 MLP units, max 8149 units in one MLP. Its firmware and the trace `6d4827eb18025c05ed19a22fa792856cd058e7cc4b3a275e555046815acd9a07` are not this file.
+Superseded for the firmware pin by `firmware/README.md`. Measured 2026-11-11. The hashes below are that measurement, not the current pin.
+
+The 9B circuit measured here is the build before the slim image: 11 layers, 2918 dims, 103 heads, 42114 MLP units, max 8149 units in one MLP. Its firmware and the trace `6d4827eb18025c05ed19a22fa792856cd058e7cc4b3a275e555046815acd9a07` are not this file.
 
 The 2B host is stock Qwen3.5-2B: hidden 2048, 16 key heads, 16 value heads, MLP 6144. No widening. Ballast 0. `pick_hidden` is not used. The computer is placed in that hidden size.
 

@@ -1,0 +1,12 @@
+---
+description: Where a new agent finds the current state of this repo
+alwaysApply: true
+---
+
+# Agent map
+
+Read `AGENTS.md` before editing. It names the file that holds each fact. A dated note in `docs/` is not the current pin.
+
+`npm run check:agents` (`scripts/check-agents.mjs`) fails when a repo path in backticks is missing, or when the enclave id, the home folder, or the firmware hashes in `AGENTS.md` differ from their sources. `npm run check:readme` runs that check. Update the map in the same change that moves a file it names or changes one of those facts.
+
+Do not spend, sign, push, submit, or post without Fraser's yes in this conversation. Do not write `~/.bursar`.

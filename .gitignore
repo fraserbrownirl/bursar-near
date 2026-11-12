@@ -4,3 +4,13 @@ web/dist
 contract/target
 anchor/target
 .env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.keystore
+credentials.json
+id_rsa
+id_ed25519
+signer/bursar-signer

@@ -1,0 +1,14 @@
+{
+  "observed": "2026-11-11 POST https://bridge.chaindefuser.com/rpc method deposit_address account_id 0xbc77a1ef1ee04fc563ccb1d19e28dcc7385f136b",
+  "base": { "address": "0xcA7cb8405484Ca0E4C941a22Ed1399E401b378dB", "chain": "eth:8453" },
+  "sol": { "address": "BHQBpzsUNHzhZfD2jrxwwcp1FcduvdLjTh5x4DkzvEkp", "chain": "sol:mainnet" },
+  "btc": { "address": "bc1qk6nr5qg6wqnstph729l855elfnq5a88f9jl3gf", "chain": "btc:mainnet" },
+  "near": { "address": "55e2f60a86c011c55a7c54394cc5e276ad0c2aaa4b3598da6f5efdb99631382e", "chain": "near:mainnet" },
+  "baseUsdc": {
+    "defuse_asset_identifier": "eth:8453:0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+    "origin_chain_address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+    "decimals": 6,
+    "asset_name": "USDC"
+  },
+  "recent_deposits": { "deposits": [], "total": 0, "hasMore": false, "limit": 20, "offset": 0 }
+}
