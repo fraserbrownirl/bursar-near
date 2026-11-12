@@ -1,6 +1,6 @@
 # Compliance
 
-Snapshot fetched 2026-11-12T10:16:00Z. The body hash is unchanged. An `open` row is unfinished.
+Snapshot fetched 2026-11-12T15:15:15Z. The body hash is unchanged from 10:16:00Z. An `open` row is unfinished.
 
 | Rule | Quoted text | What this repo does | Proof | Status |
 | --- | --- | --- | --- | --- |
@@ -14,14 +14,14 @@ Snapshot fetched 2026-11-12T10:16:00Z. The body hash is unchanged. An `open` row
 | Q-007 | "Testnet for Intents? None exists or is planned." | Quotes are captured mainnet 1Click responses. No Intents testnet is called. | `test/fixtures/quote-live.json` | met |
 | Q-008 | "Testnet NEAR is free" | No faucet is used by `npm test`. | `package.json` script `test` | n/a |
 | Q-009 | "Public RPC free" | The check reads `https://rpc.mainnet.near.org`. | `src/decide.ts` | met |
-| Q-010 | "Testnet-only projects eligible?" | This project reads mainnet. | README Links | n/a |
+| Q-010 | "Testnet-only projects eligible?" | This project reads mainnet. | README Mainnet record | n/a |
 | Q-011 | "Own contract on NEAR that fits the track is enough." | `contract/` is the blocklist contract. | `contract/src/lib.rs` | met |
-| Q-012 | "Hosted demo is a plus; keep it up to 2026-11-18, ideally 2026-11-25." | The page exists in `web/` and is not published. No X post. | README Links | open |
+| Q-012 | "Hosted demo is a plus; keep it up to 2026-11-18, ideally 2026-11-25." | The page exists in `web/` and is not published (the URL 404s today). No X post. | README Links | open |
 | Q-013 | "Team keeps all rights" | No rights assignment is in the repo. | LICENSE is MIT | n/a |
 | Q-014 | "add a LICENSE file." | MIT licence file. | `LICENSE` | met |
-| Q-015 | "One person, several projects?" | There is no second NEAR Hackathon entry. The Solana payment in Links is one transaction, not another submission. | README Links | n/a |
+| Q-015 | "One person, several projects?" | There is no second NEAR Hackathon entry. bursar-solana was built for the Solana hackathon and is not a NEAR Hackathon entry. | README What is not NEAR | n/a |
 | Q-016 | "Single payment, no vesting, within 30 days of results." | Organizer schedule. Nothing to build. | snapshot | n/a |
-| Q-017 | "reproducibility check, feature verification" | Do this, see that has exact output fences. `npm run check:readme` re-runs them and then runs `scripts/check-agents.mjs`. | `scripts/check-readme.mjs`, `scripts/check-agents.mjs` | met |
+| Q-017 | "reproducibility check, feature verification" | Do this, see that has exact output fences. `npm run check:readme` re-runs them and then runs `scripts/check-agents.mjs`. A fresh clone passes `npm install`, `npm test` (147), `npm run demo`, `npm run verify`, and `npm run check:readme`. Levels 2-3 run with nothing but the repo: the emulator is vendored in `vendor/`, the pins are in `requirements-verify.txt`, and the pack and tokenizer download from Hugging Face hash-checked. | `scripts/check-readme.mjs`, `scripts/check-agents.mjs`, `scripts/setup-verify.sh` | met |
 | field requestId | "UUID, generated once per submission" | Not generated. | — | open |
 | field projectName | "2-80 characters" | Not submitted. | — | open |
 | field leadName | "2-80 characters" | Not submitted. | — | open |
@@ -36,11 +36,11 @@ Snapshot fetched 2026-11-12T10:16:00Z. The body hash is unchanged. An `open` row
 | never submit | "Send the submission." | Not sent. | — | open |
 | never X | "Post anything on X or another network on their behalf." | Not posted. | — | open |
 | never public | "Make the repository public, push, or force-push." | Not done from this change. | — | open |
-| never sign | "Sign transactions, spend tokens or deploy to mainnet." | Deploy, reporter funding, the report, `anchor`, and the 0.25 USDC payment were sent after a yes. | README Links, `docs/hackathon/evidence.json` | open |
+| never sign | "Sign transactions, spend tokens or deploy to mainnet." | Deploy, reporter funding, the report, `anchor`, and the 0.25 USDC payment were sent after a yes. | README Mainnet record, `docs/hackathon/evidence.json` | open |
 | never secrets | "Commit secrets." | No key file is added. `.env` stays gitignored. | `.gitignore` | open |
 | submit repo | "The repository is public, and the README has do X, see Y steps" | The steps are in the README. Public state is not changed here. | README Do this, see that | open |
 | submit post | "Your demo post is live on X" | No post. | — | open |
 | submit payout | "You have a mainnet NEAR account for the prize payout" | Not collected. | — | open |
 | submit tracks | "You've selected every track your project fits" | Named in the README, not submitted. | README Tracks | open |
 | submit secrets | "There are no keys or secrets anywhere in the repo history" | 2026-11-12 scan of every commit on the pushed branches: no private-key block, no JWT, no `ghp_`/`sk-`/`AKIA`, no `.env` path in history. A gitignored `.env` is on disk and is not committed. `ed25519:` values in `test/fixtures/quote-*.json` are quote signatures. | `git rev-list --all`; `.gitignore` | met |
-| submit deadline | "You're submitting before Nov 14, 2026, 23:59 UTC" | Not submitted. Today in the snapshot fetch is 2026-11-10. | snapshot header | open |
+| submit deadline | "You're submitting before Nov 14, 2026, 23:59 UTC" | Not submitted. Today in the snapshot fetch is 2026-11-12. | snapshot header | open |

@@ -10,6 +10,8 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 
 function python(): string {
   if (process.env.BURSAR_PYTHON) return process.env.BURSAR_PYTHON;
+  const vendored = join(root, ".venv-verify/bin/python");
+  if (existsSync(vendored)) return vendored;
   const mac = process.env.BURSAR_ETHEREUS_MAC ?? join(root, "../ethereus-mac");
   const candidate = join(mac, ".venv/bin/python");
   return existsSync(candidate) ? candidate : "python3";

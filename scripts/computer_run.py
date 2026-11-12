@@ -17,17 +17,23 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def ethereus_mac() -> Path:
+    """The directory the vendored `locals` package is imported from."""
     env = os.environ.get("BURSAR_ETHEREUS_MAC")
     if env:
         return Path(env)
-    sibling = ROOT.parent / "ethereus-mac"
-    if (sibling / "locals" / "models" / "tracehash.py").exists():
-        return sibling
-    raise SystemExit("set BURSAR_ETHEREUS_MAC to the ethereus-mac checkout")
+    vendored = ROOT / "vendor"
+    if (vendored / "locals" / "models" / "tracehash.py").exists():
+        return vendored
+    raise SystemExit("vendor/locals is missing; see vendor/README.md")
 
 
 CHIP_SHA256 = "7d756fd40e9b6c4bd36ec3f4afea44f2d04d7269c27bc841e6f4aff96007a216"
+CHIP_JSON_SHA256 = "21c2cbd6fa2f1a9c5fd85f28c92881423f0514ac69b3f3db2c1ab4951353f164"
+SNAPSHOT_SHA256 = "24a41dcea12ebcea0294a0cd27b726cea5dbbe0abe6eb25f14c51c01ea87ade3"
 ELF_SHA256 = "8cb34279eb5d0528800beebb618b750c52bbddd792f61742dd1b01480523a2be"
+TOKENIZER_SHA256 = "87a7830d63fcf43bf241c3c5242e96e62dd3fdc29224ca26fed8ea333db72de4"
+TOKENIZER_REPO = "mlx-community/Qwen3.5-9B-MLX-4bit"
+TOKENIZER_REVISION = "938d8919941c6e7efd3c7150eff7fe9d12afa631"
 HF_REPO = "frsrcom/bursar-9b"
 HF_REVISION = "74eae8ef09d0d4508c60b17724a5c491bd0e3e68"
 
@@ -64,6 +70,12 @@ def pack_for(want_elf: str | None) -> Path:
     got = _sha256(weights)
     if got != CHIP_SHA256:
         raise SystemExit(f"weights {got} is not {CHIP_SHA256}")
+    for name, want in (("chip.json", CHIP_JSON_SHA256), ("snapshot.safetensors", SNAPSHOT_SHA256)):
+        path = pack / name
+        if path.is_file():
+            got = _sha256(path)
+            if got != want:
+                raise SystemExit(f"{name} {got} is not {want}")
     if not want_elf:
         return pack
     current = pack / "eth-bridge.elf"
@@ -84,15 +96,35 @@ def pack_for(want_elf: str | None) -> Path:
 
 
 def tokenizer_path() -> Path:
+    """Qwen3.5's tokenizer.json, downloaded from Hugging Face and checked against the pin."""
     env = os.environ.get("BURSAR_TOKENIZER")
     if env:
         path = Path(env)
         return path if path.name == "tokenizer.json" else path / "tokenizer.json"
-    hits = sorted(Path.home().glob(
-        ".cache/huggingface/hub/models--mlx-community--Qwen3.5-9B-MLX-4bit/snapshots/*/tokenizer.json"))
-    if not hits:
-        raise SystemExit("set BURSAR_TOKENIZER to a Qwen3.5 tokenizer.json")
-    return hits[-1]
+    from huggingface_hub import hf_hub_download
+    path = Path(hf_hub_download(TOKENIZER_REPO, "tokenizer.json", revision=TOKENIZER_REVISION))
+    got = _sha256(path)
+    if got != TOKENIZER_SHA256:
+        raise SystemExit(f"tokenizer.json {got} is not {TOKENIZER_SHA256}")
+    return path
+
+
+def eth_src() -> Path:
+    """config.json, chipformer.json and tokenizer.json in one folder.
+
+    The two JSON files are committed under firmware/checkpoint/; the tokenizer
+    is the pinned download. ETH_SRC overrides the folder for upstream work.
+    """
+    env = os.environ.get("ETH_SRC")
+    if env:
+        return Path(env)
+    import tempfile
+    tmp = Path(tempfile.mkdtemp(prefix="bursar-eth-src-"))
+    committed = ROOT / "firmware" / "checkpoint"
+    for name in ("config.json", "chipformer.json"):
+        os.symlink(committed / name, tmp / name)
+    os.symlink(tokenizer_path(), tmp / "tokenizer.json")
+    return tmp
 
 
 def tool_text(cmd: str) -> str:
@@ -115,7 +147,7 @@ def output_of(echo: str) -> str:
 def run(cmd: str, files: dict[str, str] | None = None) -> dict:
     mac = ethereus_mac()
     sys.path.insert(0, str(mac))
-    os.environ.setdefault("LOCALS_CHIPFORMER", str(Path.home() / "Dev/ethereus/experimental/riscv"))
+    os.environ.setdefault("LOCALS_CHIPFORMER", str(ROOT / "vendor"))
     want_elf = os.environ.get("BURSAR_RECEIPT_ELF") or None
     pack = pack_for(want_elf)
     os.environ["LOCALS_ETH_PACK"] = str(pack)
@@ -143,13 +175,26 @@ def run(cmd: str, files: dict[str, str] | None = None) -> dict:
         planned = plan(cmd, len(enc(fw.call_text(cmd))), files, enc)
         if planned:
             image = fw.firmware_with_files(elf, planned.files, planned.eth_in)
-            src = Path(os.environ.get("ETH_SRC") or Path.home() / "Dev/ethereus-artifacts/2026-11-02/q9-store-rv")
+            src = eth_src()
             tmp = Path(tempfile.mkdtemp(prefix="bursar-chip-"))
             os.symlink(weights, tmp / "chip.safetensors")
             os.symlink(pack / "chip.json", tmp / "chip.json")
             add_snapshot(tmp, firmware_states(src, image))
             pack = tmp
             shown = planned.short or cmd
+    if not files:
+        stock_elf = pack_dir() / "eth-bridge.elf"
+        if want_elf and (not stock_elf.is_file() or _sha256(stock_elf) != want_elf):
+            # The snapshot is the parked state of the ELF it runs with: a receipt
+            # pinned to another ELF (the repo's firmware/eth-bridge.elf) cannot
+            # replay on the pack's stock snapshot.
+            import tempfile
+            from locals.models.qwenputer import add_snapshot, firmware_states
+            staged = Path(tempfile.mkdtemp(prefix="bursar-chip-"))
+            os.symlink(pack / "chip.safetensors", staged / "chip.safetensors")
+            os.symlink(pack / "chip.json", staged / "chip.json")
+            add_snapshot(staged, firmware_states(eth_src(), elf))
+            pack = staged
     cpu = CpuChip(pack)
     st = cpu.new_state(1)
     cpu(cpu.embed([enc(PROMPT)]), st)

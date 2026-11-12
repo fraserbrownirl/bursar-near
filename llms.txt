@@ -1,55 +1,48 @@
 # Bursar NEAR
 
-Bursar is a terminal tool and an MCP service. It checks a counterparty, then pays from a NEAR Intents balance. The Mac app is planned.
+Bursar is a payment agent for one owner, built for the NEAR Hackathon. The owner types a plain sentence in `bursar`; Bursar-9B, a Qwen3.5-9B with a small computer compiled into its weights, reads it and calls a tool; code guards check the request; the last two checks before anything is signed (the quote check and the intent check) run inside the model's weights and each writes a receipt that anyone can replay.
+
+## The claim
+
+The last check before signing runs inside the model, and you can replay it. Three attacks stop inside the model (tampered quote, extra intent, moved deadline); sixteen stop in code around the model; a scam that fools the request itself is a code stop. The phone has no model: it sends the two checks to Bursar-9B on the Mac, and the card says `checked by Bursar-9B on the Mac`.
+
+## Verify
+
+From a fresh clone (`README.md` has the expected output of each command):
+
+- `npm test` — 147 tests, offline, exits 0.
+- `npm run demo` — prints thirteen attack stops, offline.
+- `npm run verify` — level 1: every committed receipt matches the TypeScript reference; exits non-zero on any MISMATCH.
+- `npm run setup:verify` — one-time: builds `.venv-verify` (Python 3.11+, pins in `requirements-verify.txt`). The emulator is vendored in `vendor/`; the pack and tokenizer download from Hugging Face and are hash-checked.
+- `npm run verify:firmware -- <receipt-hash>` — level 2: the committed `firmware/eth-bridge.elf`, run in the emulator on the receipt's input, produces the receipt's output. Seconds.
+- `npm run verify:weights -- <receipt-hash>` — level 3: the published weights replay the receipt's output and trace hash. About a minute for the README's example; about half an hour for the three attack receipts.
+
+The three in-model attack receipts: `e82bac8d6412bced1e61104c55db91755d9b856f55a33f5199ad52889021308c` (tampered quote), `ffc61f718f8c80e0db9b296863931d746e435fd98657026b4055b4cd5dac9ffb` (extra intent), `8f0df9fcf77797672a0e461d667ba198edc4aedc4db9574913d3c986f77ca488` (deadline). The attack film is `attacks/video/highlights-v6.mp4` (77 s); the table with clips is `attacks/README.md`.
+
+## Payments (mainnet, USDC)
+
+- 0.25 to frsrcom.near: https://nearblocks.io/txns/8iEQeRWP1GTKvdHVUmGTiZvsPrd6DCCitrNCF3CQXYCb
+- MPP page (official SDK example server, unmodified), 0.10: https://nearblocks.io/txns/GuVNPesYiw4NqTuCTPJmEPUcQn1ttuWZRDsAWrTw6BKG
+- Enclave (Secure Enclave P-256 account) payment, 0.02: https://nearblocks.io/txns/6dHJgrwAXxc9u4BBntdkAH9qjHkDPkzi1WxacwjWQ44Z
+- x402 weather API call, 0.001 on Base: https://basescan.org/tx/0x50c5acc7a2de4fbcccde1fd4ab77ca5c6bd1bed2eb5f03ab9a18eff1529cbb70
+- Blocklist contract `bursar-reports.near` and the ledger anchor: see `docs/hackathon/evidence.json`.
 
 ## Commands
 
+- `bursar` opens the owner session. Sentences, not flags. The model calls the tools.
 - `bursar check <receiver>` prints allow, warn, or block before a key is used.
-- `bursar agent "<request>"` pays from a sentence. A warn prints its reasons and asks `approve? [y/N]`. The answer is a ledger decision. A block does not ask.
-- `bursar agent "pay 0.25 USDC to <0x address> on Base"` quotes Base USDC with recipientType DESTINATION_CHAIN. A live 0.25 Base payment was not sent: after the NEAR payment the Intents balance was 50000 (0.05 USDC), and no Base float key was in the Keychain.
+- `bursar mcp` serves pay, check, balance, and history on stdio, with the same guards and the same guarded signer. A STOP is a tool error.
 - `bursar history --csv` prints date, recipient, chain, amount, fee, verdict, transaction, receipts.
-- `bursar mcp` serves pay, check, balance, and history on stdio. Those tools use the same checks, guards, and guarded signer. A STOP is a tool error.
-- `bursar` with no arguments prints usage. There is no chat command.
 
-## MCP
+## Keys
 
-Claude Desktop, `~/Library/Application Support/Claude/claude_desktop_config.json`:
-
-```json
-{
-  "mcpServers": {
-    "bursar": {
-      "command": "npm",
-      "args": ["run", "bursar", "--", "mcp"],
-      "cwd": "/absolute/path/to/bursar-near"
-    }
-  }
-}
-```
-
-Cursor, `.cursor/mcp.json`:
-
-```json
-{
-  "mcpServers": {
-    "bursar": {
-      "command": "npm",
-      "args": ["run", "bursar", "--", "mcp"],
-      "cwd": "/absolute/path/to/bursar-near"
-    }
-  }
-}
-```
-
-## What was run
-
-- 0.25 USDC to frsrcom.near. The warn was account age under 14 days. The ledger records human `y` and prompt `approve?`. Transaction: https://nearblocks.io/txns/8iEQeRWP1GTKvdHVUmGTiZvsPrd6DCCitrNCF3CQXYCb. After it, `mt_balance_of` for frsrcom.near was 250000 and the payer's Intents balance was 50000.
-- `BURSAR_PING_KEY` is empty. No Ping payment was sent.
-- The hosted demo is not published.
+Payment keys are device-bound passkeys in the Secure Enclave (Mac and iPhone), not exportable, one signature per biometric approval; the enclave key signs only one transfer to the signed quote's deposit address. The blocklist's `report` and `anchor` are called by a function-call key with deposit 0. Keys never enter the repo, `.env`, a command line, a log, or the model's context.
 
 ## Tracks
 
-- security: the guarded signer, the quote checks, and `npm run verify`. TEE attestation is not used. The three verify levels are the check.
-- agents: `bursar agent` and `bursar mcp`.
-- realworld: the mainnet payment above.
-- privacy: the model is requested at http://127.0.0.1:8000/v1/chat/completions. The key stays in the macOS Keychain.
+- security: spending limits, policy engine, sandboxed signer, on-chain blocklist, scam detection, function-call keys. TEE attestation is not used; the three verify levels are the check.
+- agents: the owner session and `bursar mcp`; payments through NEAR Intents; x402 API payment on Base.
+- realworld: merchant payment (MPP), invoicing (receive requests, split bill), USDC rails between Solana, Base, Arbitrum and NEAR.
+- privacy: the model runs locally (runtime `locals-mac`); no inference provider; keys in the Secure Enclave or the login Keychain.
+
+Model: https://huggingface.co/frsrcom/bursar-9b

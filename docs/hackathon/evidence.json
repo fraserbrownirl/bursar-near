@@ -281,6 +281,18 @@
   },
   {
    "date": "2026-11-12",
+   "kind": "phone-check",
+   "account": "0x304e29ea3a04a8693d9b5ff362cee0016f586ff5",
+   "amount": "150000",
+   "display": "0.15",
+   "asset": "USDC",
+   "chain": "solana",
+   "quote_receipt": "ef55dfea92041cf97b34c8589dce3e946e427a6d465c78fbf384098fd01cc945",
+   "intent_receipt": "4e52f82c6e25673ad47e53b5aef4ca6b8ec3f66f43deeca54a5caf60c71c32aa",
+   "note": "iPhone shop QR through the model relay: /prepare and /check ran on Bursar-9B on the Mac. The payment itself is pending the owner's scan."
+  },
+  {
+   "date": "2026-11-12",
    "kind": "x402",
    "url": "https://x402.tbs-digital.com/weather/current?city=London",
    "amount": "1000",

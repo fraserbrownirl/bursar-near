@@ -26,3 +26,4 @@ scripts/ocr
 scripts/__pycache__
 .DS_Store
 /bursar-code.png
+/.venv-verify

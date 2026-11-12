@@ -10,15 +10,19 @@ const failures = [];
 
 const headings = [
   "# Bursar NEAR",
-  "## Links",
-  "## Verify the computer in the weights yourself",
-  "## Why on-device, and why verifiable",
-  "## What is real and what is simulated",
   "## The problem",
+  "## The claim",
+  "## The film",
+  "## Links",
   "## Do this, see that",
+  "## Demo attacks",
+  "## Payment demos",
+  "## How NEAR is used",
   "## Tracks",
   "## How it works",
-  "## Demo",
+  "## What is real and what is simulated",
+  "## Why on-device, and why verifiable",
+  "## Mainnet record",
   "## What is not NEAR",
   "## Hackathon diff",
   "## Libraries",
@@ -82,8 +86,7 @@ function fences(body) {
   }
 }
 
-fences(section("## Do this, see that", "## Tracks"));
-fences(section("## Demo", "## What is not NEAR"));
+fences(section("## Do this, see that", "## Demo attacks"));
 
 function cited() {
   const values = new Set();

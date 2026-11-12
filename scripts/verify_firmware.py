@@ -1,9 +1,9 @@
 """Check the committed ELF, then run it on one receipt.
 
-The machine is chipformer's RV32IM reference (`ref.Machine`). The source
-tree is not in this repository. Install the emulator with:
+The machine is chipformer's RV32IM reference (`ref.Machine`), vendored in
+`vendor/` (see vendor/README.md). One-time setup:
 
-    python3.13 -m pip install -e ../ethereus/experimental/riscv
+    npm run setup:verify
 
 LOADED_SHA256 is the SHA-256 of the pinned ELF's loadable segments.
 """
@@ -32,7 +32,7 @@ from computer_run import (  # noqa: E402
 
 ELF = ROOT / "firmware" / "eth-bridge.elf"
 README = ROOT / "firmware" / "README.md"
-INSTALL = "python3.13 -m pip install -e ../ethereus/experimental/riscv"
+INSTALL = "npm run setup:verify"
 
 
 def sha256_file(path: Path) -> str:
@@ -55,9 +55,9 @@ def firmware_src() -> Path:
     env = os.environ.get("BURSAR_FIRMWARE_SRC")
     if env:
         return Path(env)
-    sibling = ROOT.parent / "ethereus" / "experimental" / "riscv"
-    if (sibling / "chipformer").is_dir():
-        return sibling
+    vendored = ROOT / "vendor"
+    if (vendored / "chipformer").is_dir():
+        return vendored
     raise SystemExit(INSTALL)
 
 
@@ -135,6 +135,7 @@ def chip_v0() -> int:
 def newer_python() -> str | None:
     candidates = [
         os.environ.get("BURSAR_PYTHON"),
+        str(ROOT / ".venv-verify" / "bin" / "python"),
         str(ROOT.parent / "ethereus" / "experimental" / "riscv" / ".venv" / "bin" / "python"),
         str(ROOT.parent / "ethereus-mac" / ".venv" / "bin" / "python"),
     ]

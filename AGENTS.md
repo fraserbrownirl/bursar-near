@@ -29,10 +29,10 @@ transfer to another account: STOP: receiver_id not-the-deposit.near
 4. `npm run check:agents`. Prints `agents ok`.
 5. `npm run check:readme`. Prints `check:readme ok`, then `agents ok`, because that script runs this check. It fails when the header of `docs/hackathon/HACKATHON.md` or `docs/hackathon/SUBMITTING.md` is older than 24 hours.
 
-`npm run verify:weights` and `npm run model` need the pack. `npm run verify:firmware` needs the chipformer emulator. Do not start them from `demo-payments` or `demo-attacks`.
+`npm run verify:weights` and `npm run model` need the pack. `npm run verify:firmware` needs the vendored emulator. Do not start them from `demo-payments` or `demo-attacks`.
 
 - `npm run model` starts the server on port 8000.
-- `npm run verify:firmware -- <receipt-hash>` checks `firmware/eth-bridge.elf` against the pin in `firmware/README.md`, then runs that ELF in the emulator on the receipt's input and compares the output. The emulator is installed with `python3.13 -m pip install -e ../ethereus/experimental/riscv`. `npm run verify:weights` takes receipt hashes. With no hashes it reads every file in `receipts/`.
+- `npm run setup:verify` builds `.venv-verify` (Python 3.11+, the pins in `requirements-verify.txt`). `npm run verify:firmware -- <receipt-hash>` checks `firmware/eth-bridge.elf` against the pin in `firmware/README.md`, then runs that ELF in the emulator on the receipt's input and compares the output. The emulator and the computer are vendored in `vendor/` (see `vendor/README.md`); the pack and the tokenizer download from Hugging Face and are checked against the SHA-256 pins in `scripts/computer_run.py`. `npm run verify:weights` takes receipt hashes. With no hashes it reads every tracked file in `receipts/`.
 - `npm run demo:attacks` needs the server.
 
 `npm run verify` does not need the pack. It checks git-tracked receipts only. Each input is stored under `receipts/inputs/` as the SHA-256 of its bytes, and a later run does not overwrite that file.
@@ -164,7 +164,7 @@ A key lives in the Secure Enclave or the login Keychain. Never in `.env`, the re
 
 1Click: dry-quote first. Small amounts can fall under a route's minimum. The intent deadline must equal the signed quote's deadline. `PENDING_DEPOSIT` means 1Click has not seen the money. `PROCESSING` means it has. Only submit a deposit hash for the first.
 
-Draw a QR with half-block characters, one character per module, with a quiet margin. Check the terminal width first. Always print the PNG path too. Verify a QR by decoding a screenshot of the terminal, not the PNG. Record in Terminal.app. The Cursor terminal adds gaps between lines.
+Draw a QR with solid background-colour cells, one module per cell, with a quiet margin. Backgrounds fill the whole line box, so the cells touch; glyph QRs (half-block characters) do not scan in Terminal.app, where line leading cuts the grid. Check the terminal width first. Always print the PNG path too. Verify a QR by decoding a screenshot of the terminal, not the PNG. Record in Terminal.app. The Cursor terminal adds gaps between lines.
 
 The phone's JavaScript engine has no web globals: no `URL`, `URLSearchParams`, `fetch`, `TextEncoder`, `crypto`, `setTimeout`, `atob`. Supply them once, in one shim file or from Swift. Run the phone bundle under the bare `jsc` binary on the Mac before putting a build on the phone.
 
