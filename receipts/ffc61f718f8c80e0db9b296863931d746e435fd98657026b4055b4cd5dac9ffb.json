@@ -1,0 +1,14 @@
+{
+  "cmd": "intents dec @payload",
+  "inputs": {
+    "payload": "1f7f724a15d0d3a771a6dcbcadc7f1758be007fea73620fe8c0b997ec49275d1"
+  },
+  "firmware_elf_sha256": "8cb34279eb5d0528800beebb618b750c52bbddd792f61742dd1b01480523a2be",
+  "chip_weights_sha256": "7d756fd40e9b6c4bd36ec3f4afea44f2d04d7269c27bc841e6f4aff96007a216",
+  "output": "error (unsupported intent)",
+  "trace_tokens": 106541,
+  "trace_sha256": "a063bb390881faa5034e76a732fb7ba330fde2c438ba1fefc8eb2f656279d7c4",
+  "wall_ms": 51082,
+  "runtime": "locals-mac",
+  "date": "2026-11-12"
+}

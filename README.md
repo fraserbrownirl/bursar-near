@@ -212,19 +212,19 @@ Set `MERCHANT_RECIPIENT` in `.env` to the judge's NEAR account, then `pnpm examp
 ## attack-1
 
 Attacker swaps the recipient in the quote.
-`npm run verify:weights -- 19bb44d07b2ad9c53a9c6c45537692fcf6ad73d11ce16bfbad07613b220dfd2b`
+`npm run verify:weights -- e82bac8d6412bced1e61104c55db91755d9b856f55a33f5199ad52889021308c`
 [Tampered quote](attacks/README.md#attack-1)
 
 ## attack-2
 
 Attacker adds a second action that hands over a key.
-`npm run verify:weights -- 03ab408edde888e4d2df3773bbc323a3c10c4df41f3b64b790d07addb651ae0a`
+`npm run verify:weights -- ffc61f718f8c80e0db9b296863931d746e435fd98657026b4055b4cd5dac9ffb`
 [Extra intent](attacks/README.md#attack-2)
 
 ## attack-3
 
 Attacker moves the deadline.
-`npm run verify:weights -- 99cb5c26997eaab4df6efbd621e742cb45de897d1bb906ba0285df8b1f4a9034`
+`npm run verify:weights -- 8f0df9fcf77797672a0e461d667ba198edc4aedc4db9574913d3c986f77ca488`
 [Deadline](attacks/README.md#attack-3)
 
 ## attack-4

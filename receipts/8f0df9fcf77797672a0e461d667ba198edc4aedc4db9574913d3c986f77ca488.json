@@ -1,0 +1,14 @@
+{
+  "cmd": "intents dec @payload",
+  "inputs": {
+    "payload": "7bdd81ada7305a84b95a58205b6ce938c2f4b79c053d721870ec2f4c98a9af23"
+  },
+  "firmware_elf_sha256": "8cb34279eb5d0528800beebb618b750c52bbddd792f61742dd1b01480523a2be",
+  "chip_weights_sha256": "7d756fd40e9b6c4bd36ec3f4afea44f2d04d7269c27bc841e6f4aff96007a216",
+  "output": "signer: 0xbc77a1ef1ee04fc563ccb1d19e28dcc7385f136b\nverifying-contract: intents.near\ndeadline: 2026-11-15T14:04:51.126Z\nnonce: ERERERERERERERERERERERERERERERERERERERERERE=\nintents: 1\nintent[0]: transfer receiver=a8a172b33400ad9c009ce991550fbea1ccf419e819f3fd3034045207b6c42d0f tokens=1:nep141:17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1=250000",
+  "trace_tokens": 156235,
+  "trace_sha256": "1b896302ddc6a90f2a312b23019ef6bf292e9e5c82f6028a6f3abc41d4ec4c60",
+  "wall_ms": 72662,
+  "runtime": "locals-mac",
+  "date": "2026-11-12"
+}
