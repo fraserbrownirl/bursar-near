@@ -5,7 +5,9 @@ import { evidenceLineFits, FONT_SIZE, tapeFor } from "../src/attack-record.js";
 import { editDistance } from "../src/guard/memory.js";
 import { evidenceLine, factTokens, guardReason, translationKeeps, wrapWords } from "../src/guard/reason.js";
 import { hostileQuote } from "../src/relay.js";
-import { readFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { reviewQuote, type SignedQuote } from "../src/quote.js";
 
 const root = new URL("../attacks/", import.meta.url);
@@ -80,7 +82,9 @@ test("a translation that drops or alters a value is rejected", () => {
 test("the results table names where the attack stopped and keeps the control payment", () => {
   const row: AttackRow = { id: "invoice", attack: "Injected invoice", stop: "Stopped. x / check: injection receipt: none", stopped: "code", request: "guard", signed: "no", receipt: "none", pass: true, fallback: false };
   const quoted: AttackRow = { id: "tampered-quote", attack: "Tampered quote", stop: "Stopped. x / check: quote-signature receipt: 19bb44d07b2ad9c53a9c6c45537692fcf6ad73d11ce16bfbad07613b220dfd2b", stopped: "model", request: "9B", signed: "no", receipt: "19bb44d07b2ad9c53a9c6c45537692fcf6ad73d11ce16bfbad07613b220dfd2b", pass: true, fallback: false };
-  const body = resultsDocument([row, quoted], "| Enclave payment, kept |\n");
+  const takes = mkdtempSync(join(tmpdir(), "bursar-takes-"));
+  writeFileSync(join(takes, "v4-tampered-quote-tmwdeax1a.mp4"), "");
+  const body = resultsDocument([row, quoted], "| Enclave payment, kept |\n", takes);
   assert.match(body, /## Stopped inside the model\n/);
   assert.match(body, /## Stopped by code around the model/);
   assert.match(body, /\| attack \| STOP sentence \| stopped \| request \| signed \| receipt \| clip \|/);

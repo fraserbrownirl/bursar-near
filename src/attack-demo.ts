@@ -387,8 +387,11 @@ const FILM: Record<string, number> = {
   "invoice-zh": 7,
 };
 
-function latestClip(id: string): string {
-  const directory = fileURLToPath(new URL("../attacks/takes/", import.meta.url));
+function takesDirectory(): string {
+  return fileURLToPath(new URL("../attacks/takes/", import.meta.url));
+}
+
+function latestClip(id: string, directory = takesDirectory()): string {
   if (!existsSync(directory)) return "";
   const names = readdirSync(directory)
     .filter((name) => new RegExp(`^v\\d+-${id}-t[0-9a-z]+\\.mp4$`).test(name))
@@ -408,15 +411,15 @@ function receiptCell(hash: string): string {
   return existsSync(path) ? `[${hash}](../../receipts/${hash}.json)` : hash;
 }
 
-function clipCell(id: string): string {
-  const name = latestClip(id);
+function clipCell(id: string, directory?: string): string {
+  const name = latestClip(id, directory);
   return name ? `[${name}](takes/${name})` : "none";
 }
 
-export function table(rows: AttackRow[]): string {
+export function table(rows: AttackRow[], directory?: string): string {
   const lines = ["| attack | STOP sentence | stopped | request | signed | receipt | clip |", "| --- | --- | --- | --- | --- | --- | --- |"];
   for (const row of rows) {
-    lines.push(`| ${attackCell(row)} | ${row.stop.replaceAll("|", "/")} | ${row.stopped} | ${row.request} | ${row.signed} | ${receiptCell(row.receipt)} | ${clipCell(row.id)} |`);
+    lines.push(`| ${attackCell(row)} | ${row.stop.replaceAll("|", "/")} | ${row.stopped} | ${row.request} | ${row.signed} | ${receiptCell(row.receipt)} | ${clipCell(row.id, directory)} |`);
   }
   return `${lines.join("\n")}\n`;
 }
@@ -432,7 +435,7 @@ function orderInside(rows: AttackRow[]): AttackRow[] {
   return [...rows].sort((a, b) => INSIDE_ORDER.indexOf(a.id) - INSIDE_ORDER.indexOf(b.id));
 }
 
-export function resultsDocument(rows: AttackRow[], preserved = ""): string {
+export function resultsDocument(rows: AttackRow[], preserved = "", directory?: string): string {
   const inside = rows.filter((row) => row.stopped !== "code");
   const around = rows.filter((row) => row.stopped === "code");
   const tail = preserved && !preserved.endsWith("\n") ? `${preserved}\n` : preserved;
@@ -440,11 +443,11 @@ export function resultsDocument(rows: AttackRow[], preserved = ""): string {
   return [
     "## Stopped inside the model",
     "",
-    table(ordered).trimEnd(),
+    table(ordered, directory).trimEnd(),
     "",
     "## Stopped by code around the model",
     "",
-    table(around).trimEnd(),
+    table(around, directory).trimEnd(),
     "",
     verifyCommands(ordered).trimEnd(),
     "",

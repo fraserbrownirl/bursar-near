@@ -23,3 +23,6 @@ attacks/takes/*.tape
 # Build artifacts
 signer/bursar-signer
 scripts/ocr
+scripts/__pycache__
+.DS_Store
+/bursar-code.png

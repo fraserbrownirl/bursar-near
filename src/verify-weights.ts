@@ -1,5 +1,6 @@
 import { spawnSync } from "node:child_process";
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { listReceipts, type Receipt } from "./receipt.js";
@@ -18,20 +19,26 @@ type Run = { output: string; trace_tokens: number; trace_sha256: string; wall_ms
 
 function computer(cmd: string, files?: Record<string, string>, elf?: string): Run {
   const args = [join(root, "scripts/computer_run.py"), cmd];
+  let staging = "";
   if (files && Object.keys(files).length > 0) {
-    const path = join(root, "receipts/inputs", `.${process.pid}.json`);
+    staging = mkdtempSync(join(tmpdir(), "bursar-inputs-"));
+    const path = join(staging, "files.json");
     writeFileSync(path, JSON.stringify(files));
     args.push(path);
   }
-  const result = spawnSync(python(), args, {
-    encoding: "utf8",
-    env: { ...process.env, ...(elf ? { BURSAR_RECEIPT_ELF: elf } : {}) },
-  });
-  if (result.status !== 0) {
-    process.stderr.write(result.stderr || result.stdout || "computer run failed\n");
-    process.exit(result.status ?? 1);
+  try {
+    const result = spawnSync(python(), args, {
+      encoding: "utf8",
+      env: { ...process.env, ...(elf ? { BURSAR_RECEIPT_ELF: elf } : {}) },
+    });
+    if (result.status !== 0) {
+      process.stderr.write(result.stderr || result.stdout || "computer run failed\n");
+      process.exit(result.status ?? 1);
+    }
+    return JSON.parse(result.stdout) as Run;
+  } finally {
+    if (staging) rmSync(staging, { recursive: true, force: true });
   }
-  return JSON.parse(result.stdout) as Run;
 }
 
 async function main(): Promise<void> {

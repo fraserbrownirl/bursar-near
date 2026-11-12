@@ -26,7 +26,7 @@ export async function selfTestModel(): Promise<boolean> {
     nonce: "11".repeat(32),
     intents: [],
   });
-  const live = await liveCall("intents dec @payload", { payload: Buffer.from(payload, "utf8").toString("hex") });
+  const live = await liveCall("intents dec @payload", { payload: Buffer.from(payload, "utf8").toString("hex") }, { record: false });
   if (!live.value || !live.receipt) {
     referenceOnly = true;
     process.stderr.write("in-model check failed: reference checks only\n");
@@ -47,8 +47,13 @@ export function referenceUi(atomic: string, decimals: number): string {
 
 export type LiveCall = { value: string | null; receipt?: string };
 
-/** One in-weights call. `files` are the `@name` buffers, stored on the receipt by SHA-256. */
-export async function liveCall(cmd: string, files: Record<string, string> = {}): Promise<LiveCall> {
+/**
+ * One in-weights call. `files` are the `@name` buffers, stored on the receipt
+ * by SHA-256. A probe (`record: false`) never writes a receipt: the self-test
+ * is not evidence, and an offline `npm test` must leave the tree untouched.
+ */
+export async function liveCall(cmd: string, files: Record<string, string> = {}, options: { record?: boolean } = {}): Promise<LiveCall> {
+  const record = options.record !== false;
   const headers: Record<string, string> = { "content-type": "application/json" };
   if (process.env.BURSAR_MODEL_KEY) headers.authorization = `Bearer ${process.env.BURSAR_MODEL_KEY}`;
   const span = process.env.BURSAR_ATTACK_SPAN;
@@ -90,7 +95,7 @@ export async function liveCall(cmd: string, files: Record<string, string> = {}):
     const matched = text.match(/<tool_response>\n?([\s\S]*?)\n?<\/tool_response>/);
     const value = matched?.[1]?.trim() || null;
     const trace = body.computer?.[body.computer.length - 1];
-    if (value && trace?.trace_sha256 && trace.firmware_elf_sha256 && trace.chip_weights_sha256 && process.env.BURSAR_RECORD_RECEIPTS !== "0") {
+    if (value && trace?.trace_sha256 && trace.firmware_elf_sha256 && trace.chip_weights_sha256 && record && process.env.BURSAR_RECORD_RECEIPTS !== "0") {
       const inputs: Record<string, string> = {};
       const inputDir = join(receiptsDir(), "inputs");
       if (Object.keys(files).length > 0) mkdirSync(inputDir, { recursive: true });
