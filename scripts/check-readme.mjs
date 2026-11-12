@@ -1,7 +1,7 @@
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { dirname, join, posix } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -108,6 +108,21 @@ for (const account of readme.match(/\b[a-z0-9][a-z0-9._-]*\.(?:near|testnet)\b(?
 }
 
 if (!existsSync(join(root, "LICENSE"))) failures.push("LICENSE is missing");
+
+const tracked = new Set(
+  spawnSync("git", ["ls-files"], { cwd: root, encoding: "utf8" }).stdout.split("\n").filter(Boolean),
+);
+function checkRelativeLinks(file) {
+  const text = readFileSync(join(root, file), "utf8");
+  const base = dirname(file);
+  for (const match of text.matchAll(/\[[^\]]*\]\(([^)\s]+)\)/g)) {
+    const raw = match[1].split("#")[0];
+    if (!raw || raw.startsWith("http://") || raw.startsWith("https://") || raw.startsWith("mailto:")) continue;
+    const target = posix.normalize(posix.join(base, raw));
+    if (target.startsWith("..") || !tracked.has(target)) failures.push(`untracked link in ${file}: ${match[1]}`);
+  }
+}
+for (const file of ["README.md", "attacks/README.md", "demos/README.md"]) checkRelativeLinks(file);
 
 for (const name of ["HACKATHON.md", "SUBMITTING.md"]) {
   const file = readFileSync(join(root, "docs/hackathon", name), "utf8");

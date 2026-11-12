@@ -43,7 +43,24 @@
     {"date": "2026-11-12", "kind": "pay", "from": "515ead208df187f146f2ae5f7e24522cf2ca977df95bdee7bb5f957bbe142c54", "to": "frsrcom.near", "amount": "20000", "display": "0.02", "asset": "USDC", "status": "SUCCESS", "depositAddress": "f41c56880dee618dc20faa63c56a8a852c9f6e990bf5cfe59c45512c43f66c0e", "id": "Ck8wGNBwD8Y1TJZjKW3Nn7opX8Wz2tkoiGPYF3ajuGvp", "url": "https://nearblocks.io/txns/Ck8wGNBwD8Y1TJZjKW3Nn7opX8Wz2tkoiGPYF3ajuGvp", "receipts": ["919bd558135a8bfa925a33ad15579a06610a6a83e213a025c4f0429c8d834f95"]},
     {"date": "2026-11-12", "kind": "sweep", "from": "515ead208df187f146f2ae5f7e24522cf2ca977df95bdee7bb5f957bbe142c54", "to": "0xbc77a1ef1ee04fc563ccb1d19e28dcc7385f136b", "amount": "73642", "display": "0.073642", "asset": "USDC", "status": "SUCCESS", "id": "FaLbFsWREEQNvCP26yfXVwdYRa8oL7zTPf248x4BFVa4", "url": "https://nearblocks.io/txns/FaLbFsWREEQNvCP26yfXVwdYRa8oL7zTPf248x4BFVa4", "receipts": ["6ad8ab05e681d3569e87b441f5f4e30049042cd05c89ce7da8e76f4668378b05", "412f3f2bd03dcd9c05d15e7d297cfe3dda00af0ca8ebd6550ab051de76a82f7a"]},
     {"date": "2026-11-12", "kind": "enclave-pay", "from": "0xbc77a1ef1ee04fc563ccb1d19e28dcc7385f136b", "to": "frsrcom.near", "amount": "20000", "display": "0.02", "asset": "USDC", "status": "SUCCESS", "id": "6dHJgrwAXxc9u4BBntdkAH9qjHkDPkzi1WxacwjWQ44Z", "url": "https://nearblocks.io/txns/6dHJgrwAXxc9u4BBntdkAH9qjHkDPkzi1WxacwjWQ44Z", "receipts": ["f4dbd0c978d1cbff9e3b7a31a32696f4176e77ab96796d17f3649923a995951c", "2d8fd3df35c2ac93e6c1a372f55db737aa9dc964862fee8ca6018dd2b551ab53"]},
-    {"date": "2026-11-12", "kind": "deadline-receipt", "hash": "d9fc4584ff3aa86b7ca66bbe518a3b5fefedb4e78fef6fd892e7c1a9abf3dd6e"}
+    {"date": "2026-11-12", "kind": "x402", "url": "https://x402.tbs-digital.com/weather/current?city=London", "amount": "1000", "display": "0.001", "asset": "USDC", "network": "eip155:8453", "from": "0xE7369dD4F08fA5203B06F3E1Dccee00a11cCF152", "payTo": "0xd6fCE15298Fc9D60f867d9455D497177Da9BFB0a", "id": "0x50c5acc7a2de4fbcccde1fd4ab77ca5c6bd1bed2eb5f03ab9a18eff1529cbb70", "explorer": "https://basescan.org/tx/0x50c5acc7a2de4fbcccde1fd4ab77ca5c6bd1bed2eb5f03ab9a18eff1529cbb70", "request_id": "ec4deaaa-5bb0-430d-88a8-90f2a4d5731c"},
+    {"date": "2026-11-12", "kind": "deadline-receipt", "hash": "d9fc4584ff3aa86b7ca66bbe518a3b5fefedb4e78fef6fd892e7c1a9abf3dd6e"},
+    {"date": "2026-11-12", "kind": "v4-receipt", "check": "quote-signature", "hash": "19bb44d07b2ad9c53a9c6c45537692fcf6ad73d11ce16bfbad07613b220dfd2b"},
+    {"date": "2026-11-12", "kind": "v4-receipt", "check": "extra-intent", "hash": "03ab408edde888e4d2df3773bbc323a3c10c4df41f3b64b790d07addb651ae0a"},
+    {"date": "2026-11-12", "kind": "v4-receipt", "check": "deadline", "hash": "99cb5c26997eaab4df6efbd621e742cb45de897d1bb906ba0285df8b1f4a9034"},
+    {"date": "2026-11-12", "kind": "model-stop", "check": "deadline", "hash": "ef9f146bca514b7d674d6d6879109a4f83b1025a12210c496287b10febdc42f1"},
+    {"date": "2026-11-12", "kind": "model-stop", "check": "extra-intent", "hash": "fe499e51018d86f8c96f434f7d17ab9c95ec85b6e5711ec58eed5af06f93cead"},
+    {"date": "2026-11-12", "kind": "model-stop", "check": "quote-signature", "hash": "b0a8acaf8bcfd5737d80466b5a7f51fff86a19f097b7ee5cd6d6fdbfe45ae04b"},
+    {"date": "2026-11-12", "kind": "model-stop", "check": "quote-signature", "hash": "321f3b4fddc6dd4d5f8b79f4c1f19f06f5573d1f13e369da73372c10df29e3b6", "take": "v3-tampered-quote-tmwdeax1a"},
+    {"date": "2026-11-12", "kind": "model-stop", "check": "extra-intent", "hash": "aa13505bfff780fec2bacff0d6db90edea3b0af78b2cdfadf5e9ead02f3ee350", "take": "v3-extra-intent-tmwde5kfn"},
+    {"date": "2026-11-12", "kind": "model-stop", "check": "deadline", "hash": "9d9998eb30c9184bd85c26acb4e1dfd4410bf814bed7dfc7f8b0e27c9ddbbddd", "take": "v3-deadline-tmwde3p0t"},
+    {"date": "2026-11-12", "kind": "model-stop", "check": "quote-signature", "hash": "19bb44d07b2ad9c53a9c6c45537692fcf6ad73d11ce16bfbad07613b220dfd2b", "take": "v4-tampered-quote"},
+    {"date": "2026-11-12", "kind": "model-stop", "check": "extra-intent", "hash": "03ab408edde888e4d2df3773bbc323a3c10c4df41f3b64b790d07addb651ae0a", "take": "v4-extra-intent"},
+    {"date": "2026-11-12", "kind": "model-stop", "check": "deadline", "hash": "99cb5c26997eaab4df6efbd621e742cb45de897d1bb906ba0285df8b1f4a9034", "take": "v4-deadline"},
+    {"date": "2026-11-12", "kind": "attack-name", "account": "badlist.near"},
+    {"date": "2026-11-12", "kind": "attack-name", "account": "rnaya.near"},
+    {"date": "2026-11-12", "kind": "attack-name", "account": "maya.near"},
+    {"date": "2026-11-12", "kind": "attack-name", "account": "attacker.near"}
   ],
   "runs": [
     {"kind": "receipt", "date": "2026-11-10", "file": "receipts/bf724a2f86e6b619ac7a55f432bad29459157a0ea8fee474cad5e24994e09f76.json", "wall_ms": 3880},
@@ -59,6 +76,8 @@
     {"kind": "premium", "date": "2026-11-11", "url": "http://127.0.0.1:8402/premium", "http": 200, "body": "{\"premium\":true,\"insight\":\"The merchant was paid an exact amount on NEAR before you saw this.\",\"servedAt\":\"2026-11-11T11:26:07.702Z\"}", "merchant_receives": "100000", "merchant": "frsrcom.near", "amount_in": "107433", "display_in": "0.107433", "origin": "0x9a7a379e88c4e704d1e9638e868d951b4befbdb930e90a756c09fbb83b525599", "delivery": "yTnoP1oA2Yb92xen7fQGd7XP6ws4hhw6EGiHB9utp2z", "paid": true}
   ],
   "cited": [
+    "yTnoP1oA2Yb92xen7fQGd7XP6ws4hhw6EGiHB9utp2z",
+    "https://nearblocks.io/txns/yTnoP1oA2Yb92xen7fQGd7XP6ws4hhw6EGiHB9utp2z",
     "https://explorer.solana.com/tx/2MSFP4BiqvhsxmwJUE9S2iqB8k2sZFAV7fK7rPCDKnxbPeSwfkFFQPp7QYuTHDtbiUNuBmT4aXtecxaMuQ3hiCGo",
     "https://nearblocks.io/txns/CxgvYrbHuXs8Qx9FfGG2or5ApB97VAQcvVad4dTwdc3U",
     "https://nearblocks.io/txns/4xtccqLAv25JU4F9HPRdKAeByGpjzA94GZcXY75cNM4",

@@ -253,7 +253,7 @@ No receipt to replay.
 
 The agent eval on the 40 cases Claude passed is 27/40 (`eval/live/scores-40-round12.json`, 2026-11-11T22:00:02.604Z). Work is 20/30 and holdout is 7/10 (`eval/rounds.md`, round 12). The three holdout misses are `pay-link-56`, `pay-link-60`, and `receive-buyer`. The link misses are the model: the reply never says USDC.
 
-`bursar agent` is the terminal tool (`src/cli.ts`, `src/agent.ts`). `bursar` with no arguments prints usage. There is no chat command. The model hears the sentence and calls `understand`. An empty amount or recipient is a question. Earlier lines stay in the session and are not a payment. `npm run demo` stops when a paste says `ignore your limits`. The stop is `contentStops` in `src/agent.ts`. The recorded model still pays `bad1794304962694.near`. A warn prints its reasons and asks `approve? [y/N]`. `y` is written to the ledger and the guarded signer runs. A block does not ask. `npm run demo` prints these lines. The test `npm run demo stops every attack` in `test/quote.test.ts` requires each one.
+The owner opens `bursar` and types sentences (`src/cli.ts`, `src/agent.ts`). The model hears the sentence and calls `understand`. An empty amount or recipient is a question. Earlier lines stay in the session and are not a payment. `npm run demo` stops when a paste says `ignore your limits`. The stop is `contentStops` in `src/agent.ts`. The recorded model still pays `bad1794304962694.near`. A warn prints its reasons and asks `approve? [y/N]`. `y` is written to the ledger and the guarded signer runs. A block does not ask. `npm run demo` prints these lines. The test `npm run demo stops every attack` in `test/quote.test.ts` requires each one.
 
 ```command
 npm run demo
