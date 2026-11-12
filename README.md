@@ -68,8 +68,8 @@ An agent can be given a receiver that is new, a look-alike of a known payee, a c
 npm test
 ```
 ```output
-ℹ tests 121
-ℹ pass 121
+ℹ tests 112
+ℹ pass 112
 ℹ fail 0
 ```
 
@@ -194,7 +194,7 @@ A reporter key can call `report` and cannot attach a deposit (`src/report.ts`, g
 
 No public nearintents merchant exists yet. The merchant is the official SDK example, `@defuse-protocol/nearintents-mpp-sdk` 0.4.1, run on mainnet at `http://127.0.0.1:8402`. `bursar pay http://127.0.0.1:8402/premium` on 2026-11-11 returned HTTP 200 `{"premium":true,"insight":"The merchant was paid an exact amount on NEAR before you saw this.","servedAt":"2026-11-11T11:26:07.702Z"}`. The merchant received `100000` (0.10 USDC) at `frsrcom.near`. The owner paid `107433` (0.107433 USDC) from the Intents balance for that 0.10. The Arbitrum deposit is https://arbiscan.io/tx/0x9a7a379e88c4e704d1e9638e868d951b4befbdb930e90a756c09fbb83b525599. The settlement to `frsrcom.near` is https://nearblocks.io/txns/yTnoP1oA2Yb92xen7fQGd7XP6ws4hhw6EGiHB9utp2z. `/premium-btc` was not called.
 
-`npm run demo:attacks` runs the scenarios in `demo/attacks`. The table is `demo/attacks/results.md`. 19 attacks stopped. Extra intent and the tampered quote stopped in the model. The deadline stop is the model decode plus the code comparison (`stoppedIn` in `src/attack-demo.ts`); its receipt `d9fc4584ff3aa86b7ca66bbe518a3b5fefedb4e78fef6fd892e7c1a9abf3dd6e` verifies. The other 16 stopped in code. The same table records the 0.02 USDC payment https://nearblocks.io/txns/Ck8wGNBwD8Y1TJZjKW3Nn7opX8Wz2tkoiGPYF3ajuGvp and the enclave payment https://nearblocks.io/txns/6dHJgrwAXxc9u4BBntdkAH9qjHkDPkzi1WxacwjWQ44Z.
+`npm run demo:attacks` runs the scenarios in `demo/attacks`. An English STOP is the guard’s sentence. Any other language is a translation of that sentence, and a dropped or altered number, name, account, or address is replaced by the English sentence. The evidence line stays underneath. The table is `demo/attacks/results.md`, with a `stopped` column. The home is `~/.bursar-attacks`. The run does not sign. `--record` comes after that pass bar. It dry-runs, records off-screen with VHS, and `demo/attacks/assemble.sh` writes `attacks-vN.mp4`, `highlights-vN.mp4`, and `timeline-vN.md`. The control payment is https://nearblocks.io/txns/Ck8wGNBwD8Y1TJZjKW3Nn7opX8Wz2tkoiGPYF3ajuGvp. The enclave payment is https://nearblocks.io/txns/6dHJgrwAXxc9u4BBntdkAH9qjHkDPkzi1WxacwjWQ44Z.
 
 The agent eval on the 40 cases Claude passed is 27/40 (`eval/live/scores-40-round12.json`, 2026-11-11T22:00:02.604Z). Work is 20/30 and holdout is 7/10 (`eval/rounds.md`, round 12). The three holdout misses are `pay-link-56`, `pay-link-60`, and `receive-buyer`. The link misses are the model: the reply never says USDC.
 

@@ -79,6 +79,6 @@ The enclave id is the `p256` account in `test/fixtures/implicit-accounts.json` a
 | Payment rows | `demo/payments/results.md` |
 | Eval stop | `eval/rounds.md` |
 
-`src/cli.ts` is the command entry. `src/pay.ts` submits only after both checks and `signIntent`. `src/model.ts` calls `http://127.0.0.1:8000/v1/chat/completions` and writes `receipts/`. Guards are `src/guard/`. `signer/EnclaveSigner.swift` is shared with `signer/bursar-signer`. Firmware source is `~/Dev/ethereus/experimental/riscv`.
+`src/cli.ts` is the command entry. `src/pay.ts` submits only after both checks and `signIntent`. `src/model.ts` calls `http://127.0.0.1:8000/v1/chat/completions` and writes `receipts/`. Guards are `src/guard/`. `signer/EnclaveSigner.swift` is shared with `signer/bursar-signer.swift`. Firmware source is `~/Dev/ethereus/experimental/riscv`.
 
 These three are not the current pin. Each names what replaced it: `docs/agent-spec.md`, `docs/bursar-2b-circuit.md`, `docs/video.md`.
