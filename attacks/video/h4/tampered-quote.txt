@@ -1,0 +1,3 @@
+file '/Users/fraserbrown/Dev/bursar-near/demo/attacks/video/h4/tampered-quote-head.mp4'
+file '/Users/fraserbrown/Dev/bursar-near/demo/attacks/video/h4/tampered-quote-wait.mp4'
+file '/Users/fraserbrown/Dev/bursar-near/demo/attacks/video/h4/tampered-quote-result.mp4'

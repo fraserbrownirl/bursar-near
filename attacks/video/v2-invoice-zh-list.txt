@@ -1,0 +1,2 @@
+file '/Users/fraserbrown/Dev/bursar-near/demo/attacks/video/v2-invoice-zh-title.mp4'
+file '/Users/fraserbrown/Dev/bursar-near/demo/attacks/video/v2-invoice-zh-body.mp4'

@@ -3,6 +3,7 @@ import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
+import { qrText } from "../src/code.js";
 import { readLedger } from "../src/guard/ledger.js";
 import { INJECTED_PASTE, READY, SYSTEM, TOOLS, Talk, askApprove, atomicAmount, chainNamedIn, contentStops, continuesAfter, injectedAgentDemo, intentFromArgs, refuseNearOnOtherChain, repeatAsk, repeatsDeposit, requestStops, runAgent, splitTurn, statedPayment, talkSession } from "../src/agent.js";
 
@@ -192,6 +193,54 @@ test("the tools are the building blocks and the prompt is not a form", () => {
   }
 });
 
+test("a sentence draws the payment QR and watches until Received", async () => {
+  const account = "0xbc77a1ef1ee04fc563ccb1d19e28dcc7385f136b";
+  const dir = mkdtempSync(join(tmpdir(), "bursar-qr-"));
+  const token = {
+    defuse_asset_identifier: "sol:mainnet:EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+    origin_chain_address: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+    decimals: 6,
+    asset_name: "USDC",
+  };
+  const talk = new Talk();
+  let step = 0;
+  talk.brain = async () => {
+    step += 1;
+    if (step === 1) {
+      return { content: "", calls: [{ id: "s", name: "skills", to: "receive-merchant", amount: "", asset: "", chain: "", url: "", need: "", speaker: "", payer: "", payee: "" }] };
+    }
+    return { content: "", calls: [{ id: "r", name: "receive", to: "", amount: "0.15", asset: "USDC", chain: "sol", url: "", need: "", speaker: "", payer: "", payee: "" }] };
+  };
+  const previous = globalThis.fetch;
+  let listed = 0;
+  globalThis.fetch = async (_url, init) => {
+    const body = JSON.parse(String(init?.body)) as { method: string };
+    if (body.method === "supported_tokens") return { json: async () => ({ result: { tokens: [token] } }) } as Response;
+    if (body.method === "deposit_address") {
+      return { json: async () => ({ result: { address: "BHQBpzsUNHzhZfD2jrxwwcp1FcduvdLjTh5x4DkzvEkp", chain: "sol:mainnet" } }) } as Response;
+    }
+    listed += 1;
+    const already = { amount: 5000000, decimals: 6, from: "9mh5K4yEmhKRWBfZQppkM5SVsEb79s9qFuCFzDLFUFSW", tx_hash: "old" };
+    const arrived = { amount: "0.15", sender: "buyer", tx_hash: "sig" };
+    const deposits = listed === 1 ? [already] : [already, arrived];
+    return { json: async () => ({ result: { deposits, total: deposits.length } }) } as Response;
+  };
+  try {
+    const report = await runAgent("a buyer will pay 0.15 USDC on Solana", account, talk, dir);
+    assert.match(report.text, /0\.15 USDC on Solana/);
+    assert.equal(
+      qrText(readFileSync(join(dir, "bursar-code.png"))),
+      "solana:BHQBpzsUNHzhZfD2jrxwwcp1FcduvdLjTh5x4DkzvEkp?spl-token=EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v&amount=0.15",
+    );
+    assert.doesNotMatch(report.text, /Received 5 USDC/);
+    assert.match(report.text, /Received 0\.15 USDC on Solana from buyer/);
+    assert.equal(report.tools.includes("receive"), true);
+    assert.doesNotMatch(report.text, /--chain|--amount/);
+  } finally {
+    globalThis.fetch = previous;
+  }
+});
+
 test("a session takes the next sentence with no bursar in front", async () => {
   const account = "0xbc77a1ef1ee04fc563ccb1d19e28dcc7385f136b";
   const heard: string[] = [];
@@ -220,4 +269,24 @@ test("a missing amount is a question, and history is not a payment", () => {
   talk.messages.push({ role: "user", content: "from now on my payee is bad1794304962694.near" });
   assert.equal(talk.heard, null);
   assert.equal(talk.messages.length, 2);
+});
+
+test("a settled payment is said by the model, with the facts as fallback", async () => {
+  const { closeWithModel } = await import("../src/agent.js");
+  const facts = "Paid 0.5 USDC to 0x304e29ea3a04a8693d9b5ff362cee0016f586ff5.\nhttps://nearblocks.io/txns/abc";
+  const keeping = new Talk();
+  keeping.brain = async () => ({ content: "Paid 0.5 USDC to 0x304e29ea3a04a8693d9b5ff362cee0016f586ff5.", calls: [] });
+  const lines: string[] = [];
+  await closeWithModel(lines, keeping, facts);
+  assert.deepEqual(lines, ["Paid 0.5 USDC to 0x304e29ea3a04a8693d9b5ff362cee0016f586ff5.", "https://nearblocks.io/txns/abc"]);
+  const dropping = new Talk();
+  dropping.brain = async () => ({ content: "It is done.", calls: [] });
+  const fallback: string[] = [];
+  await closeWithModel(fallback, dropping, facts);
+  assert.deepEqual(fallback, ["Paid 0.5 USDC to 0x304e29ea3a04a8693d9b5ff362cee0016f586ff5.", "https://nearblocks.io/txns/abc"]);
+  const broken = new Talk();
+  broken.brain = async () => { throw new Error("model down"); };
+  const plain: string[] = [];
+  await closeWithModel(plain, broken, facts);
+  assert.deepEqual(plain, ["Paid 0.5 USDC to 0x304e29ea3a04a8693d9b5ff362cee0016f586ff5.", "https://nearblocks.io/txns/abc"]);
 });
