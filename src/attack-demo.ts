@@ -507,7 +507,8 @@ export async function runSession(id: string): Promise<void> {
   }
   for (const turn of scenario.turns) {
     const typed = await readTurn(turn.split("\n").length);
-    const line = typed.replaceAll("{url}", server?.url ?? "").replaceAll("{qr}", qrPath);
+    let line = typed.replaceAll("{url}", server?.url ?? "").replaceAll("{qr}", qrPath);
+    if (scenario.qr) line = line.replaceAll("attack.png", qrPath);
     const report = await runAgent(line, ACCOUNT, talk, home);
     if (report.text.includes("check:")) break;
   }

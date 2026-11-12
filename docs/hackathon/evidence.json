@@ -411,8 +411,8 @@
    "date": "2026-11-12",
    "kind": "model-stop",
    "check": "deadline",
-   "hash": "8f0df9fcf77797672a0e461d667ba198edc4aedc4db9574913d3c986f77ca488",
-   "take": "v6-deadline"
+   "hash": "dabf7f26f48d02f994f17227d6ddade24675a760a36acb738c257898af3825ba",
+   "take": "v7-deadline"
   },
   {
    "date": "2026-11-12",

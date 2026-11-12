@@ -1009,6 +1009,10 @@ async function runCall(text: string, call: ModelCall, accountId: string, lines: 
       return "STOP";
     }
     if (result.verdict === "allow") return "allow";
+    if (result.verdict === "warn") {
+      reveal(lines, talk, `Warning: ${result.reasons[0] ?? result.verdict}.`);
+      return result.verdict;
+    }
     reveal(lines, talk, `Stopped: ${result.reasons[0] ?? result.verdict}.`);
     return result.verdict;
   }

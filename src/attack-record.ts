@@ -53,8 +53,11 @@ export function tapeFor(scenario: AttackScenario, output: string, fontSize = fon
     `Show`,
   ];
   const turns = scenario.agent ? [scenario.agent] : scenario.turns;
+  let waitedForPrompt = false;
   for (const turn of turns) {
-    const typed = turn.replaceAll("{url}", url).replaceAll("{qr}", qr);
+    if (waitedForPrompt) lines.push(`Wait+Screen@120s /(?m)^> ?$/`, "Sleep 300ms");
+    waitedForPrompt = true;
+    const typed = turn.replaceAll("{url}", url).replaceAll("{qr}", qr ? "attack.png" : "");
     for (const line of typed.split("\n")) {
       lines.push(vhsType(line));
       lines.push("Enter");

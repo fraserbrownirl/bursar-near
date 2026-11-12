@@ -68,7 +68,6 @@ ATTACKS = [
         "request": ["pay 0.25 USDC to frsrcom.near"],
         "stop": "Stopped. The intent deadline {intent} is later than the signed quote deadline {signed}.",
         "red": ["{intent}"],
-        "prefix": ["Stopped: account age is under 14 days."],
         "check": "deadline", "hash": "deadline",
     },
     {
@@ -118,10 +117,13 @@ FULL_TITLES = {
     "ledger": "Tampered ledger", "limit": "Over the per-payment limit", "lookalike": "Look-alike name",
     "mcp-agent": "An MCP agent over the limit", "poison": "Address poisoning",
     "pressure": "Pressure from the merchant", "qr": "Injected instructions in a QR code",
-    "standing-payee": "A later payee set up in an earlier turn", "switched": "Switched details in an email",
+    "standing-payee": "A standing payee set up in chat text", "switched": "Switched details in an email",
     "tampered-quote": "Tampered quote", "wrong-receive": "Wrong receive address",
 }
 INSIDE = {"tampered-quote", "extra-intent", "deadline"}
+# Takes with a long static stretch (a verify run or a model reply). The stretch
+# is cut to 3 seconds: 1.5 s before and 1.5 s after the jump.
+QUIET_CUT = {"ledger", "standing-payee"}
 
 _fonts = {}
 
@@ -170,10 +172,17 @@ def duration(path):
 
 
 def latest(version, stem):
-    found = sorted(glob.glob(str(TAKES / f"v{version}-{stem}-t*.mp4")), key=lambda p: Path(p).stat().st_mtime)
+    """Newest take of a stem across all take versions. Frozen takes keep their version."""
+    found = glob.glob(str(TAKES / f"v*-{stem}-t*.mp4"))
     if not found:
-        raise SystemExit(f"missing take v{version}-{stem}")
-    return Path(found[-1])
+        raise SystemExit(f"missing take {stem}")
+
+    def rank(p):
+        name = Path(p).name
+        take_version = int(name.split("-", 1)[0][1:])
+        return (take_version, Path(p).stat().st_mtime)
+
+    return Path(sorted(found, key=rank)[-1])
 
 
 def frame(path, t, cols=96, rows=54):
@@ -227,6 +236,40 @@ def wait_start(path, t_result):
             return min(t + 0.55, t_result - 0.6)
         t += 0.15
     return max(0.0, t_result - 3)
+
+
+def small_gray(path, t):
+    return subprocess.run(
+        ["ffmpeg", "-v", "error", "-ss", f"{max(0.0, t):.3f}", "-i", str(path), "-frames:v", "1", "-vf", "scale=240:135", "-f", "rawvideo", "-pix_fmt", "gray", "-"],
+        capture_output=True,
+    ).stdout
+
+
+def quiet_stretch(path, t_result, minimum=4.0):
+    """The longest static run before the result: a thinking or verify gap, where
+    only the cursor blinks. Typing or a printed reply is tens of cells a second;
+    a blink is one. Returns (start, end) of the gap, or None."""
+    gap_start, best = None, None
+    prev = b""
+    t = 0.0
+    while t < t_result - 0.5:
+        cur = small_gray(path, t)
+        active = False
+        if prev and len(cur) == len(prev):
+            active = sum(abs(a - b) for a, b in zip(cur, prev)) > 15000
+        if active:
+            if gap_start is not None and t - gap_start >= minimum:
+                if best is None or t - gap_start > best[1] - best[0]:
+                    best = (gap_start, t)
+            gap_start = None
+        elif gap_start is None:
+            gap_start = t
+        prev = cur
+        t += 0.5
+    if gap_start is not None and t_result - 0.5 - gap_start >= minimum:
+        if best is None or t_result - 0.5 - gap_start > best[1] - best[0]:
+            best = (gap_start, t_result - 0.5)
+    return best
 
 
 def content_box(path, t):
@@ -424,7 +467,7 @@ def render_result(att, data, work):
 def render_card(text, path, size=64, sub=None):
     image = Image.new("RGB", (W, H), BG)
     draw = ImageDraw.Draw(image)
-    font = sf(size, "Semibold")
+    font = pingfang(size + 4) if is_cjk(text) else sf(size, "Semibold")
     lines = []
     line = ""
     for word in text.split(" "):
@@ -600,17 +643,21 @@ def take_scale(box, font_size):
     return min(0.85 * 46 / font_size, CW / box[2])
 
 
-def take_chain(box, font_size, trim=None, speed=None, hold=0.0):
+def crop_scale(box, font_size):
     x, y, w0, h0 = box
     scale = take_scale(box, font_size)
     sw = max(2, int(w0 * scale) // 2 * 2)
     sh = max(2, int(h0 * scale) // 2 * 2)
+    return f"crop={w0}:{h0}:{x}:{y},scale={sw}:{sh}"
+
+
+def take_chain(box, font_size, trim=None, speed=None, hold=0.0):
     chain = ""
     if trim:
         chain += f"trim={trim},setpts=PTS-STARTPTS,"
     if speed:
         chain += f"setpts=(PTS-STARTPTS)/{speed},fps={FPS},"
-    parts = [f"[1:v]{chain}crop={w0}:{h0}:{x}:{y},scale={sw}:{sh}[tk]"]
+    parts = [f"[1:v]{chain}{crop_scale(box, font_size)}[tk]"]
     parts.append(f"[0:v][tk]overlay={CX}:{CY}:shortest=1[bg]")
     if hold > 0:
         parts.append(f"[bg]tpad=stop_mode=clone:stop_duration={hold},format=yuv420p[v]")
@@ -619,16 +666,40 @@ def take_chain(box, font_size, trim=None, speed=None, hold=0.0):
     return ",".join(parts)
 
 
+def cut_chain(box, font_size, head_end, tail_start, hold=0.0):
+    """Two segments: the take up to head_end, then from tail_start. The quiet
+    stretch between them is removed."""
+    cs = crop_scale(box, font_size)
+    parts = [f"[1:v]trim=0:{head_end:.3f},setpts=PTS-STARTPTS,{cs}[h]",
+             f"[1:v]trim={tail_start:.3f}:,setpts=PTS-STARTPTS,{cs}[t]",
+             f"[0:v][h]overlay={CX}:{CY}:shortest=1[o1]",
+             f"[0:v][t]overlay={CX}:{CY}:shortest=1[o2]"]
+    if hold > 0:
+        parts.append(f"[o2]tpad=stop_mode=clone:stop_duration={hold}[o2h]")
+        parts.append("[o1][o2h]concat=n=2:v=1:a=0,format=yuv420p[v]")
+    else:
+        parts.append("[o1][o2]concat=n=2:v=1:a=0,format=yuv420p[v]")
+    return ";".join(parts)
+
+
 def result_clip(png, stop_cy, seconds, dst, zoom=True):
+    """Gentle zoom into the STOP line. The zoom stays inside the window content
+    area, so the chips, caption, title bar, and link are never cropped."""
     if zoom:
         frames = int(seconds * FPS)
         step = 0.12 / frames
-        span = H - H / 1.12
-        pan = max(0.0, min(1.0, (stop_cy - H / (2 * 1.12)) / span)) if span > 0 else 0.5
-        vf = (f"zoompan=z='min(1+{step:.6f}*on,1.12)':x='(iw-iw/zoom)/2':y='(ih-ih/zoom)*{pan:.4f}'"
-              f":d={frames}:s={W}x{H}:fps={FPS},format=yuv420p")
-        run(["ffmpeg", "-y", "-v", "error", "-loop", "1", "-i", str(png), "-vf", vf,
-             "-frames:v", str(frames), "-an", "-c:v", "libx264", "-pix_fmt", "yuv420p", str(dst)])
+        zy = WY + TITLE_H
+        zh = WH - TITLE_H
+        rel = stop_cy - zy
+        span = zh - zh / 1.12
+        pan = max(0.0, min(1.0, (rel - zh / (2 * 1.12)) / span)) if span > 0 else 0.5
+        vf = (f"[0:v]crop={WW}:{zh}:{WX}:{zy},"
+              f"zoompan=z='min(1+{step:.6f}*on,1.12)':x='(iw-iw/zoom)/2':y='(ih-ih/zoom)*{pan:.4f}'"
+              f":d={frames}:s={WW}x{zh}:fps={FPS}[zp];"
+              f"[0:v]fps={FPS}[bg];"
+              f"[bg][zp]overlay={WX}:{zy},format=yuv420p[v]")
+        run(["ffmpeg", "-y", "-v", "error", "-loop", "1", "-i", str(png), "-filter_complex", vf,
+             "-map", "[v]", "-frames:v", str(frames), "-an", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-r", str(FPS), str(dst)])
     else:
         card_clip(png, seconds, dst)
 
@@ -861,9 +932,19 @@ def build_full(version, data, work, chrome):
             hold = max(0.0, 2 - (dur - t_result))
             base_plain = base_frame(chrome, top_png, work / f"base-full-{stem}.png")
             body = work / f"body-{stem}.mp4"
-            encode_take(src, body, take_chain(box, font_size, hold=hold), base_plain)
-            tick_marks[body.name] = [(t_result, 150)]
+            gap = quiet_stretch(src, t_result) if stem in QUIET_CUT else None
+            if gap:
+                head_end = gap[0] + 1.5
+                tail_start = gap[1] - 1.5
+                encode_take(src, body, cut_chain(box, font_size, head_end, tail_start, hold=hold), base_plain)
+                tick_marks[body.name] = [(head_end + (t_result - tail_start), 150)]
+            else:
+                encode_take(src, body, take_chain(box, font_size, hold=hold), base_plain)
+                tick_marks[body.name] = [(t_result, 150)]
         pieces.append(body)
+    close_png = render_close(work / "close.png", work / "qr-repo.png")
+    card_clip(close_png, 4, work / "close.mp4")
+    pieces.append(work / "close.mp4")
     fade = 0.3
     lens = [duration(p) for p in pieces]
     starts = piece_starts(lens, fade)
