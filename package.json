@@ -14,7 +14,7 @@
     "eval:agent": "tsx src/eval-agent-cli.ts",
     "eval:live": "tsx src/eval-live-cli.ts",
     "verify": "tsx src/verify.ts",
-    "verify:firmware": "sh -c '${BURSAR_PYTHON:-../ethereus-mac/.venv/bin/python} scripts/verify_firmware.py \"$@\"' verify-firmware",
+    "verify:firmware": "python3 scripts/verify_firmware.py",
     "verify:weights": "tsx src/verify-weights.ts",
     "test:live": "tsx --test test/live.test.ts",
     "demo": "tsx src/demo.ts",
