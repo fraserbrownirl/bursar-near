@@ -23,6 +23,8 @@ export type CheckBody = {
   nowSec: number;
   intent: GeneratedIntent;
   accountId: string;
+  /** "quote" or "intent" runs one check so the phone can show progress. Unset runs both. */
+  stage?: string;
 };
 
 export type PrepareInput = {
@@ -37,7 +39,7 @@ export type Prepared =
   | { ok: false; stop: string };
 
 export type CheckResult =
-  | { ok: true; quoteReceipt: string; intentReceipt: string }
+  | { ok: true; quoteReceipt?: string; intentReceipt?: string }
   | { ok: false; stop: string };
 
 /** What the phone signs and sends back. `signature` is the enclave's raw r||s, hex. */
@@ -87,6 +89,18 @@ export async function forwardChecks(
     intent: typeof checkIntentInModel;
   } = { quote: checkQuoteInModel, intent: checkIntentInModel },
 ): Promise<CheckResult> {
+  if (body.stage === "quote") {
+    const quote = await run.quote(body.quote, body.request, body.nowSec);
+    const quoteReceipt = passingReceipt(quote);
+    if (!quoteReceipt) return { ok: false, stop: requireLive(quote) ?? "STOP: in-model check" };
+    return { ok: true, quoteReceipt };
+  }
+  if (body.stage === "intent") {
+    const intent = await run.intent(body.intent, body.accountId);
+    const intentReceipt = passingReceipt(intent);
+    if (!intentReceipt) return { ok: false, stop: requireLive(intent) ?? "STOP: in-model check" };
+    return { ok: true, intentReceipt };
+  }
   const quote = await run.quote(body.quote, body.request, body.nowSec);
   const quoteReceipt = passingReceipt(quote);
   if (!quoteReceipt) return { ok: false, stop: requireLive(quote) ?? "STOP: in-model check" };
@@ -264,6 +278,7 @@ function bearer(req: IncomingMessage): string {
 function isCheckBody(value: unknown): value is CheckBody {
   if (!value || typeof value !== "object") return false;
   const body = value as CheckBody;
+  if (body.stage !== undefined && body.stage !== "quote" && body.stage !== "intent") return false;
   return Boolean(body.quote && body.request && body.intent && typeof body.accountId === "string" && typeof body.nowSec === "number");
 }
 

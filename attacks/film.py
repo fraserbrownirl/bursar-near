@@ -273,18 +273,23 @@ def quiet_stretch(path, t_result, minimum=4.0):
 
 
 def content_box(path, t):
+    probe = subprocess.run(
+        ["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries", "stream=width,height", "-of", "csv=p=0", str(path)],
+        capture_output=True, text=True,
+    )
+    fw, fh = (int(v) for v in probe.stdout.strip().split(","))
     raw = subprocess.run(
         ["ffmpeg", "-v", "error", "-ss", f"{t:.3f}", "-i", str(path), "-frames:v", "1", "-f", "rawvideo", "-pix_fmt", "gray", "-"],
         capture_output=True,
     ).stdout
-    if len(raw) != W * H:
+    if len(raw) != fw * fh:
         raise SystemExit(f"unexpected frame from {path}")
-    cols = [x for x in range(W) if any(raw[y * W + x] > 40 for y in range(H))]
-    rows = [y for y in range(H) if any(raw[y * W + x] > 40 for x in range(W))]
+    cols = [x for x in range(fw) if any(raw[y * fw + x] > 40 for y in range(fh))]
+    rows = [y for y in range(fh) if any(raw[y * fw + x] > 40 for x in range(fw))]
     if not cols or not rows:
         raise SystemExit(f"no text in {path} at {t}")
     x0, y0 = max(0, cols[0] - 6), max(0, rows[0] - 6)
-    x1, y1 = min(W - 1, cols[-1] + 6), min(H - 1, rows[-1] + 6)
+    x1, y1 = min(fw - 1, cols[-1] + 6), min(fh - 1, rows[-1] + 6)
     width, height = x1 - x0 + 1, y1 - y0 + 1
     return x0, y0, width - (width % 2), height - (height % 2)
 

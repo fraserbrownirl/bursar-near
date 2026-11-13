@@ -19,7 +19,7 @@ The Mac plays the vendor, the iPhone plays the customer, in the same room. The o
 
 - The QR payload is `solana:BHQBpzsUNHzhZfD2jrxwwcp1FcduvdLjTh5x4DkzvEkp?spl-token=EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v&amount=0.15` — 0.15 USDC to the Mac account's Solana deposit address. `qr-scanned.png` is the exact file the phone scanned.
 - The payment settled on 2026-11-13: 0.15 USDC on Solana from the phone, [Solscan](https://solscan.io/tx/LpHrDJiW3d8mgZDoNcnYi3EnNreWkqAowxSUXoHkxxUYuXD65qLmoQsCZ97ofSx3uPFTCGPEUhy8ZT5Pc1DXM1C), bridge status COMPLETED. Both in-model checks passed first: quote receipt `c4c807adf149059b8a49a8cc15709d5dc2a92c94dc50d301ce7e282c438b146f`, intent receipt `08392ed0d7b8e91d4188dd6053f2189cfbbc8273cbdc92a25efd399f8d258144` (replay: `npm run verify:weights` with those hashes). An identical earlier payment the same day is [56jCodLweyqE on Solscan](https://solscan.io/tx/56jCodLweyqEkKWAZmjvgyAqcYSLevyc2quB6ZzFjQDxwvcgoyZkQiiS4dpzhz3HmF1M8dWFz7WmyWWDbCfaefdm) — both are in `docs/hackathon/evidence.json`.
-- The film is `shop-demo.mp4` (54.6 s), built by `film-shop.py` from `film/data.json`: a VHS take of the sentence and the QR (`takes/v2-shop-take.mp4`), the iPhone screen recording of the actual run (scan, both checks, Face ID, Paid), and a closing card with the watch's `Received` line. `film/timeline.json` records the cut.
+- The film is `shop-demo.mp4` (35.9 s), built by `film-shop.py` from `film/data.json`: a VHS take of the sentence and the QR (`takes/v3-shop-take.mp4`), the iPhone screen recording of the actual run (scan, both checks, Face ID, Paid), and a closing card with the watch's `Received` line. `film/timeline.json` records the cut.
 
 ## Run on 2026-11-13
 

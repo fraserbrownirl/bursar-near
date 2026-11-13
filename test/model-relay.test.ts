@@ -52,6 +52,24 @@ test("both receipt hashes are returned only when both checks pass", async () => 
   assert.deepEqual(seen, ["quote", "intent"]);
 });
 
+test("a staged check runs only that stage, so the phone can show progress", async () => {
+  const seen: string[] = [];
+  const run = {
+    quote: async () => {
+      seen.push("quote");
+      return passed(QUOTE);
+    },
+    intent: async () => {
+      seen.push("intent");
+      return passed(INTENT);
+    },
+  };
+  assert.deepEqual(await forwardChecks({ ...body(), stage: "quote" }, run), { ok: true, quoteReceipt: QUOTE });
+  assert.deepEqual(seen, ["quote"]);
+  assert.deepEqual(await forwardChecks({ ...body(), stage: "intent" }, run), { ok: true, intentReceipt: INTENT });
+  assert.deepEqual(seen, ["quote", "intent"]);
+});
+
 test("a quote stop is not a passing receipt and the intent check is not sent", async () => {
   let intents = 0;
   const result = await forwardChecks(body(), {

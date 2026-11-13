@@ -110,11 +110,22 @@ def build(data):
     pieces = []
     data_out = {"take": str(take), "phone": str(phone), "segments": []}
 
-    # The take: the owner's sentence and the QR, model wait badged.
+    # The take: the owner's sentence and the QR. The QR's bright block is the cut
+    # point (typing at this font is invisible to the motion detector); the model
+    # wait between typing and the QR is cut to a badged 1.8 s.
     dur = F.duration(take)
     box = F.content_box(take, dur - 1.0)
-    spans = [s for s in film_mpp.quiet_spans(take, dur, minimum=8.0)]
-    cursor = film_mpp.content_start(take, dur)
+    take_font = data.get("take_font", 26)
+    cap = min(0.85, F.WH * take_font / (46.0 * box[3]) * 0.99)
+
+    def qr_time(path, end):
+        t = 0.5
+        while t < end:
+            cur = F.small_gray(path, t)
+            if cur and sum(cur) / len(cur) > 70:
+                return t
+            t += 0.25
+        return end
 
     def take_seg(name, t0, t1, badge=None, hold=0.0):
         if t1 - t0 < 0.2:
@@ -123,29 +134,33 @@ def build(data):
         if not base.exists() or badge:
             top = film_mpp.top(work, data, badge=badge) if badge else film_mpp.top(work, data)
             base = F.base_frame(chrome, top, work / f"base-{name}.png" if badge else base)
-        F.encode_take(take, work / f"s-{name}.mp4", F.take_chain(box, 26, trim=f"{t0:.3f}:{t1:.3f}", hold=hold), base)
+        F.encode_take(take, work / f"s-{name}.mp4", F.take_chain(box, take_font, trim=f"{t0:.3f}:{t1:.3f}", hold=hold, cap=cap), base)
         pieces.append(work / f"s-{name}.mp4")
         data_out["segments"].append({"kind": "take", "from": round(t0, 2), "to": round(t1, 2), "badge": badge})
 
-    for i, (qs, qe) in enumerate(spans):
-        wait = qe - qs
-        take_seg(f"pre{i}", cursor, qs)
-        take_seg(f"badge{i}", qs, qe, badge=f"real wait {round(wait)} s")
-        cursor = qe
-    take_seg("tail", cursor, dur, hold=2.0)
+    qe = qr_time(take, dur)
+    type_end = min(data.get("type_seconds", 2.2), qe)
+    wait = qe - type_end
+    if wait >= 4.0:
+        take_seg("pre", 0, type_end)
+        take_seg("badge", type_end, min(type_end + 1.8, dur), badge=f"real wait {round(wait)} s")
+    else:
+        take_seg("pre", 0, qe)
+    take_seg("tail", qe, dur, hold=1.2)
 
-    # The QR card: the code the buyer scans, shown whole (the terminal view is cropped).
-    qr_card = phone_base(data, work, "qr", data["qr_left"])
-    image = F.Image.open(qr_card).convert("RGB")
-    qr = F.Image.open(ROOT / "demos" / "shop" / data.get("qr_image", "qr-solana.png")).convert("RGB")
-    side = 530  # 10 px per module, an exact half of the 20 px render
-    qr = qr.resize((side, side), F.Image.NEAREST)
-    image.paste(qr, (1240, 220))
-    qr_card2 = work / "qr-card.png"
-    image.save(qr_card2)
-    pieces.append(work / "s-qr.mp4")
-    F.card_clip(qr_card2, 3.0, pieces[-1])
-    data_out["segments"].append({"kind": "qr-card", "seconds": 3.0})
+    # The QR card, when a scene asks for it: the code the buyer scans, shown whole.
+    if data.get("qr_left"):
+        qr_card = phone_base(data, work, "qr", data["qr_left"])
+        image = F.Image.open(qr_card).convert("RGB")
+        qr = F.Image.open(ROOT / "demos" / "shop" / data.get("qr_image", "qr-solana.png")).convert("RGB")
+        side = 530  # 10 px per module, an exact half of the 20 px render
+        qr = qr.resize((side, side), F.Image.NEAREST)
+        image.paste(qr, (1240, 220))
+        qr_card2 = work / "qr-card.png"
+        image.save(qr_card2)
+        pieces.append(work / "s-qr.mp4")
+        F.card_clip(qr_card2, 3.0, pieces[-1])
+        data_out["segments"].append({"kind": "qr-card", "seconds": 3.0})
 
     # The phone footage, inset, real waits badged.
     for seg in data["phone_segments"]:
@@ -158,7 +173,7 @@ def build(data):
     # The closing card: the genuine Received line and the run's receipts.
     paid_png = render_paid(data, work)
     pieces.append(work / "s-paid.mp4")
-    F.card_clip(paid_png, 6.0, pieces[-1])
+    F.card_clip(paid_png, data.get("close_seconds", 6.0), pieces[-1])
 
     out = ROOT / "demos" / "shop" / "shop-demo.mp4"
     F.concat(pieces, out)
