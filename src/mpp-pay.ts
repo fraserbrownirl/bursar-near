@@ -73,6 +73,18 @@ export async function quoteBehind(depositAddress: string): Promise<SignedQuote> 
   return status.quoteResponse as SignedQuote;
 }
 
+/** One in-flight payment per page and amount. The SDK re-challenges when the merchant's window lapses mid-delivery; a second automatic payment is a loss, never a retry. */
+const inflight = new Map<string, number>();
+
+export function claimDuplicate(request: MppRequest, nowMs: number): void {
+  const key = `${request.methodDetails.destinationRecipient}|${request.amount}`;
+  const started = inflight.get(key);
+  if (started !== undefined && nowMs - started < 10 * 60 * 1000) {
+    throw new Error("STOP: duplicate — this page was already paid for, and the money is on its way");
+  }
+  inflight.set(key, nowMs);
+}
+
 /**
  * `sendDeposit` for `nearintents.charge`. Returns the NEAR transaction hash,
  * or throws a STOP line before the key is used.
@@ -92,6 +104,7 @@ export async function sendDeposit(input: {
     const message = error instanceof Error ? error.message : String(error);
     throw new Error(message.startsWith("STOP:") ? message : "STOP: quote");
   }
+  claimDuplicate(input.request, nowMs);
   const { deliverFromIntents } = await import("./mpp-deliver.js");
   return deliverFromIntents({
     accountId: input.accountId,
@@ -141,9 +154,16 @@ async function payUrlOnce(url: string, accountId: string): Promise<number> {
   });
   const response = await mppx.fetch(url, { headers: { [ACCOUNT_HEADER]: accountId } });
   const body = await response.text();
-  process.stdout.write(`HTTP ${response.status}\n${body}\n`);
+  let shown = body;
+  try {
+    shown = JSON.stringify(JSON.parse(body), null, 2);
+  } catch {
+    // Not JSON: print as returned.
+  }
+  if (response.ok) process.stdout.write(`HTTP ${response.status} — the server accepted the payment and returned the page:\n${shown}\n`);
+  else process.stdout.write(`HTTP ${response.status}\n${shown}\n`);
   if (!response.ok) return 1;
   const receipt = Receipt.fromResponse(response) as Types.NearIntentsReceipt;
-  process.stdout.write(`https://nearblocks.io/txns/${receipt.reference}\n`);
+  process.stdout.write(`Settlement: https://nearblocks.io/txns/${receipt.reference}\n`);
   return 0;
 }

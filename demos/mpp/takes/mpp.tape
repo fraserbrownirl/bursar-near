@@ -1,4 +1,4 @@
-Output "demos/takes/v1-mpp-take.mp4"
+Output "demos/mpp/takes/v1-mpp-take.mp4"
 Set Shell bash
 Set FontFamily "Menlo"
 Set FontSize 31

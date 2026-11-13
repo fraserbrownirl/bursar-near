@@ -146,7 +146,7 @@ def build(data):
         base = base_plain
         if badge:
             base = F.base_frame(chrome, top(work, data, badge=badge), work / f"base-{name}.png")
-        F.encode_take(TAKE, dst, F.take_chain(box, font_size, trim=f"{t0:.3f}:{t1:.3f}"), base)
+        F.encode_take(take, dst, F.take_chain(box, font_size, trim=f"{t0:.3f}:{t1:.3f}"), base)
         pieces.append(dst)
 
     cursor = start

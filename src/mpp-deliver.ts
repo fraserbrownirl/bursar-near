@@ -6,6 +6,7 @@ import { loadBlocklist } from "./blocklist.js";
 import { decide } from "./decide.js";
 import { loadFacts } from "./load.js";
 import { append } from "./guard/ledger.js";
+import { terminalWidth, wrapWords } from "./guard/reason.js";
 import { referenceUi } from "./model.js";
 import { checkIntentInModel, checkQuoteInModel, requireLive } from "./model-checks.js";
 import { reviewMpp, type MppRequest } from "./mpp.js";
@@ -137,11 +138,19 @@ export async function deliverFromIntents(input: {
   if (guard.verdict === "block") throw new Error(`STOP: ${guard.reasons[0] ?? "block"}`);
   const spend = referenceUi(quote.quote.amountIn, 6);
   const price = referenceUi(input.request.methodDetails.amountOut, 6);
-  const fee = referenceUi((BigInt(quote.quote.amountIn) - BigInt(input.request.methodDetails.amountOut)).toString(), 6);
-  const card = `Paying ${spend} USDC to ${input.request.methodDetails.destinationRecipient}: ${price} for the page, ${fee} in route fees.`;
+  const delivered = referenceUi(input.request.amount, 6);
+  const chain = chainName(input.request.methodDetails.originNetwork);
+  const recipient = input.request.methodDetails.destinationRecipient;
+  const card = [
+    `1. The page's price is ${price} USDC to ${recipient}, collected through a one-time NEAR Intents deposit address on ${chain}.`,
+    `2. Bursar sends ${delivered} USDC to that address from its NEAR Intents balance (cost ${spend} with fees).`,
+    `3. NEAR Intents pays ${price} USDC to ${recipient} on NEAR.`,
+  ].join("\n");
   const reason = guard.reasons[0];
   if (reason) process.stdout.write(`note: ${reason === "account code hash unavailable" ? "the account's code could not be read on-chain" : reason}\n`);
-  process.stdout.write(card + "\n");
+  const width = Math.min(terminalWidth(), 100) - 3;
+  const wrapped = card.split("\n").map((line) => wrapWords(line, width).split("\n").join("\n   ")).join("\n");
+  process.stdout.write(wrapped + "\n");
   append("decision", { human: "yes", prompt: "pay url", reasons: guard.reasons, card });
   const deposit = quote.quote.depositAddress;
   if (!deposit) throw new Error("STOP: deposit");
@@ -165,8 +174,6 @@ export async function deliverFromIntents(input: {
   if (settled !== "submitted") throw new Error(settled.startsWith("STOP") ? settled : `STOP: ${settled}`);
   const approved = process.env.BURSAR_SIGNING_BYPASS === "1" ? "Signed without Touch ID (bypass set)" : "Approved with Touch ID";
   process.stdout.write(`${approved}. Waiting for the money to arrive…\n`);
-  const originName = chainName(input.request.methodDetails.originNetwork);
-  process.stdout.write(`The page asks for ${originName} USDC. Bursar sends it from the NEAR Intents balance; the merchant receives ${price} USDC on NEAR.\n`);
   const hash = await destinationHash(deposit);
   process.stdout.write(`Delivered: ${deliveryLink(input.request.methodDetails.originNetwork, hash)}\n`);
   return hash;
