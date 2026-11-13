@@ -135,7 +135,7 @@ Four real payments, run by Fraser on camera, then a film of attacks. The runshee
 | 1 | Shop sale | On the Mac: "a buyer will pay 0.15 USDC on Solana" | A QR in the terminal. The shopper's iPhone Bursar scans it, shows the card, Face ID, "Paid" and a link. The Mac prints "Received". | A phone camera decodes the QR, the phone pays it, and "Received" prints in the same session. |
 | 2 | Paid web page (MPP) | "pay http://127.0.0.1:8402/premium" | The 402 price and recipient, the card, Touch ID, the page content, a transaction link. | The official SDK example server, unmodified, returns the content and the link opens. |
 | 3 | Paid API (x402) | "what's the weather in London?", then "one" | The payable services and prices, the weather for London in one sentence, a Basescan link. | The weather is returned and the link opens. |
-| 4 | Split bill | Gives a restaurant receipt image and asks a friend for half | The share, and a receive request the friend can pay | The stated share is half the receipt total, and the receive request is for that amount. |
+| 4 | Split bill | Gives a restaurant receipt image and asks a friend for half | The share, and a receive request the friend can pay (a text line, no QR) | The stated share is half the receipt total, and the receive request is for that amount. |
 
 The attack film leads with the three in-model stops and a replay of one receipt, then shows four code stops. The table is `attacks/README.md`.
 
@@ -143,7 +143,7 @@ The attack film leads with the three in-model stops and a replay of one receipt,
 
 The Mac account is the `enclave` fact. The iPhone account is the `phone` fact. The merchant is the `merchant` fact. The Base float, used only for x402, is the `float` fact. The home directory is `~/.bursar-near`. Never read or write `~/.bursar`.
 
-- Each account has one fixed deposit address per chain. A receive QR is that address plus the amount.
+- Each account has one fixed deposit address per chain. A receive QR is that address plus the amount, and it is for a payer in the room — the shop sale, demo one, is the only scene that shows one. A payer who is not present gets a text line to paste into their own Bursar; the split bill never shows a QR.
 - An account id is not a deposit address. Never show an account id as an address on Base, Solana, or any other chain. Money sent there is lost.
 - The deposit address of a 1Click quote belongs to that quote and is never reused.
 - Agents make demo payments of 1 USDC or less without asking. Agents do not make payments above 1 USDC.
@@ -166,7 +166,7 @@ A key lives in the Secure Enclave or the login Keychain. Never in `.env`, the re
 
 1Click: dry-quote first. Small amounts can fall under a route's minimum. The intent deadline must equal the signed quote's deadline. `PENDING_DEPOSIT` means 1Click has not seen the money. `PROCESSING` means it has. Only submit a deposit hash for the first.
 
-Draw a QR with solid background-colour cells, one module per cell, with a quiet margin. Backgrounds fill the whole line box, so the cells touch; glyph QRs (half-block characters) do not scan in Terminal.app, where line leading cuts the grid. Check the terminal width first. Always print the PNG path too. Verify a QR by decoding a screenshot of the terminal, not the PNG. Record in Terminal.app. The Cursor terminal adds gaps between lines.
+Draw a QR only when the payer is present to scan it — the shop sale, and no other scene. The split bill's receive request is a text line. Draw it with solid background-colour cells, one module per cell, with a quiet margin. Backgrounds fill the whole line box, so the cells touch; glyph QRs (half-block characters) do not scan in Terminal.app, where line leading cuts the grid. Check the terminal width first. Always print the PNG path too. Verify a QR by decoding a screenshot of the terminal, not the PNG. Record in Terminal.app. The Cursor terminal adds gaps between lines.
 
 The phone's JavaScript engine has no web globals: no `URL`, `URLSearchParams`, `fetch`, `TextEncoder`, `crypto`, `setTimeout`, `atob`. Supply them once, in one shim file or from Swift. Run the phone bundle under the bare `jsc` binary on the Mac before putting a build on the phone.
 

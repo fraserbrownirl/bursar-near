@@ -10,6 +10,18 @@ import { decodePaymentRequired, reviewX402 } from "./x402.js";
 
 const EMPTY: ChainFacts = { codeHash: null, createdNs: null, outgoingCount: null, latestDeployNs: null, errors: {} };
 
+/** The body of the last paid x402 response, so the owner session can say what the API answered. */
+export let lastX402Body = "";
+
+/** JSON bodies print indented; anything else prints as-is. A 6 KB single line is unreadable in a real terminal. */
+export function printableBody(text: string): string {
+  try {
+    return JSON.stringify(JSON.parse(text), null, 2);
+  } catch {
+    return text;
+  }
+}
+
 /** The Base transaction hash from an x402 settlement response, when the facilitator included one. */
 export function settlementTx(header: string | null): string | null {
   if (!header) return null;
@@ -62,13 +74,16 @@ export async function payX402(url: string, accountId: string): Promise<number> {
   }
   ensureFloat();
   await topUpFloat(accountId, BigInt(review.accept.amount));
+  const display = Number(review.accept.amount) / 1_000_000;
+  process.stdout.write(`Paying ${display} USDC to ${new URL(url).host}\n`);
   const mppx = Mppx.create({
     polyfill: false,
     methods: [evm({ account: floatSigner(), networks: [8453], maxAtomicAmount: MPP_LIMIT_ATOMIC })],
   });
   const prepared = await mppx.prepareRequest(url, { headers: { accept: "application/json" } }, { requirePayment: true });
   const paid = await prepared.payment.pay();
-  process.stdout.write(await paid.text() + "\n");
+  lastX402Body = await paid.text();
+  process.stdout.write(printableBody(lastX402Body) + "\n");
   const tx = settlementTx(paid.headers.get("payment-response"));
   append("settled", {
     recipient: review.accept.payTo,

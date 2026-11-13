@@ -19,4 +19,4 @@ Never overwrite or delete a tracked receipt or its input. Never read or write `~
 
 `README.md`, `AGENTS.md`, `docs/`, and `receipts/` are edited on `main` only. Do not put one lane's edits on the other lane's branch.
 
-Do not restart the model server, rebuild the firmware, or rebuild the pack outside the firmware lane. Submission closes 14 November 2026, 23:59 UTC.
+Restart the model server when its check lane wedges: chat answers but `1click check` and `intents dec` never return. Do not rebuild the firmware or the pack outside the firmware lane. Submission closes 14 November 2026, 23:59 UTC.

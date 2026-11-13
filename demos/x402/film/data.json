@@ -1,0 +1,26 @@
+{
+ "scene": "x402",
+ "take": "v2-x402-take.mp4",
+ "chip": "Paid API (x402)",
+ "chip2": "Float payment · code limits · no in-model check",
+ "caption": "Paying an API from a small float",
+ "link": "github.com/fraserbrownirl/bursar-near/demos/x402",
+ "open": false,
+ "close": false,
+ "head": "The API accepted the payment and returned the weather.",
+ "lines": [
+  "what's the weather in London? → two payable services with prices → the cheaper one",
+  "London: clear sky, 3.1 °C.",
+  "Settlement: https://basescan.org/tx/0xc99b502fc1bb76a6eb7a0db3efde3e569c28447186a4a8c34f1cfdef741a9e6a",
+  "0.001 USDC on Base from the float 0xE736…F152 to 0xd6fC…FB0a"
+ ],
+ "run": "2026-11-13 13:36 +0400",
+ "approval": "No Touch ID: 0.001 USDC is under the 1 USDC demo cap, and the Base float (login Keychain) machine-signs. The in-model checks belong to the NEAR Intents flow; this scene has none.",
+ "diagram": false,
+ "verify_chrome": true,
+ "verify": {
+  "raw_line": "https://basescan.org/tx/0xc99b502fc1bb76a6eb7a0db3efde3e569c28447186a4a8c34f1cfdef741a9e6a",
+  "mark": "✓ on-chain",
+  "rest": ": 0.001 USDC from the float to the service"
+ }
+}

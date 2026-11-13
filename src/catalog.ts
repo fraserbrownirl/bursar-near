@@ -1,4 +1,5 @@
 import { OneClickService } from "@defuse-protocol/one-click-sdk-typescript";
+import { needleWords } from "./bazaar.js";
 
 export const CATALOG_URL = "https://mpp.dev/api/services";
 
@@ -109,8 +110,8 @@ export function methodCounts(services: readonly CatalogService[]): Map<string, n
 }
 
 export function searchServices(services: readonly CatalogService[], need: string): CatalogService[] {
-  const needle = need.trim().toLowerCase();
-  if (!needle) return [];
+  const words = needleWords(need);
+  if (words.length === 0) return [];
   return services.filter((service) => {
     const hay = [
       service.name,
@@ -118,7 +119,7 @@ export function searchServices(services: readonly CatalogService[], need: string
       service.id,
       ...service.endpoints.flatMap((endpoint) => [endpoint.path, endpoint.description]),
     ].join("\n").toLowerCase();
-    return hay.includes(needle);
+    return words.some((word) => hay.includes(word));
   });
 }
 
@@ -129,7 +130,7 @@ export function summaryLines(services: readonly CatalogService[], tokens: readon
   for (const method of methods) {
     const listed = services.filter((service) => service.methods.includes(method));
     const payable = listed.filter((service) => payability(service, tokens, probes.get(service.id)).payable).length;
-    lines.push(`${method} ${counts.get(method) ?? 0} payable ${payable}`);
+    lines.push(`${method}: ${counts.get(method) ?? 0} services, ${payable} payable`);
   }
   const any = services.some((service) => payability(service, tokens, probes.get(service.id)).payable);
   if (!any) {

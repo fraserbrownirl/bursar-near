@@ -170,6 +170,50 @@ def content_start(path, t_result):
     return 0.0
 
 
+def chrome_card(data, work, name):
+    """Background with the chips, the caption, and the footer link."""
+    image = F.Image.new("RGB", (F.W, F.H), F.BG)
+    F.draw_top(image, chip=data["chip"], caption=data["caption"], chip2=data.get("chip2"))
+    draw = F.ImageDraw.Draw(image)
+    font = F.sf(38)
+    tw = F.text_w(draw, data["link"], font)
+    draw.text(((F.W - tw) / 2, F.LINK_Y), data["link"], font=font, fill=(209, 209, 214))
+    return image, draw
+
+
+def render_receipt_card(data, work):
+    """The whole receipt, shown before the terminal run."""
+    image, _draw = chrome_card(data, work, "receipt")
+    receipt = F.Image.open(work.parent / data["receipt_card"]).convert("RGB")
+    scale = min(700 / receipt.height, 540 / receipt.width)
+    sized = receipt.resize((int(receipt.width * scale), int(receipt.height * scale)), F.Image.LANCZOS)
+    image.paste(sized, ((F.W - sized.width) // 2, 180))
+    path = work / "receipt-card.png"
+    image.save(path)
+    return path
+
+
+def render_headings(data, work):
+    """The closing card: two headings, plain sentences."""
+    image, draw = chrome_card(data, work, "headings")
+    y = 200
+    for block in data["headings"]:
+        hfont = F.sf(56, "Semibold")
+        tw = F.text_w(draw, block["h"], hfont)
+        draw.text(((F.W - tw) / 2, y), block["h"], font=hfont, fill=F.TEXT)
+        y += 88
+        body = F.menlo(32)
+        for line in block["lines"]:
+            for wrapped in wrap_words(draw, line, body, 1400):
+                tw = F.text_w(draw, wrapped, body)
+                draw.text(((F.W - tw) / 2, y), wrapped, font=body, fill=F.DIM)
+                y += 48
+        y += 42
+    path = work / "headings.png"
+    image.save(path)
+    return path
+
+
 def build(data):
     scene = data["scene"]
     take = ROOT / "demos" / scene / "takes" / data["take"] if data.get("take") else TAKE_BY_SCENE[scene]
@@ -191,6 +235,11 @@ def build(data):
         F.render_open(open_png)
         pieces.append(work / "s-open.mp4")
         F.card_clip(open_png, 2.5, pieces[-1])
+
+    if data.get("receipt_card"):
+        receipt_png = render_receipt_card(data, work)
+        pieces.append(work / "s-receipt.mp4")
+        F.card_clip(receipt_png, 3.0, pieces[-1])
 
     if data.get("diagram", True):
         diagram_dir = work / "diagram"
@@ -248,7 +297,11 @@ def build(data):
     pieces.append(work / "s-paid.mp4")
     F.card_clip(paid_png, 4.0, pieces[-1])
 
-    verify = data.get("verify", {"raw_line": data["raw_line"]} if data.get("raw_line") else None)
+    if data.get("headings"):
+        headings_png = render_headings(data, work)
+        pieces.append(work / "s-headings.mp4")
+        F.card_clip(headings_png, 5.0, pieces[-1])
+    verify = None if data.get("headings") else data.get("verify", {"raw_line": data["raw_line"]} if data.get("raw_line") else None)
     if verify:
         if data.get("verify_chrome"):
             for key in ("chip", "chip2", "caption", "link"):

@@ -46,8 +46,8 @@ test("find summary counts methods and says when none are payable", () => {
   });
   const lines = summaryLines(services, tokens, new Map([["laso-finance", { status: 503, amount: null, currency: null, chainId: null }]]));
   assert.equal(lines[0], "catalog 2");
-  assert.equal(lines[1], "nearintents 0 payable 0");
-  assert.equal(lines[2], "tempo 1 payable 0");
+  assert.equal(lines[1], "nearintents: 0 services, 0 payable");
+  assert.equal(lines[2], "tempo: 1 services, 0 payable");
   assert.match(lines.at(-1) ?? "", /no catalog service is payable/);
   assert.equal(searchServices(services, "weather")[0]?.id, "ping");
 });

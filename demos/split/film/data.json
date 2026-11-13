@@ -1,0 +1,37 @@
+{
+ "scene": "split",
+ "take": "v1-split-take.mp4",
+ "chip": "Split bill",
+ "chip2": "Receive request · not a payment · no key used",
+ "caption": "Splitting a cafe receipt from a photo",
+ "link": "github.com/fraserbrownirl/bursar-near/demos/split",
+ "open": false,
+ "close": false,
+ "diagram": false,
+ "receipt_card": "receipt-caffe.png",
+ "badge_overlay": true,
+ "min_wait": 8,
+ "hold": 2.5,
+ "box_time": 15.5,
+ "result_time": 14.5,
+ "badge": "Ready to send.",
+ "head": "Bursar read the receipt and wrote the request.",
+ "lines": [
+  "BRAMBLE & WREN — TOTAL 5.00 USD, 2 guests → 2.50 each",
+  "Bursar prints: I read: total 5.00, 2 guests",
+  "Maya owes 2.50 USDC on Solana.",
+  "pay 2.50 USDC to BHQBpzsUNHzhZfD2jrxwwcp1FcduvdLjTh5x4DkzvEkp on Solana",
+  "a text line the owner sends to Maya"
+ ],
+ "run": "2026-11-13 14:35 +0400",
+ "approval": "No key is used: nothing is paid and nothing is signed. macOS text recognition reads the receipt (src/screenshot.ts), not the model; the share is computed in code (src/bill.ts). The friend pays later, from her own Bursar.",
+ "headings": [
+  { "h": "What this is",
+    "lines": ["A request for 2.50 USDC on Solana, to the owner's Solana deposit address."] },
+  { "h": "Why it works in her Bursar",
+    "lines": [
+     "Bursar takes plain sentences. A Bursar wrote this one, with the owner's receiving address filled in.",
+     "She pays from her own balance. It is a request: her Bursar checks it and asks her before paying."
+    ] }
+ ]
+}

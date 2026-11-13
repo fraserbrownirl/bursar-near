@@ -28,7 +28,7 @@ export function imageFile(line: string): string | null {
   return existsSync(text) ? text : null;
 }
 
-/** An image path anywhere in the line. The whole line can be the path, or the path can follow a sentence. */
+/** An image path anywhere in the line. The whole line can be the path, or the path can follow a sentence, absolute or relative to the working directory. */
 export function imageIn(text: string): string | null {
   const whole = imageFile(text);
   if (whole) return whole;
@@ -38,6 +38,10 @@ export function imageIn(text: string): string | null {
     const ext = rest.match(/\.(?:png|jpe?g|gif|webp|heic)\b/i);
     if (!ext || ext.index === undefined) continue;
     const found = imageFile(rest.slice(0, ext.index + ext[0].length));
+    if (found) return found;
+  }
+  for (const token of text.split(/\s+/)) {
+    const found = imageFile(token);
     if (found) return found;
   }
   return null;

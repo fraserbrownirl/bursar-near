@@ -19,6 +19,7 @@ The owner asks `what's the weather in London?`. Bursar searches the x402 Bazaar 
 - The settlements are public Base transactions; the links open without any account.
 - `docs/hackathon/evidence.json` records the payments: amount `1000` (0.001 USDC), `payTo` `0xd6fCE15298Fc9D60f867d9455D497177Da9BFB0a`, request ids `ec4deaaa-5bb0-430d-88a8-90f2a4d5731c`, `e3e849f8-1a3a-45fb-bf08-6d9094c8df5a` and `c76eae89-a5ca-41d2-8f2c-e5be78505f70`, and the transaction hashes above.
 - A judge repeats it the way the owner did: in `bursar`, `what's the weather in London?`, then `one` (or the service's name). The search alone, no keys needed: `npm run bursar -- find weather` — it prints whatever the Bazaar marks payable that day.
+- The film is `x402-demo.mp4` (25.4 s), composed by `demos/mpp/film-mpp.py` from the VHS take `takes/v2-x402-take.mp4` (tape: `takes/x402-v2.tape`); `film/timeline.json` records the cut. The take is a live capture of a real run — `what's the weather in London?`, then `the cheaper one` — settling in https://basescan.org/tx/0xc99b502fc1bb76a6eb7a0db3efde3e569c28447186a4a8c34f1cfdef741a9e6a . The v1 take (`takes/v1-x402-take.mp4`, answer `one`) settled in https://basescan.org/tx/0x0c92aed7dc0f04ced413088dc15189fc7ec987483a008ce5d420194b955450da .
 
 ## Run on 2026-11-13
 
