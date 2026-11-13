@@ -322,10 +322,15 @@ def draw_chrome():
     return image
 
 
-def draw_top(image, chip=None, counter=None, caption=None):
+def draw_top(image, chip=None, counter=None, caption=None, chip2=None):
     draw = ImageDraw.Draw(image)
+    pill_y = 24 if chip2 else 40
     if chip:
-        pill(draw, (40, 40), chip, sf(30, "Medium"), (44, 44, 46), TEXT)
+        w, _ = pill(draw, (40, pill_y), chip, sf(30, "Medium"), (44, 44, 46), TEXT)
+        if chip2:
+            pill(draw, (40 + w + 12, pill_y), chip2, sf(30, "Medium"), (44, 44, 46), TEXT)
+    elif chip2:
+        pill(draw, (40, pill_y), chip2, sf(30, "Medium"), (44, 44, 46), TEXT)
     if counter:
         font = sf(30, "Medium")
         w = text_w(draw, counter, font) + 44
@@ -333,7 +338,7 @@ def draw_top(image, chip=None, counter=None, caption=None):
     if caption:
         font = sf(46, "Semibold")
         tw = text_w(draw, caption, font)
-        draw.text(((W - tw) / 2, CAPTION_Y), caption, font=font, fill=TEXT)
+        draw.text(((W - tw) / 2, 84 if chip2 else CAPTION_Y), caption, font=font, fill=TEXT)
 
 
 def draw_link(image, number):
@@ -528,6 +533,12 @@ def render_close(path, qr):
 def render_replay_result(data, work):
     image = Image.new("RGB", (W, H), BG)
     draw = ImageDraw.Draw(image)
+    if data.get("chip") or data.get("caption"):
+        draw_top(image, chip=data.get("chip"), caption=data.get("caption"), chip2=data.get("chip2"))
+    if data.get("link"):
+        font = sf(38)
+        tw = text_w(draw, data["link"], font)
+        draw.text(((W - tw) / 2, LINK_Y), data["link"], font=font, fill=(209, 209, 214))
     raw = data.get("raw_line", "")
     if raw:
         lines = wrap_runs(draw, raw, 24, W - 240, [])
@@ -537,8 +548,8 @@ def render_replay_result(data, work):
             draw_runs(draw, x, y, line, 24, base=DIM)
             y += 34
     tick_font = sf(72, "Semibold")
-    mark = "✓ match"
-    rest = ": same answer from the weights"
+    mark = data.get("mark", "✓ match")
+    rest = data.get("rest", ": same answer from the weights")
     tw = text_w(draw, mark, tick_font) + text_w(draw, rest, tick_font)
     x = (W - tw) / 2
     y = H / 2 - 40
@@ -639,25 +650,31 @@ def base_frame(chrome, top, dst):
     return dst
 
 
-def take_scale(box, font_size):
-    return min(0.85 * 46 / font_size, CW / box[2])
+def take_scale(box, font_size, cap=0.85):
+    return min(cap * 46 / font_size, CW / box[2])
 
 
-def crop_scale(box, font_size):
+def crop_scale(box, font_size, cap=0.85):
     x, y, w0, h0 = box
-    scale = take_scale(box, font_size)
+    scale = take_scale(box, font_size, cap)
     sw = max(2, int(w0 * scale) // 2 * 2)
     sh = max(2, int(h0 * scale) // 2 * 2)
     return f"crop={w0}:{h0}:{x}:{y},scale={sw}:{sh}"
 
 
-def take_chain(box, font_size, trim=None, speed=None, hold=0.0):
+def take_chain(box, font_size, trim=None, speed=None, hold=0.0, max_w=None, cap=0.85):
     chain = ""
     if trim:
         chain += f"trim={trim},setpts=PTS-STARTPTS,"
     if speed:
         chain += f"setpts=(PTS-STARTPTS)/{speed},fps={FPS},"
-    parts = [f"[1:v]{chain}{crop_scale(box, font_size)}[tk]"]
+    scale = take_scale(box, font_size, cap)
+    if max_w is not None:
+        scale = min(scale, max_w / box[2])
+    x, y, w0, h0 = box
+    sw = max(2, int(w0 * scale) // 2 * 2)
+    sh = max(2, int(h0 * scale) // 2 * 2)
+    parts = [f"[1:v]{chain}crop={w0}:{h0}:{x}:{y},scale={sw}:{sh}[tk]"]
     parts.append(f"[0:v][tk]overlay={CX}:{CY}:shortest=1[bg]")
     if hold > 0:
         parts.append(f"[bg]tpad=stop_mode=clone:stop_duration={hold},format=yuv420p[v]")

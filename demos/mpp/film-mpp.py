@@ -115,6 +115,25 @@ def render_replay_caption(data, path):
     image.save(path)
 
 
+def crop_scale_big(box, font_size):
+    """Larger take text than the attack films: fill the window width."""
+    x, y, w0, h0 = box
+    scale = min(46 / font_size, F.CW / box[2])
+    sw = max(2, int(w0 * scale) // 2 * 2)
+    sh = max(2, int(h0 * scale) // 2 * 2)
+    return f"crop={w0}:{h0}:{x}:{y},scale={sw}:{sh}"
+
+
+def big_take_chain(box, font_size, trim=None):
+    chain = ""
+    if trim:
+        chain += f"trim={trim},setpts=PTS-STARTPTS,"
+    parts = [f"[1:v]{chain}{crop_scale_big(box, font_size)}[tk]"]
+    parts.append(f"[0:v][tk]overlay={F.CX}:{F.CY}:shortest=1[bg]")
+    parts.append("[bg]format=yuv420p[v]")
+    return ",".join(parts)
+
+
 def quiet_spans(path, t_result, want=3, minimum=15.0):
     """The `want` longest static stretches (waits) before the result, in time order."""
     gaps = []
@@ -159,7 +178,7 @@ def build(data):
     chrome = work / "chrome.png"
     F.draw_chrome().save(chrome)
     dur = F.duration(take)
-    t_result = F.result_time(take, dur)
+    t_result = data.get("result_time") or F.result_time(take, dur)
     start = content_start(take, t_result)
     spans = [span for span in quiet_spans(take, t_result, minimum=data.get("min_wait", 15.0)) if span[0] >= start]
     data_out = {"take": str(take), "duration": dur, "result": t_result, "waits": []}
@@ -183,14 +202,32 @@ def build(data):
 
     base_plain = F.base_frame(chrome, top(work, data), work / "base.png")
 
+    def side_base(dst, name):
+        """Base with the receipt beside the terminal, while Bursar reads it."""
+        if not data.get("side_image"):
+            return dst
+        image = F.Image.open(dst).convert("RGB")
+        receipt = F.Image.open(work.parent / data["side_image"]).convert("RGB")
+        region_w, region_h = 560, 660
+        scale = min(region_w / receipt.width, region_h / receipt.height)
+        sized = receipt.resize((int(receipt.width * scale), int(receipt.height * scale)), F.Image.LANCZOS)
+        image.paste(sized, (1180, 250))
+        out = work / f"base-{name}-side.png"
+        image.save(out)
+        return out
+
     def take_seg(name, t0, t1, badge=None, hold=0.0):
         if t1 - t0 < 0.2:
             return
         dst = work / f"s-{name}.mp4"
         base = base_plain
+        max_w = None
         if badge:
             base = F.base_frame(chrome, top(work, data, badge=badge), work / f"base-{name}.png")
-        F.encode_take(take, dst, F.take_chain(box, font_size, trim=f"{t0:.3f}:{t1:.3f}", hold=hold), base)
+            base = side_base(base, name)
+            if data.get("side_image"):
+                max_w = 980
+        F.encode_take(take, dst, F.take_chain(box, font_size, trim=f"{t0:.3f}:{t1:.3f}", hold=hold, max_w=max_w, cap=data.get("text_cap", 0.85)), base)
         pieces.append(dst)
 
     cursor = start
@@ -204,7 +241,8 @@ def build(data):
             take_seg(f"pre{i}", cursor, min(qs + 1.2, t_result))
             take_seg(f"badge{i}", min(qs + 1.2, t_result), min(qs + 3.0, t_result), badge=f"real wait {round(wait)} s")
         cursor = qe
-    take_seg("tail", cursor, t_result, hold=data.get("hold", 0.0))
+    tail_end = min(data.get("tail_end", t_result) if data.get("trim_tail") else t_result, t_result)
+    take_seg("tail", cursor, tail_end, hold=data.get("hold", 0.0))
 
     paid_png, _badge_rect = render_paid(data, work)
     pieces.append(work / "s-paid.mp4")

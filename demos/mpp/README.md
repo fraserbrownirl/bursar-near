@@ -48,12 +48,18 @@ In `bursar`, the sentence `pay http://127.0.0.1:8402/premium`. The page came bac
 
 Earlier the same day this scene stopped at the in-model amount check (`fail amount`, receipt `01cdef18ecc74e6b5419a9028f470d09204b9a2f3c5082ec479357b14e86544a`). The caller had stated the EXACT_OUTPUT quote's output amount; the in-model check compares the quote's `amountIn`, so the caller now states the deposit amount.
 
-## Run on 2026-11-13
+## Run on 2026-11-13, 13:08 +0400
 
-Same sentence, same server (fresh clone of the example at 0.4.1, `MERCHANT_RECIPIENT=frsrcom.near`). Both checks ran and matched the reference; the page and the link came back.
+Same sentence, same server (fresh clone of the example at 0.4.1, `MERCHANT_RECIPIENT=frsrcom.near`). Both checks ran and matched the reference; Touch ID approved at the card; the page and both links came back. The film `demos/mpp/mpp-demo.mp4` is this run.
 
-- Quote check inside the model: `ok`, receipt `bb8e930501a0a97b2f69e6d39ddf68c7f084ee9f2b1ed020ddf472d7b479a388`.
-- Intent check inside the model: `ok`, receipt `b5bebe97bccb5d741134d757bfaff74d953f266221c79b57a587fd1c443418f1`.
+- Quote check inside the model: `ok`, receipt `3845a35dcbe493c5678142a9affdb5e8f18394424f002ef86a64c89d8377b90d`.
+- Intent check inside the model: `ok`, receipt `253dbe37f380abad771ffcdbb23ba1bd27c37fe6acf17155df9ae1d2d9e46817`.
+- Delivered: https://arbiscan.io/tx/0x29a39c9f0d2c7e32f1a3a81dd1edb727e6a57f0870a5936604997271adfb3b3e (0.101034 USDC to the one-time deposit address `0x9a4F54A91CE5E5536E3ef2DBF0ae4276D9Fb98aF`, on Arbitrum).
+- Settlement: https://nearblocks.io/txns/6yEecWjHzgwhh4KGNz2tSAkd9VU2MabZ5WYgAvBsQeh9 (0.1 USDC to frsrcom.near on NEAR).
+
+## Run on 2026-11-13, earlier
+
+Same sentence, same server. Quote check receipt `bb8e930501a0a97b2f69e6d39ddf68c7f084ee9f2b1ed020ddf472d7b479a388`, intent check receipt `b5bebe97bccb5d741134d757bfaff74d953f266221c79b57a587fd1c443418f1`.
 
 ## Replay the checks
 
@@ -65,4 +71,4 @@ npm run verify -- 9500264e1ebfbeaf5dc042f81de2d14514a2a0187bd801430092f4cbdda3d2
 
 Each line prints `match`. Level 2 replays one in the firmware emulator (`npm run verify:firmware -- <hash>`), level 3 in the weights (`npm run verify:weights -- <hash>`).
 
-Measured 2026-11-13: `verify:firmware` on `bb8e930501a0a97b2f69e6d39ddf68c7f084ee9f2b1ed020ddf472d7b479a388` printed `8cb34279… match` then `bb8e9305… match`. `verify:weights` on the same receipt printed `match` with `wall_ms 1779530` — the 186,581-token trace replayed on CPU.
+Measured 2026-11-13: `verify:firmware` on `bb8e930501a0a97b2f69e6d39ddf68c7f084ee9f2b1ed020ddf472d7b479a388` printed `8cb34279… match` then `bb8e9305… match`. `verify:weights` on the same receipt printed `match` with `wall_ms 1779530` — the 186,581-token trace replayed on CPU. On the 13:08 run's quote receipt `3845a35dcbe493c5678142a9affdb5e8f18394424f002ef86a64c89d8377b90d`, `verify:weights` printed `match` with `wall_ms 1866035`.

@@ -5,6 +5,7 @@
  "link": "Paid web page (MPP) \u00b7 github.com/fraserbrownirl/bursar-near/demos/mpp.md",
  "head": "HTTP 200 \u2014 the server accepted the payment and returned the page.",
  "lines": [
+  "Delivered: https://arbiscan.io/tx/0x29a39c9f\u2026adfb3b3e",
   "{\"premium\":true,\"insight\":\"The merchant was paid an exact amount on NEAR before you saw this.\"}",
   "Settlement: https://nearblocks.io/txns/6yEecWjHzgwhh4KGNz2tSAkd9VU2MabZ5WYgAvBsQeh9",
   "quote check  receipt: 3845a35d\u2026b90d [live (model, Mac)]",
@@ -18,7 +19,11 @@
  "intent_receipt": "253dbe37f380abad771ffcdbb23ba1bd27c37fe6acf17155df9ae1d2d9e46817",
  "settlement": "https://nearblocks.io/txns/6yEecWjHzgwhh4KGNz2tSAkd9VU2MabZ5WYgAvBsQeh9",
  "diagram": false,
- "close": false,
+ "close": true,
  "verify_cmd": "npm run verify:weights 3845a35dcbe493c5678142a9affdb5e8f18394424f002ef86a64c89d8377b90d",
- "verify_wall_s": 1866
+ "verify_wall_s": 1866,
+ "text_cap": 1.0,
+ "trim_tail": true,
+ "delivered": "Delivered: https://arbiscan.io/tx/0x29a39c9f\u2026adfb3b3e",
+ "tail_end": 196.4
 }

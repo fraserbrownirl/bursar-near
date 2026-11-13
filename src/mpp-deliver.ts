@@ -175,7 +175,8 @@ export async function deliverFromIntents(input: {
   const approved = process.env.BURSAR_SIGNING_BYPASS === "1" ? "Signed without Touch ID (bypass set)" : "Approved with Touch ID";
   process.stdout.write(`${approved}. Waiting for the money to arrive…\n`);
   const hash = await destinationHash(deposit);
-  process.stdout.write(`Delivered: ${deliveryLink(input.request.methodDetails.originNetwork, hash)}\n`);
+  const short = hash.length > 18 ? `${hash.slice(0, 10)}…${hash.slice(-8)}` : hash;
+  process.stdout.write(`Delivered: ${deliveryLink(input.request.methodDetails.originNetwork, short)}\n`);
   return hash;
 }
 

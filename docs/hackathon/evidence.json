@@ -380,11 +380,42 @@
   },
   {
    "date": "2026-11-13",
+   "kind": "x402",
+   "url": "https://x402.tbs-digital.com/weather/current?city=London",
+   "amount": "1000",
+   "display": "0.001",
+   "asset": "USDC",
+   "network": "eip155:8453",
+   "from": "0xE7369dD4F08fA5203B06F3E1Dccee00a11cCF152",
+   "payTo": "0xd6fCE15298Fc9D60f867d9455D497177Da9BFB0a",
+   "id": "0x0c92aed7dc0f04ced413088dc15189fc7ec987483a008ce5d420194b955450da",
+   "explorer": "https://basescan.org/tx/0x0c92aed7dc0f04ced413088dc15189fc7ec987483a008ce5d420194b955450da",
+   "note": "The filmed run (demos/x402/takes/v1-x402-take.mp4, VHS). The closing line was 'London: clear sky, 2.9 \u00b0C.'"
+  },
+  {
+   "date": "2026-11-13",
+   "kind": "x402",
+   "url": "https://x402.tbs-digital.com/weather/current?city=London",
+   "amount": "1000",
+   "display": "0.001",
+   "asset": "USDC",
+   "network": "eip155:8453",
+   "from": "0xE7369dD4F08fA5203B06F3E1Dccee00a11cCF152",
+   "payTo": "0xd6fCE15298Fc9D60f867d9455D497177Da9BFB0a",
+   "id": "0xc99b502fc1bb76a6eb7a0db3efde3e569c28447186a4a8c34f1cfdef741a9e6a",
+   "explorer": "https://basescan.org/tx/0xc99b502fc1bb76a6eb7a0db3efde3e569c28447186a4a8c34f1cfdef741a9e6a",
+   "note": "The v2 film's run (demos/x402/takes/v2-x402-take.mp4, VHS): 'what's the weather in London?', then 'the cheaper one'. The closing line was 'London: clear sky, 3.1 \u00b0C.'"
+  },
+  {
+   "date": "2026-11-13",
    "kind": "bazaar",
    "command": "bursar find weather",
    "bazaar": 2,
    "payable": 2,
-   "urls": ["https://x402.tbs-digital.com/weather/current", "https://x402tap.com/api/weather"],
+   "urls": [
+    "https://x402.tbs-digital.com/weather/current",
+    "https://x402tap.com/api/weather"
+   ],
    "note": "The payable listing changed since the 2026-11-11 entry, which shows the search is live, not a fixture. A nonsense query ('bursar find zzqxw') the same day returned bazaar 0 payable 0."
   },
   {
@@ -554,6 +585,26 @@
    "id": "58drsMQQYGxGZ97d3hc8hE5BKspv4jKgeV5Gdu71EH81",
    "url": "https://nearblocks.io/txns/58drsMQQYGxGZ97d3hc8hE5BKspv4jKgeV5Gdu71EH81",
    "amount_in": "107433"
+  },
+  {
+   "date": "2026-11-13",
+   "kind": "mpp-delivery",
+   "to": "0x9a4F54A91CE5E5536E3ef2DBF0ae4276D9Fb98aF",
+   "amount": "101034",
+   "asset": "USDC",
+   "chain": "arbitrum",
+   "id": "0x29a39c9f0d2c7e32f1a3a81dd1edb727e6a57f0870a5936604997271adfb3b3e",
+   "url": "https://arbiscan.io/tx/0x29a39c9f0d2c7e32f1a3a81dd1edb727e6a57f0870a5936604997271adfb3b3e"
+  },
+  {
+   "date": "2026-11-13",
+   "kind": "mpp-settlement",
+   "to": "frsrcom.near",
+   "amount": "100000",
+   "asset": "USDC",
+   "id": "6yEecWjHzgwhh4KGNz2tSAkd9VU2MabZ5WYgAvBsQeh9",
+   "url": "https://nearblocks.io/txns/6yEecWjHzgwhh4KGNz2tSAkd9VU2MabZ5WYgAvBsQeh9",
+   "amount_in": "107433"
   }
  ],
  "runs": [
@@ -671,6 +722,18 @@
    "paid": true,
    "quote_receipt": "9500264e1ebfbeaf5dc042f81de2d14514a2a0187bd801430092f4cbdda3d200",
    "intent_receipt": "e20e41752b61b87e7bc693dbd7aca347f6e7662c3a840a7d880873d52baae4de"
+  },
+  {
+   "kind": "mpp-film",
+   "date": "2026-11-13",
+   "run_at": "2026-11-13 13:08 +0400",
+   "film": "demos/mpp/mpp-demo.mp4",
+   "quote_receipt": "3845a35dcbe493c5678142a9affdb5e8f18394424f002ef86a64c89d8377b90d",
+   "intent_receipt": "253dbe37f380abad771ffcdbb23ba1bd27c37fe6acf17155df9ae1d2d9e46817",
+   "verify_weights": {
+    "quote_receipt": "match",
+    "wall_ms": 1866035
+   }
   }
  ],
  "cited": [
@@ -716,6 +779,12 @@
   "01cdef18ecc74e6b5419a9028f470d09204b9a2f3c5082ec479357b14e86544a",
   "2S5EFTZumZciXkNk54LzGt85w7xXBkaENjXF33zjdoLA",
   "HgiYtRLt1CkJ7wyhVp2AdT2j6WftL4E6BqLsztmLxfqP",
-  "58drsMQQYGxGZ97d3hc8hE5BKspv4jKgeV5Gdu71EH81"
+  "58drsMQQYGxGZ97d3hc8hE5BKspv4jKgeV5Gdu71EH81",
+  "3845a35dcbe493c5678142a9affdb5e8f18394424f002ef86a64c89d8377b90d",
+  "253dbe37f380abad771ffcdbb23ba1bd27c37fe6acf17155df9ae1d2d9e46817",
+  "0x29a39c9f0d2c7e32f1a3a81dd1edb727e6a57f0870a5936604997271adfb3b3e",
+  "6yEecWjHzgwhh4KGNz2tSAkd9VU2MabZ5WYgAvBsQeh9",
+  "https://arbiscan.io/tx/0x29a39c9f0d2c7e32f1a3a81dd1edb727e6a57f0870a5936604997271adfb3b3e",
+  "https://nearblocks.io/txns/6yEecWjHzgwhh4KGNz2tSAkd9VU2MabZ5WYgAvBsQeh9"
  ]
 }
