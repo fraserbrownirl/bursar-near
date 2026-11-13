@@ -1,21 +1,21 @@
 {
  "take": "/Users/fraserbrown/Dev/bursar-near/demos/takes/v1-mpp-take.mp4",
- "duration": 202.0,
- "result": 200.07592773437497,
+ "duration": 196.16,
+ "result": 194.28725585937497,
  "waits": [
   {
-   "start": 6.0,
+   "start": 7.5,
    "end": 66.0,
-   "seconds": 60
+   "seconds": 58
   },
   {
-   "start": 72.5,
-   "end": 141.0,
-   "seconds": 68
+   "start": 73.0,
+   "end": 135.0,
+   "seconds": 62
   },
   {
-   "start": 144.0,
-   "end": 183.5,
+   "start": 140.0,
+   "end": 179.5,
    "seconds": 40
   }
  ]

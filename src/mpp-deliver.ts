@@ -1,8 +1,10 @@
 import { OneClickService } from "@defuse-protocol/one-click-sdk-typescript";
+import { isNearAccount } from "./account.js";
 import { NEAR_USDC } from "./assets.js";
 import { floatAddress } from "./base-float.js";
 import { loadBlocklist } from "./blocklist.js";
 import { decide } from "./decide.js";
+import { loadFacts } from "./load.js";
 import { append } from "./guard/ledger.js";
 import { referenceUi } from "./model.js";
 import { checkIntentInModel, checkQuoteInModel, requireLive } from "./model-checks.js";
@@ -30,7 +32,32 @@ export function intentsDelivery(challenge: MppRequest, accountId: string, destin
   };
 }
 
-/** 1Click asset id for a challenge currency, or null when that origin is not listed. */
+/** The check line for the owner: what was checked, the verdict, who computed it, and the receipt. The full command prints under BURSAR_VERBOSE. */
+function showCheck(checked: { lines: string; value?: string | null; reference?: string }, what: string): void {
+  if (process.env.BURSAR_VERBOSE === "1") {
+    process.stdout.write(checked.lines + "\n");
+    return;
+  }
+  const receipt = checked.lines.match(/receipt ([0-9a-f]{64})/)?.[1]?.slice(0, 12);
+  const value = checked.value ?? "";
+  const agreed = value !== "" && value === checked.reference;
+  process.stdout.write(`${what} → ${agreed ? "ok" : value} [live (model, Mac)]${receipt ? ` receipt ${receipt}…` : ""}\n`);
+  process.stdout.write(agreed ? "The TypeScript reference agrees → ok\n" : `The TypeScript reference says → ${checked.reference ?? ""}\n`);
+}
+
+/** The destination-chain explorer for the delivery hash. */
+function deliveryLink(originNetwork: string | undefined, hash: string): string {
+  const root: Record<string, string> = {
+    "eip155:1": "https://etherscan.io/tx/",
+    "eip155:8453": "https://basescan.org/tx/",
+    "eip155:42161": "https://arbiscan.io/tx/",
+    "sol:mainnet": "https://solscan.io/tx/",
+    "btc:mainnet": "https://mempool.space/tx/",
+    "near:mainnet": "https://nearblocks.io/txns/",
+  };
+  const base = originNetwork ? root[originNetwork] : undefined;
+  return base ? `${base}${hash}` : hash;
+}
 export async function assetForCurrency(currency: string): Promise<string | null> {
   if (currency.startsWith("nep141:")) return currency;
   const reference = currency.slice(currency.lastIndexOf(":") + 1).toLowerCase();
@@ -92,28 +119,32 @@ export async function deliverFromIntents(input: {
   const quoteStop = reviewQuote(quote, request, nowSec);
   if (quoteStop) throw new Error(quoteStop);
   const checked = await checkQuoteInModel(quote, request, nowSec);
-  process.stdout.write(checked.lines + "\n");
+  showCheck(checked, "Checking the quote inside the model");
   const quoteLive = requireLive(checked);
   if (quoteLive) throw new Error(quoteLive);
   const receiver = input.request.methodDetails.destinationRecipient;
+  const facts = isNearAccount(receiver) ? await loadFacts(receiver) : { codeHash: null, createdNs: null, outgoingCount: null, latestDeployNs: null, errors: {} };
   const guard = decide({
     receiver,
     nowNs: BigInt(nowMs) * 1_000_000n,
     amount: input.request.amount,
     token: NEAR_USDC,
     request: "",
-    facts: { codeHash: null, createdNs: null, outgoingCount: null, latestDeployNs: null, errors: {} },
+    facts,
     payees: readPayeeMap(),
     blocklist: await loadBlocklist(receiver),
   });
   if (guard.verdict === "block") throw new Error(`STOP: ${guard.reasons[0] ?? "block"}`);
-  const human = referenceUi(input.request.amount, 6);
-  const card = `Pay ${human} USDC to ${input.request.methodDetails.destinationRecipient}?`;
-  process.stdout.write((guard.reasons[0] ? `reason: ${guard.reasons[0]}\n` : "") + card + "\n");
+  const spend = referenceUi(quote.quote.amountIn, 6);
+  const price = referenceUi(input.request.methodDetails.amountOut, 6);
+  const fee = referenceUi((BigInt(quote.quote.amountIn) - BigInt(input.request.methodDetails.amountOut)).toString(), 6);
+  const card = `Paying ${spend} USDC to ${input.request.methodDetails.destinationRecipient}: ${price} for the page, ${fee} in route fees.`;
+  const reason = guard.reasons[0];
+  if (reason) process.stdout.write(`note: ${reason === "account code hash unavailable" ? "the account's code could not be read on-chain" : reason}\n`);
+  process.stdout.write(card + "\n");
   append("decision", { human: "yes", prompt: "pay url", reasons: guard.reasons, card });
   const deposit = quote.quote.depositAddress;
   if (!deposit) throw new Error("STOP: deposit");
-  process.stdout.write(`amountIn: ${quote.quote.amountIn}\n`);
   const exactPayload = { text: "" };
   const { generateSwapIntent } = await import("./swap-intent.js");
   const signer = await touchSigner(input.accountId, quote, () => nowMs, () => exactPayload.text || undefined);
@@ -125,16 +156,32 @@ export async function deliverFromIntents(input: {
     signer,
     checkIntent: async (generated) => {
       const decoded = await checkIntentInModel(generated, input.accountId);
-      process.stdout.write(decoded.lines + "\n");
+      showCheck(decoded, `Decoding the intent inside the model: one transfer of ${spend} USDC to the signed quote's deposit address`);
       return requireLive(decoded);
     },
     generateIntent: (depositAddress, signerId) => generateSwapIntent(depositAddress, signerId, exactPayload),
     submitIntent: async (signed) => OneClickService.submitIntent({ type: "swap_transfer", signedData: signed } as never),
   });
   if (settled !== "submitted") throw new Error(settled.startsWith("STOP") ? settled : `STOP: ${settled}`);
+  const approved = process.env.BURSAR_SIGNING_BYPASS === "1" ? "Signed without Touch ID (bypass set)" : "Approved with Touch ID";
+  process.stdout.write(`${approved}. Waiting for the money to arrive…\n`);
+  const originName = chainName(input.request.methodDetails.originNetwork);
+  process.stdout.write(`The page asks for ${originName} USDC. Bursar sends it from the NEAR Intents balance; the merchant receives ${price} USDC on NEAR.\n`);
   const hash = await destinationHash(deposit);
-  process.stdout.write(`deposit: ${hash}\n`);
+  process.stdout.write(`Delivered: ${deliveryLink(input.request.methodDetails.originNetwork, hash)}\n`);
   return hash;
+}
+
+function chainName(originNetwork: string | undefined): string {
+  const names: Record<string, string> = {
+    "eip155:1": "Ethereum",
+    "eip155:8453": "Base",
+    "eip155:42161": "Arbitrum",
+    "sol:mainnet": "Solana",
+    "btc:mainnet": "Bitcoin",
+    "near:mainnet": "NEAR",
+  };
+  return originNetwork ? (names[originNetwork] ?? originNetwork) : "NEAR";
 }
 
 async function destinationHash(depositAddress: string): Promise<string> {

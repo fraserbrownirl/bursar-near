@@ -67,6 +67,7 @@ def render_paid(data, work):
     y += F.LH + 20
     mono = F.menlo(30)
     for line in [
+        data["page"],
         f"Settlement: {data['settlement']}",
         f"quote check  receipt: {F.short_hash(data['quote_receipt'])} [live (model, Mac)]",
         f"intent check receipt: {F.short_hash(data['intent_receipt'])} [live (model, Mac)]",
@@ -74,6 +75,14 @@ def render_paid(data, work):
     ]:
         draw.text((F.CX, y), line, font=mono, fill=F.DIM)
         y += 44
+    y += 12
+    for line in [
+        f"Run: {data['run']}",
+        "Live capture of a real run in a headless terminal (VHS). Not rendered from logs.",
+        data["approval"],
+    ]:
+        draw.text((F.CX, y), line, font=F.menlo(26), fill=F.DIM)
+        y += 38
     path = work / "paid.png"
     image.save(path)
     return path, badge_rect

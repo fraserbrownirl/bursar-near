@@ -1,7 +1,7 @@
 Output "demos/takes/v1-mpp-take.mp4"
 Set Shell bash
 Set FontFamily "Menlo"
-Set FontSize 26
+Set FontSize 31
 Set Width 1920
 Set Height 1080
 Set Padding 8
