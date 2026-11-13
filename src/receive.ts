@@ -109,6 +109,12 @@ export async function depositAccount(input: {
   return { address: result.address, chain: chosen.label, token, rail: chosen };
 }
 
+/** The numeric part of an amount: "0.15 USDC" is "0.15". No leading number is left unchanged. */
+export function amountOnly(amount: string): string {
+  const found = amount.trim().match(/^(\d+(\.\d+)?)/);
+  return found ? found[1]! : amount.trim();
+}
+
 export async function receive(input: {
   accountId: string;
   chain: string;
@@ -119,7 +125,8 @@ export async function receive(input: {
   tokens?: BridgeToken[];
 }): Promise<{ uri: string; address: string; chain: string; qr: string }> {
   const found = await depositAccount(input);
-  const uri = paymentUri({ rail: found.rail, token: found.token, address: found.address, amount: input.amount });
+  const amount = input.amount === undefined ? undefined : amountOnly(input.amount);
+  const uri = paymentUri({ rail: found.rail, token: found.token, address: found.address, amount });
   const qr = await writeAccountCode(uri, input.dir);
   return { uri, address: found.address, chain: found.chain, qr };
 }
@@ -156,14 +163,27 @@ export async function watchUntilReceived(input: {
   const fetchImpl = input.fetchImpl ?? fetch;
   const wait = input.wait ?? ((ms: number) => new Promise((resolve) => setTimeout(resolve, ms)));
   const polls = input.maxPolls ?? 180;
+  const wanted = input.amount === undefined ? undefined : amountOnly(input.amount);
   const seen = new Set<string>();
+  let primed = false;
   let line = "waiting";
+  let errors = 0;
   for (let i = 0; i < polls; i += 1) {
-    const list = await recentDeposits(input.accountId, input.chain, fetchImpl);
-    if (i === 0) {
-      for (const row of list.deposits) seen.add(depositId(row));
+    let list: DepositList;
+    try {
+      list = await recentDeposits(input.accountId, input.chain, fetchImpl);
+    } catch (error) {
+      errors += 1;
+      if (errors >= 3) return `the bridge is not answering: ${error instanceof Error ? error.message : String(error)}`;
+      if (i + 1 < polls) await wait(5_000);
+      continue;
     }
-    line = freshLine(chosen.id, chosen.label, input.token, list.deposits, seen, input.amount);
+    errors = 0;
+    if (!primed) {
+      for (const row of list.deposits) seen.add(depositId(row));
+      primed = true;
+    }
+    line = freshLine(chosen.id, chosen.label, input.token, list.deposits, seen, wanted);
     if (line.startsWith("Received")) return line;
     if (i + 1 < polls) await wait(5_000);
   }

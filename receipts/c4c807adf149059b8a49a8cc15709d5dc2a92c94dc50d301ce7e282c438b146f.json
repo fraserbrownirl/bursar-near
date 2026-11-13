@@ -1,0 +1,14 @@
+{
+  "cmd": "1click check @quote BHQBpzsUNHzhZfD2jrxwwcp1FcduvdLjTh5x4DkzvEkp 0x304e29ea3a04a8693d9b5ff362cee0016f586ff5 nep141:sol-5ce3bf3a31af18be40ba30f721101b4341690186.omft.near 150000 161525 1794567721 -",
+  "inputs": {
+    "quote": "549baa422b4f1b7a464b99cc0dd32d70d1e64499e9432f62d0f75ba09613e90c"
+  },
+  "firmware_elf_sha256": "8cb34279eb5d0528800beebb618b750c52bbddd792f61742dd1b01480523a2be",
+  "chip_weights_sha256": "7d756fd40e9b6c4bd36ec3f4afea44f2d04d7269c27bc841e6f4aff96007a216",
+  "output": "ok",
+  "trace_tokens": 182569,
+  "trace_sha256": "94e509894536bf665b909a815877ef96d9a45904988f2375a10ec80c065b65ba",
+  "wall_ms": 52805,
+  "runtime": "locals-mac",
+  "date": "2026-11-13"
+}

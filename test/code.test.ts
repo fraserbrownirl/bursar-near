@@ -25,16 +25,16 @@ function scan(file: string) {
   });
 }
 
-test("a Solana payment QR fits a normal terminal without wrapping", () => {
+test("a Solana payment QR draws square modules, and a narrow window gets a note", () => {
   const uri = "solana:BHQBpzsUNHzhZfD2jrxwwcp1FcduvdLjTh5x4DkzvEkp?spl-token=EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v&amount=0.15";
-  const drawn = terminalQr(uri, 80);
-  const lines = drawn.replace(/\n$/, "").split("\n");
   const visible = (line: string) => line.replace(/\x1b\[[0-9;]*m/g, "").length;
-  assert.ok(lines.every((line) => visible(line) === visible(lines[0] ?? "") && visible(line) <= 80));
+  const narrow = terminalQr(uri, 80);
+  assert.match(narrow, /^the window is too narrow for the code: widen it to 106 columns\n/);
+  const drawn = terminalQr(uri, 106);
+  const lines = drawn.replace(/\n$/, "").split("\n");
+  assert.ok(lines.length > 0 && lines.every((line) => visible(line) === 106));
   assert.match(drawn, /\x1b\[47m/);
   assert.match(drawn, /\x1b\[40m/);
-  const wide = terminalQr(uri, 120);
-  assert.match(visible(wide.split("\n")[0] ?? "") === 106 ? wide : "", /./);
 });
 
 test("a QR of frsrcom.near decodes to that account", async () => {

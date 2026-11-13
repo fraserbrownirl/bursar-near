@@ -34,6 +34,45 @@ test("a Base USDC deposit address is not the Intents account, and the request ca
   assert.equal(drawn.address, fixture.base.address);
   assert.equal(drawn.uri, uri);
   assert.equal(qrText(readFileSync(join(dir, "bursar-code.png"))), uri);
+  const again = await receive({ accountId: account, chain: "base", token: "USDC", amount: "0.1 USDC", dir, fetchImpl, tokens: [fixture.baseUsdc] });
+  assert.equal(again.uri, uri);
+});
+
+test("the watch matches an amount the model passed with the token attached", async () => {
+  let polls = 0;
+  const fetchImpl: typeof fetch = async (_url, init) => {
+    const body = JSON.parse(String(init?.body)) as { method: string };
+    polls += 1;
+    const deposits = body.method === "recent_deposits" && polls > 1
+      ? [{ amount: "0.15", sender: "buyer", tx_hash: "sig" }]
+      : [];
+    return { json: async () => ({ result: { deposits, total: deposits.length } }) } as Response;
+  };
+  const line = await watchUntilReceived({
+    accountId: account,
+    chain: "sol",
+    token: "USDC",
+    amount: "0.15 USDC",
+    fetchImpl,
+    wait: async () => undefined,
+    maxPolls: 3,
+  });
+  assert.equal(line, "Received 0.15 USDC on Solana from buyer. https://solscan.io/tx/sig");
+});
+
+test("a bridge that keeps failing is reported, not silent", async () => {
+  const fetchImpl: typeof fetch = async () => {
+    throw new Error("fetch failed");
+  };
+  const line = await watchUntilReceived({
+    accountId: account,
+    chain: "sol",
+    token: "USDC",
+    fetchImpl,
+    wait: async () => undefined,
+    maxPolls: 10,
+  });
+  assert.equal(line, "the bridge is not answering: fetch failed");
 });
 
 test("watch prints Received when a deposit row arrives", async () => {

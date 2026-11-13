@@ -899,13 +899,13 @@ async function runCall(text: string, call: ModelCall, accountId: string, lines: 
   if (call.name === "show_code") return "use receive";
   if (call.name === "receive") {
     if (!call.chain || !call.asset) return "missing chain or token";
-    const { receive } = await import("./receive.js");
-    const drawn = await receive({ accountId, chain: call.chain, token: call.asset, amount: call.amount, dir });
-    if (call.amount && call.asset) reveal(lines, talk, `${call.amount} ${call.asset} on ${drawn.chain}`);
+    const { receive, amountOnly, watchUntilReceived } = await import("./receive.js");
+    const amount = call.amount === undefined ? undefined : amountOnly(call.amount);
+    const drawn = await receive({ accountId, chain: call.chain, token: call.asset, amount, dir });
+    if (amount && call.asset) reveal(lines, talk, `${amount} ${call.asset} on ${drawn.chain}`);
     if (drawn.qr) revealRaw(lines, talk, drawn.qr);
     talk.depositShown = true;
-    const { watchUntilReceived } = await import("./receive.js");
-    const line = await watchUntilReceived({ accountId, chain: call.chain, token: call.asset, amount: call.amount });
+    const line = await watchUntilReceived({ accountId, chain: call.chain, token: call.asset, amount });
     if (line === "waiting") {
       const empty = `No payment arrived in 15 minutes. The watch is over.`;
       reveal(lines, talk, empty);

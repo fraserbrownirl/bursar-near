@@ -1,5 +1,0 @@
-file '/Users/fraserbrown/Dev/bursar-near/demos/split/film/s-receipt.mp4'
-file '/Users/fraserbrown/Dev/bursar-near/demos/split/film/s-badge0.mp4'
-file '/Users/fraserbrown/Dev/bursar-near/demos/split/film/s-tail.mp4'
-file '/Users/fraserbrown/Dev/bursar-near/demos/split/film/s-paid.mp4'
-file '/Users/fraserbrown/Dev/bursar-near/demos/split/film/s-headings.mp4'

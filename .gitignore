@@ -27,3 +27,6 @@ __pycache__/
 .DS_Store
 /bursar-code.png
 /.venv-verify
+
+# ffmpeg concat lists hold local paths; the builders regenerate them
+demos/*/*-demo.txt

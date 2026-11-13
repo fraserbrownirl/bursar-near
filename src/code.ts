@@ -20,23 +20,25 @@ const render = {
   color: { dark: "#000000ff", light: "#ffffffff" },
 };
 
-function moduleOn(modules: { size: number; get: (row: number, col: number) => boolean }, row: number, col: number): boolean {
+function moduleOn(modules: { size: number; get: (row: number, col: number) => boolean | number }, row: number, col: number): boolean {
   if (row < 0 || col < 0 || row >= modules.size || col >= modules.size) return false;
   return Boolean(modules.get(row, col));
 }
 
 /**
- * Solid-cell QR. Each module is a background-coloured cell, two spaces wide
- * when the terminal is broad enough, one when it is not. Backgrounds fill
- * the whole line box, so the cells touch: a phone camera and jsQR read the
- * screen, where glyph rows with leading between them did not scan.
+ * Solid-cell QR. Each module is a background-coloured cell, always two spaces
+ * wide: terminal rows are about twice as tall as a column is wide, so a
+ * one-space cell doubles the aspect ratio and the code does not scan.
+ * Backgrounds fill the whole line box, so the cells touch: a phone camera and
+ * jsQR read the screen, where glyph rows with leading between them did not
+ * scan. A window narrower than the code gets a note instead of a distortion.
  */
 export function terminalQr(text: string, columns = process.stdout.columns || 80): string {
   const symbol = create(text, { errorCorrectionLevel: "M" });
   const modules = symbol.modules;
   const quiet = 4;
   const span = modules.size + quiet * 2;
-  const cell = columns >= span * 2 ? "  " : " ";
+  const cell = "  ";
   const lines: string[] = [];
   for (let row = -quiet; row < modules.size + quiet; row += 1) {
     let line = "";
@@ -45,7 +47,10 @@ export function terminalQr(text: string, columns = process.stdout.columns || 80)
     }
     lines.push(`${line}\x1b[0m`);
   }
-  return lines.join("\n") + "\n";
+  const drawn = lines.join("\n") + "\n";
+  const need = span * 2;
+  if (columns < need) return `the window is too narrow for the code: widen it to ${need} columns\n${drawn}`;
+  return drawn;
 }
 
 /** PNG bytes and a terminal drawing. The QR payload is `text` alone. */

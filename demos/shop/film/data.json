@@ -1,0 +1,51 @@
+{
+ "take": "v2-shop-take.mp4",
+ "phone": "~/Downloads/ScreenRecording_11-13-2026 15-01-51_1.MP4",
+ "qr_image": "qr-scanned.png",
+ "chip": "Shop sale",
+ "chip2": "0.15 USDC · Solana · mainnet",
+ "caption": "A buyer pays the shop by scanning a QR",
+ "link": "github.com/fraserbrownirl/bursar-near/demos/shop",
+ "qr_left": [
+  "The Mac draws the receive QR in the terminal.",
+  "This is the code the buyer scanned — 0.15 USDC to the shop's Solana deposit address."
+ ],
+ "phone_segments": [
+  {
+   "name": "card",
+   "t0": 0,
+   "t1": 14,
+   "speed": 1,
+   "left": ["The buyer scans it with the phone.", "The card: 0.15 USDC to the shop's Solana deposit address."]
+  },
+  {
+   "name": "checks",
+   "t0": 14,
+   "t1": 217,
+   "speed": 14.5,
+   "badge": "real wait 3 m 23 s",
+   "left": ["Two checks run inside Bursar-9B on the Mac.", "The quote check, then the intent check. Face ID follows."]
+  },
+  {
+   "name": "paid",
+   "t0": 217,
+   "t1": 228,
+   "speed": 1,
+   "left": ["Paid.", "Both check receipts and the Solscan link are on the phone."]
+  }
+ ],
+ "badge": "Paid.",
+ "head": "The Mac's watch line for this payment",
+ "lines": [
+  "Received 0.15 USDC on Solana from FvULawNPGBbuwYus74ECaQoV1oH9Tk6XPN7VPN51NYds.",
+  "https://solscan.io/tx/LpHrDJiW3d8mgZDoNcnYi3EnNreWkqAowxSUXoHkxxUYuXD65qLmoQsCZ97ofSx3uPFTCGPEUhy8ZT5Pc1DXM1C",
+  "checks inside the model: quote receipt c4c807adf149059b8a49a8cc15709d5dc2a92c94dc50d301ce7e282c438b146f",
+  "intent receipt 08392ed0d7b8e91d4188dd6053f2189cfbbc8273cbdc92a25efd399f8d258144"
+ ],
+ "disclosure": [
+  "Run: 2026-11-13 15:01-15:06 +0400. The phone footage is the actual run, recorded on FRSR's iPhone.",
+  "The terminal segment is the same sentence re-run and recorded after the payment; the first capture's watch never printed, fixed in src/receive.ts.",
+  "The Received line is the shipping watch code's output for this payment's bridge row, COMPLETED on Solana.",
+  "Replay the checks: npm run verify:weights c4c807adf149059b8a49a8cc15709d5dc2a92c94dc50d301ce7e282c438b146f 08392ed0d7b8e91d4188dd6053f2189cfbbc8273cbdc92a25efd399f8d258144"
+ ]
+}

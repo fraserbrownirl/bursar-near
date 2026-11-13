@@ -1,0 +1,40 @@
+{
+ "take": "/Users/fraserbrown/Dev/bursar-near/demos/shop/takes/v2-shop-take.mp4",
+ "phone": "/Users/fraserbrown/Downloads/ScreenRecording_11-13-2026 15-01-51_1.MP4",
+ "segments": [
+  {
+   "kind": "take",
+   "from": 0.0,
+   "to": 9.64,
+   "badge": null
+  },
+  {
+   "kind": "qr-card",
+   "seconds": 3.0
+  },
+  {
+   "kind": "phone",
+   "from": 0,
+   "to": 14,
+   "speed": 1,
+   "kept": 14.0,
+   "badge": null
+  },
+  {
+   "kind": "phone",
+   "from": 14,
+   "to": 217,
+   "speed": 14.5,
+   "kept": 14.0,
+   "badge": "real wait 3 m 23 s"
+  },
+  {
+   "kind": "phone",
+   "from": 217,
+   "to": 228,
+   "speed": 1,
+   "kept": 11.0,
+   "badge": null
+  }
+ ]
+}
