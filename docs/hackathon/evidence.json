@@ -734,6 +734,21 @@
     "quote_receipt": "match",
     "wall_ms": 1866035
    }
+  },
+  {
+   "kind": "fresh-clone-verify",
+   "date": "2026-11-13",
+   "clone": "git clone of the repo at e83f3e3",
+   "verify": {
+    "3845a35dcbe493c5678142a9affdb5e8f18394424f002ef86a64c89d8377b90d": "match",
+    "253dbe37f380abad771ffcdbb23ba1bd27c37fe6acf17155df9ae1d2d9e46817": "match"
+   },
+   "verify_firmware": "8cb34279eb5d0528800beebb618b750c52bbddd792f61742dd1b01480523a2be match",
+   "verify_weights": {
+    "receipt": "3845a35dcbe493c5678142a9affdb5e8f18394424f002ef86a64c89d8377b90d",
+    "result": "match",
+    "wall_ms": 1832632
+   }
   }
  ],
  "cited": [
