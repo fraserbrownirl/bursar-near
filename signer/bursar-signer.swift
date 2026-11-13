@@ -1,4 +1,5 @@
 import Foundation
+import LocalAuthentication
 
 let accessGroup = ""
 
@@ -55,9 +56,32 @@ func account() {
     }
 }
 
+/// Every payment asks the owner's finger once. `BURSAR_SIGNING_BYPASS=1` skips
+/// the prompt for tests and unattended builds, and says so on stderr.
+func approveBiometrics() {
+    if ProcessInfo.processInfo.environment["BURSAR_SIGNING_BYPASS"] == "1" {
+        FileHandle.standardError.write(Data("signing without Touch ID (BURSAR_SIGNING_BYPASS set)\n".utf8))
+        return
+    }
+    let context = LAContext()
+    var error: NSError?
+    guard context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) else {
+        fail("touch id unavailable")
+    }
+    let semaphore = DispatchSemaphore(value: 0)
+    var granted = false
+    context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: "Bursar signs this payment with your Secure Enclave key.") { ok, _ in
+        granted = ok
+        semaphore.signal()
+    }
+    semaphore.wait()
+    if !granted { fail("touch id") }
+}
+
 func sign() {
     let message = FileHandle.standardInput.readDataToEndOfFile()
     if message.isEmpty { fail("message") }
+    approveBiometrics()
     do {
         let signature = try BursarEnclave.sign(message: message, accessGroup: accessGroup)
         FileHandle.standardOutput.write(signature)

@@ -103,7 +103,7 @@ Bursar is a payment agent for one owner.
 2. Bursar-9B, Qwen3.5-9B with a small computer compiled into its weights, reads it and calls a tool.
 3. Code guards check the request: blocklist, look-alike names, injected text, limits.
 4. Before anything is signed, two checks run inside the model's weights: the quote check and the intent check. Each writes a receipt that anyone can replay.
-5. The owner approves with Touch ID or Face ID. The key lives in the Secure Enclave and signs one transfer, to the deposit address of the signed quote, and nothing else.
+5. The owner approves with Touch ID or Face ID. The key lives in the Secure Enclave and signs one transfer, to the deposit address of the signed quote, and nothing else. On the Mac the prompt comes from `signer/bursar-signer`; `BURSAR_SIGNING_BYPASS=1` skips it for tests and unattended builds, and the helper says so on stderr.
 
 Payments go through NEAR Intents (1Click), on mainnet, in small amounts.
 
