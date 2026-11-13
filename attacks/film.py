@@ -434,7 +434,6 @@ def render_result(att, data, work):
     bw = text_w(draw, badge, badge_font) + 28
     ascent, descent = badge_font.getmetrics()
     bh = ascent + descent + 12
-    stop_cy = y + bh / 2
     lines = wrap_runs(draw, rest, TFONT_SIZE, CW, red_spans)
     first = []
     first_width = CW - bw - 14
@@ -449,7 +448,8 @@ def render_result(att, data, work):
         width = width + space + w if len(first) > 1 else w
         lines[0] = lines[0][1:]
     lines = [ln for ln in lines if ln]
-    draw.rounded_rectangle([CX, y, CX + bw, y + bh], radius=10, fill=RED)
+    badge_rect = (CX, y, CX + bw, y + bh)
+    draw.rounded_rectangle(badge_rect, radius=10, fill=RED)
     draw.text((CX + 14, y + 6), badge, font=badge_font, fill=(255, 255, 255))
     draw_runs(draw, CX + bw + 14, y, first, TFONT_SIZE)
     y += LH
@@ -461,7 +461,7 @@ def render_result(att, data, work):
     draw.text((CX, y), f"check: {att['check']} receipt: {receipt}", font=menlo(TFONT_SIZE), fill=DIM)
     path = work / f"result-{att['id']}.png"
     image.save(path)
-    return path, stop_cy
+    return path, badge_rect
 
 
 def render_card(text, path, size=64, sub=None):
@@ -682,26 +682,37 @@ def cut_chain(box, font_size, head_end, tail_start, hold=0.0):
     return ";".join(parts)
 
 
-def result_clip(png, stop_cy, seconds, dst, zoom=True):
-    """Gentle zoom into the STOP line. The zoom stays inside the window content
-    area, so the chips, caption, title bar, and link are never cropped."""
-    if zoom:
-        frames = int(seconds * FPS)
-        step = 0.12 / frames
-        zy = WY + TITLE_H
-        zh = WH - TITLE_H
-        rel = stop_cy - zy
-        span = zh - zh / 1.12
-        pan = max(0.0, min(1.0, (rel - zh / (2 * 1.12)) / span)) if span > 0 else 0.5
-        vf = (f"[0:v]crop={WW}:{zh}:{WX}:{zy},"
-              f"zoompan=z='min(1+{step:.6f}*on,1.12)':x='(iw-iw/zoom)/2':y='(ih-ih/zoom)*{pan:.4f}'"
-              f":d={frames}:s={WW}x{zh}:fps={FPS}[zp];"
-              f"[0:v]fps={FPS}[bg];"
-              f"[bg][zp]overlay={WX}:{zy},format=yuv420p[v]")
-        run(["ffmpeg", "-y", "-v", "error", "-loop", "1", "-i", str(png), "-filter_complex", vf,
-             "-map", "[v]", "-frames:v", str(frames), "-an", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-r", str(FPS), str(dst)])
-    else:
+def result_clip(png, seconds, dst, badge=None, work=None):
+    """Hold the result frame. No zoom: a zoom crops the text it is meant to
+    show. Instead the red badge pulses once when the frame lands, then the
+    frame holds steady and every word stays readable."""
+    if badge is None:
         card_clip(png, seconds, dst)
+        return
+    frames = int(seconds * FPS)
+    pulse_until = int(1.6 * FPS)
+    base = Image.open(png).convert("RGB")
+    x0, y0, x1, y1 = badge
+    frames_dir = Path(work) / f"pulse-{Path(dst).stem}"
+    frames_dir.mkdir(exist_ok=True)
+    for k in range(frames):
+        image = base
+        if k < pulse_until:
+            t = k / FPS
+            alpha = int(255 * min(1.0, t / 0.15) * math.exp(-2.2 * max(0.0, t - 0.15)))
+            if alpha > 4:
+                glow = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+                gdraw = ImageDraw.Draw(glow)
+                gdraw.rounded_rectangle([x0 - 10, y0 - 10, x1 + 10, y1 + 10], radius=16,
+                                        outline=(255, 59, 48, alpha), width=5)
+                glow = glow.filter(ImageFilter.GaussianBlur(8))
+                image = Image.alpha_composite(base.convert("RGBA"), glow).convert("RGB")
+                crisp = ImageDraw.Draw(image)
+                crisp.rounded_rectangle([x0 - 10, y0 - 10, x1 + 10, y1 + 10], radius=16,
+                                        outline=(255, 59, 48, alpha), width=3)
+        image.save(frames_dir / f"p{k:03d}.png")
+    run(["ffmpeg", "-y", "-v", "error", "-framerate", str(FPS), "-i", str(frames_dir / "p%03d.png"),
+         "-c:v", "libx264", "-pix_fmt", "yuv420p", str(dst)])
 
 
 def span_seconds(stem):
@@ -742,9 +753,9 @@ def model_shot(att, data, version, work, chrome):
     base_badge = base_frame(chrome, top_badge, work / f"base-{att['id']}-badge.png")
     wait = work / f"{att['id']}-wait.mp4"
     encode_take(src, wait, take_chain(box, att.get("font", 46), trim=f"start={t_wait}:end={t_result}", speed=factor), base_badge)
-    png, stop_cy = render_result(att, data, work)
+    png, badge = render_result(att, data, work)
     hold = work / f"{att['id']}-result.mp4"
-    result_clip(png, stop_cy, 5, hold)
+    result_clip(png, 5, hold, badge=badge, work=work)
     shot = work / f"{att['id']}.mp4"
     concat([head, wait, hold], shot)
     note = f"| {att['id']} | {t_wait:.3f}s to {t_result:.3f}s | sped ×{factor}, real time {real:.0f} s, on screen {shown:.2f}s |"
@@ -761,9 +772,9 @@ def code_shot(att, data, version, work, chrome, hold_seconds=3):
     base = base_frame(chrome, top, work / f"base-{att['id']}.png")
     body = work / f"{att['id']}-body.mp4"
     encode_take(src, body, take_chain(box, att.get("font", 46), trim=f"start=0:end={t_result}"), base)
-    png, stop_cy = render_result(att, data, work)
+    png, badge = render_result(att, data, work)
     hold = work / f"{att['id']}-result.mp4"
-    result_clip(png, stop_cy, hold_seconds, hold)
+    result_clip(png, hold_seconds, hold, badge=badge, work=work)
     shot = work / f"{att['id']}.mp4"
     concat([body, hold], shot)
     return shot, duration(body)
@@ -842,7 +853,7 @@ def build_highlights(version, data, work, chrome):
     card_clip(cap, 2.5, work / "verify-caption.mp4")
     pieces.append(work / "verify-caption.mp4")
     render_replay_result(data, work)
-    result_clip(work / "verify-result.png", H / 2, 5, work / "verify-result.mp4", zoom=False)
+    card_clip(work / "verify-result.png", 5, work / "verify-result.mp4")
     piece_ticks["verify-result.mp4"] = [(0.3, 740)]
     pieces.append(work / "verify-result.mp4")
     code = render_card("And the usual scams, stopped by code", work / "code.png", size=56)
