@@ -39,8 +39,8 @@ From a fresh clone. Steps 1–3 need Node 20 or newer and nothing else. Steps 4�
 npm test
 ```
 ```output
-ℹ tests 148
-ℹ pass 148
+ℹ tests 149
+ℹ pass 149
 ℹ fail 0
 ```
 
@@ -125,13 +125,13 @@ Sixteen more stop in code around the model: a blocklisted or look-alike recipien
 
 ## Payment demos
 
-Four scenes, run by the owner in `bursar` from plain sentences. The records are [demos/README.md](demos/README.md), [demos/runsheet.md](demos/runsheet.md) and [demos/results.md](demos/results.md).
+Four scenes, run by the owner in `bursar` from plain sentences. The index is [demos/README.md](demos/README.md); each scene has a page there in the same shape. The camera document is [demos/runsheet.md](demos/runsheet.md).
 
 | # | Scene | Owner types | Result | Proof |
 | --- | --- | --- | --- | --- |
-| 1 | Shop sale | "a buyer will pay 0.15 USDC on Solana" | A QR in the terminal. The iPhone Bursar scanned it and the two checks ran on the Mac (receipts `ef55dfea92041cf97b34c8589dce3e946e427a6d465c78fbf384098fd01cc945`, `4e52f82c6e25673ad47e53b5aef4ca6b8ec3f66f43deeca54a5caf60c71c32aa`). The payment itself: not run — it waits for the owner's Face ID. | `demos/results.md` |
+| 1 | Shop sale | "a buyer will pay 0.15 USDC on Solana" | A QR in the terminal. The iPhone Bursar scanned it and the two checks ran on the Mac (receipts `ef55dfea92041cf97b34c8589dce3e946e427a6d465c78fbf384098fd01cc945`, `4e52f82c6e25673ad47e53b5aef4ca6b8ec3f66f43deeca54a5caf60c71c32aa`). The payment itself: not run — it waits for the owner's Face ID. | `demos/shop.md` |
 | 2 | Paid web page (MPP) | "pay http://127.0.0.1:8402/premium" | The official `@defuse-protocol/nearintents-mpp-sdk` example server, unmodified, returned the page. 0.101034 USDC in, 0.10 USDC to `frsrcom.near`. Receipts `9500264e1ebfbeaf5dc042f81de2d14514a2a0187bd801430092f4cbdda3d200`, `e20e41752b61b87e7bc693dbd7aca347f6e7662c3a840a7d880873d52baae4de`. | [settlement](https://nearblocks.io/txns/GuVNPesYiw4NqTuCTPJmEPUcQn1ttuWZRDsAWrTw6BKG), `demos/mpp.md` |
-| 3 | Paid API (x402) | "find me a weather API", then "pay for one call" | The weather for London, paid 0.001 USDC on Base from the float. | [transaction](https://basescan.org/tx/0x50c5acc7a2de4fbcccde1fd4ab77ca5c6bd1bed2eb5f03ab9a18eff1529cbb70) |
+| 3 | Paid API (x402) | "pay for one call of a weather API", then "the tbs one, for London" | Two payable weather APIs named with prices from a live Bazaar search; the weather for London, paid 0.001 USDC on Base from the float. | [transaction](https://basescan.org/tx/0x6e7e357f2b9385c786cddbea5d51ffe06b89d38ef9503d10debe62e6c3a6570d) |
 | 4 | Split bill | a restaurant receipt image, and "ask Maya for her half on Solana" | The share, 0.20 USDC of the 0.40 total, and a pay instruction Maya can paste into her own Bursar. A receive request, not a payment. | `demos/runsheet.md` |
 
 Scene 2 can be repeated by a judge: run the SDK's example server with your own NEAR account as `MERCHANT_RECIPIENT` and pay it with `npm run bursar -- pay http://127.0.0.1:8402/premium`. The 402 price and recipient print before the card; the transaction link prints after the body.
@@ -189,6 +189,8 @@ What each key can and cannot do:
 | Reporter function-call key | Login Keychain | Call `report` and `anchor` on `bursar-reports.near` (deposit 0, allowance 0.05 NEAR) | Transfer; call any other method or contract (`src/report.ts`) |
 | Base float | Login Keychain item `bursar-evm`, `0xE7369dD4F08fA5203B06F3E1Dccee00a11cCF152` | Pay x402 `exact` challenges on Base (`src/x402-pay.ts`) | Touch the Intents balances |
 
+The Base float is created on the first x402 payment: `ensureFloat` generates a secp256k1 key into the login Keychain item `bursar-evm` and never prints it (`src/base-float.ts`). When a payment exceeds the float's balance, `topUpFloat` moves 1 USDC from the NEAR Intents balance to the float through the same guarded path as any spend: the in-model quote check, Touch ID, and the in-model intent check (`topUpFloat` in `src/base-float.ts`). x402 payments are machine-signed EIP-3009 transfers from the float, so the exposure without a biometric approval is the float's balance, refilled 1 USDC at a time.
+
 `bursar mcp` serves `pay`, `check`, `balance`, and `history` on stdio; the same guards and the same guarded signer apply (`src/mcp.ts`).
 
 ## What is real and what is simulated
@@ -236,6 +238,7 @@ Payments, all USDC:
 | 2026-11-12 | Enclave payment, `0xbc77a1ef1ee04fc563ccb1d19e28dcc7385f136b` to `frsrcom.near` | 0.02 | [tx](https://nearblocks.io/txns/6dHJgrwAXxc9u4BBntdkAH9qjHkDPkzi1WxacwjWQ44Z) | `f4dbd0c978d1cbff9e3b7a31a32696f4176e77ab96796d17f3649923a995951c`, `2d8fd3df35c2ac93e6c1a372f55db737aa9dc964862fee8ca6018dd2b551ab53` |
 | 2026-11-12 | MPP `/premium` re-run | 0.101034 | [tx](https://nearblocks.io/txns/GuVNPesYiw4NqTuCTPJmEPUcQn1ttuWZRDsAWrTw6BKG) | `9500264e1ebfbeaf5dc042f81de2d14514a2a0187bd801430092f4cbdda3d200`, `e20e41752b61b87e7bc693dbd7aca347f6e7662c3a840a7d880873d52baae4de` |
 | 2026-11-12 | x402 weather call, on Base | 0.001 | [tx](https://basescan.org/tx/0x50c5acc7a2de4fbcccde1fd4ab77ca5c6bd1bed2eb5f03ab9a18eff1529cbb70) | |
+| 2026-11-13 | x402 weather call, on Base, from the sentence flow | 0.001 | [tx](https://basescan.org/tx/0x6e7e357f2b9385c786cddbea5d51ffe06b89d38ef9503d10debe62e6c3a6570d) | |
 
 Receipts `233045efdc20132d15741e880e5bd67b1d196f01aac45927cb519427b8bfab7b` and `1633b1032bc055660069f9c06efcd771b048b74c12e195056d04abcfa863eb74` were regenerated on 2026-11-12 with the outputs of the payment-time recordings, after the model server's host rebuild changed the traces; the originals are in git history. Details: `docs/hackathon/evidence.json`.
 

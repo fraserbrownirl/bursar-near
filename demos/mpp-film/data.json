@@ -1,0 +1,7 @@
+{
+ "settlement": "https://nearblocks.io/txns/DyXKUwxJqZ3HYoNiDadag6HGe1Kcgg2YvbP2JJaQ3RZU",
+ "quote_receipt": "9f0b1e4b9ccd55520ad5efee30bf45a22e646ad9b98cc99cb7247299a954c9c7",
+ "intent_receipt": "38a002d506f6bbcf082b54ee5e1f2e8c1927d67337af62e3088b39a7b47087a0",
+ "raw_line": "1click check @quote 0x30C38a7D5ae80AF2ea8Ae34e753FCe64EFa25d7c 0xbc77a1ef1ee04fc563ccb1d19e28dcc7385f136b nep141:arb-0xaf88d065e77c8cc2239327c5edb3a432268e5831.omft.near 101034 107433 1794556962 -",
+ "delivered": "https://arbiscan.io/tx/0x912b189ab0be358847ca9316f01196f7b75c8ba6bae257aedc116d9847e41f4a"
+}

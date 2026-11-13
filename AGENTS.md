@@ -27,7 +27,7 @@ transfer to another account: STOP: receiver_id not-the-deposit.near
 ```
 
 4. `npm run check:agents`. Prints `agents ok`.
-5. `npm run check:readme`. Prints `check:readme ok`, then `agents ok`, because that script runs this check. It fails when the header of `docs/hackathon/HACKATHON.md` or `docs/hackathon/SUBMITTING.md` is older than 24 hours.
+5. `npm run check:readme`. Prints `check:readme ok`, `check:proofs ok`, then `agents ok`, because that script runs those checks. It fails when the header of `docs/hackathon/HACKATHON.md` or `docs/hackathon/SUBMITTING.md` is older than 24 hours.
 
 `npm run verify:weights` and `npm run model` need the pack. `npm run verify:firmware` needs the vendored emulator. Do not start them from `demo-payments` or `demo-attacks`.
 
@@ -58,9 +58,10 @@ The enclave id is the `p256` account in `test/fixtures/implicit-accounts.json` a
 ## Working rules
 
 - `README.md`, `AGENTS.md`, `docs/`, and `receipts/` are edited on `main` only.
+- Proofs are one shape, enforced by `npm run check:proofs` (inside `check:readme`). An attack is `attacks/<id>.yaml` plus one row in `attacks/README.md`: an in-model stop cites a tracked receipt in `receipts/` and a tracked clip; a code stop writes `none` in both cells. A payment scene is `demos/<scene>.md` with the sections What it is, What's real, What's staged, How it's proven, in that order, then one `## Run on <date>` per run with its receipts; `demos/README.md` is the index, one row per scene. Every hash or transaction link a proof cites is in `docs/hackathon/evidence.json` in the same commit. A receipt that does not replay is regenerated or uncited; fossils stay in git history and are never cited. A new attack or scene lands the page, the row, the receipts, and the evidence rows in one commit.
 - Branch `demo-payments` owns payment demos and payment rows in `demos/results.md`. Branch `demo-attacks` owns `attacks/` and `npm run demo:attacks`. Each merges into `main` after a change, and that merge is pushed. Fraser has approved pushing `main` for the rest of the hackathon. Do not put one branch's edits on the other.
 - Two homes. `~/.bursar` is the Solana project. Do not read or write it. This project uses `~/.bursar-near`, or `BURSAR_HOME` when set.
-- Do not restart the model server, and do not rebuild firmware or the pack, outside the firmware lane.
+- Restart the model server when its check lane wedges: chat answers but `1click check` and `intents dec` never return. Do not rebuild firmware or the pack outside the firmware lane.
 - A key lives in the Secure Enclave or the login Keychain. It does not go in `.env`, the repo, or a command line.
 - A change the iPhone would run is installed and launched on FRSR’s iPhone before Fraser is asked to try it. The steps are in `.cursor/rules/phone.mdc`.
 - Code never matches words in owner text to decide what the owner wants. The 9B gets the whole conversation each turn and chooses the tools. A tool reads a file, divides a total, or builds a receive request. It does not read the sentence. The harness does one mechanical thing to owner input: a line that is a path to an image is attached to the turn.
@@ -87,7 +88,7 @@ The enclave id is the `p256` account in `test/fixtures/implicit-accounts.json` a
 | Who signs | `src/signer.ts` |
 | The move off the ed25519 key | `src/sweep.ts` |
 | Attack table | `attacks/README.md`. Scenarios are `attacks/*.yaml`. |
-| Payment rows | `demos/results.md` |
+| Payment scene proofs | `demos/README.md` and `demos/<scene>.md` |
 | Eval stop | `eval/rounds.md` |
 
 `src/cli.ts` is the command entry. `src/pay.ts` submits only after both checks and `signIntent`. `src/model.ts` calls `http://127.0.0.1:8000/v1/chat/completions` and writes `receipts/`. Guards are `src/guard/`. `signer/EnclaveSigner.swift` is shared with `signer/bursar-signer.swift`. Firmware source is `~/Dev/ethereus/experimental/riscv`.
@@ -171,7 +172,7 @@ The phone's JavaScript engine has no web globals: no `URL`, `URLSearchParams`, `
 
 No blank screen for more than 3 seconds. Text large enough to read on a phone. No local paths on screen. A sped-up stretch shows a badge with the real duration. Before handing a film over, extract a frame every 2 seconds and check each one.
 
-Do not restart the model server, rebuild the firmware, or rebuild the pack outside the firmware lane.
+Restart the model server when its check lane wedges: chat answers but `1click check` and `intents dec` never return. Do not rebuild the firmware or the pack outside the firmware lane.
 
 ## Only Fraser does these
 
