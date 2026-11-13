@@ -14,9 +14,9 @@ if [ -x .venv-verify/bin/python ]; then
 fi
 
 PYTHON=""
-for candidate in "$BURSAR_PYTHON" python3.13 python3.12 python3.11 python3; do
+for candidate in "$BURSAR_PYTHON" python3.13 python3.12; do
   if [ -n "$candidate" ] && command -v "$candidate" >/dev/null 2>&1; then
-    if "$candidate" -c 'import sys; raise SystemExit(sys.version_info < (3, 11))'; then
+    if "$candidate" -c 'import sys; raise SystemExit(sys.version_info < (3, 12))'; then
       PYTHON="$candidate"
       break
     fi
@@ -24,7 +24,7 @@ for candidate in "$BURSAR_PYTHON" python3.13 python3.12 python3.11 python3; do
 done
 
 if [ -z "$PYTHON" ]; then
-  echo "verify needs Python 3.11 or newer (on a Mac: brew install python@3.13)" >&2
+  echo "verify needs Python 3.12 or newer for numpy 2.5.4 (on a Mac: brew install python@3.13)" >&2
   exit 1
 fi
 
