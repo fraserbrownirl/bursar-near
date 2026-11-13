@@ -58,8 +58,8 @@ The enclave id is the `p256` account in `test/fixtures/implicit-accounts.json` a
 ## Working rules
 
 - `README.md`, `AGENTS.md`, `docs/`, and `receipts/` are edited on `main` only.
-- Proofs are one shape, enforced by `npm run check:proofs` (inside `check:readme`). An attack is `attacks/<id>.yaml` plus one row in `attacks/README.md`: an in-model stop cites a tracked receipt in `receipts/` and a tracked clip; a code stop writes `none` in both cells. A payment scene is `demos/<scene>.md` with the sections What it is, What's real, What's staged, How it's proven, in that order, then one `## Run on <date>` per run with its receipts; `demos/README.md` is the index, one row per scene. Every hash or transaction link a proof cites is in `docs/hackathon/evidence.json` in the same commit. A receipt that does not replay is regenerated or uncited; fossils stay in git history and are never cited. A new attack or scene lands the page, the row, the receipts, and the evidence rows in one commit.
-- Branch `demo-payments` owns payment demos and payment rows in `demos/results.md`. Branch `demo-attacks` owns `attacks/` and `npm run demo:attacks`. Each merges into `main` after a change, and that merge is pushed. Fraser has approved pushing `main` for the rest of the hackathon. Do not put one branch's edits on the other.
+- Proofs are one shape, enforced by `npm run check:proofs` (inside `check:readme`). An attack is one yaml file under `attacks/` plus one row in `attacks/README.md`: an in-model stop cites a tracked receipt in `receipts/` and a tracked clip; a code stop writes `none` in both cells. A payment scene is one markdown page under `demos/` with the sections What it is, What's real, What's staged, How it's proven, in that order, then one `## Run on <date>` per run with its receipts; `demos/README.md` is the index, one row per scene. Every hash or transaction link a proof cites is in `docs/hackathon/evidence.json` in the same commit. A receipt that does not replay is regenerated or uncited; fossils stay in git history and are never cited. A new attack or scene lands the page, the row, the receipts, and the evidence rows in one commit.
+- Branch `demo-payments` owns payment demos and the scene pages in `demos/`. Branch `demo-attacks` owns `attacks/` and `npm run demo:attacks`. Each merges into `main` after a change, and that merge is pushed. Fraser has approved pushing `main` for the rest of the hackathon. Do not put one branch's edits on the other.
 - Two homes. `~/.bursar` is the Solana project. Do not read or write it. This project uses `~/.bursar-near`, or `BURSAR_HOME` when set.
 - Restart the model server when its check lane wedges: chat answers but `1click check` and `intents dec` never return. Do not rebuild firmware or the pack outside the firmware lane.
 - A key lives in the Secure Enclave or the login Keychain. It does not go in `.env`, the repo, or a command line.
@@ -88,7 +88,7 @@ The enclave id is the `p256` account in `test/fixtures/implicit-accounts.json` a
 | Who signs | `src/signer.ts` |
 | The move off the ed25519 key | `src/sweep.ts` |
 | Attack table | `attacks/README.md`. Scenarios are `attacks/*.yaml`. |
-| Payment scene proofs | `demos/README.md` and `demos/<scene>.md` |
+| Payment scene proofs | `demos/README.md` and the scene pages under `demos/` |
 | Eval stop | `eval/rounds.md` |
 
 `src/cli.ts` is the command entry. `src/pay.ts` submits only after both checks and `signIntent`. `src/model.ts` calls `http://127.0.0.1:8000/v1/chat/completions` and writes `receipts/`. Guards are `src/guard/`. `signer/EnclaveSigner.swift` is shared with `signer/bursar-signer.swift`. Firmware source is `~/Dev/ethereus/experimental/riscv`.
@@ -134,7 +134,7 @@ Four real payments, run by Fraser on camera, then a film of attacks. The runshee
 | --- | --- | --- | --- | --- |
 | 1 | Shop sale | On the Mac: "a buyer will pay 0.15 USDC on Solana" | A QR in the terminal. The shopper's iPhone Bursar scans it, shows the card, Face ID, "Paid" and a link. The Mac prints "Received". | A phone camera decodes the QR, the phone pays it, and "Received" prints in the same session. |
 | 2 | Paid web page (MPP) | "pay http://127.0.0.1:8402/premium" | The 402 price and recipient, the card, Touch ID, the page content, a transaction link. | The official SDK example server, unmodified, returns the content and the link opens. |
-| 3 | Paid API (x402) | "find me a weather API", then "pay for one call" | The service and price, the card, the weather, a Basescan link. | The weather is returned and the link opens. |
+| 3 | Paid API (x402) | "pay for one call of a weather API", then "the tbs one, for London" | The payable services and prices, the weather for London, a Basescan link. | The weather is returned and the link opens. |
 | 4 | Split bill | Gives a restaurant receipt image and asks a friend for half | The share, and a receive request the friend can pay | The stated share is half the receipt total, and the receive request is for that amount. |
 
 The attack film leads with the three in-model stops and a replay of one receipt, then shows four code stops. The table is `attacks/README.md`.

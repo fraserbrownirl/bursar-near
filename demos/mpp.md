@@ -64,3 +64,5 @@ npm run verify -- 9500264e1ebfbeaf5dc042f81de2d14514a2a0187bd801430092f4cbdda3d2
 ```
 
 Each line prints `match`. Level 2 replays one in the firmware emulator (`npm run verify:firmware -- <hash>`), level 3 in the weights (`npm run verify:weights -- <hash>`).
+
+Measured 2026-11-13: `verify:firmware` on `bb8e930501a0a97b2f69e6d39ddf68c7f084ee9f2b1ed020ddf472d7b479a388` printed `8cb34279… match` then `bb8e9305… match`. `verify:weights` on the same receipt printed `match` with `wall_ms 1779530` — the 186,581-token trace replayed on CPU.
