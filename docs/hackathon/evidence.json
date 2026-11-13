@@ -23,7 +23,10 @@
    "repo": "bursar-near",
    "url": "https://github.com/fraserbrownirl/bursar-near",
    "window_commits": 52,
-   "dates": ["2026-11-10", "2026-11-14"],
+   "dates": [
+    "2026-11-10",
+    "2026-11-14"
+   ],
    "history": "docs/hackathon/history.md"
   },
   {
@@ -40,9 +43,16 @@
    "repo": "ethereus-mac",
    "url": "https://github.com/fraserbrownirl/ethereus-mac",
    "window_commits": 164,
-   "dates": ["2026-10-20", "2026-11-10"],
+   "dates": [
+    "2026-10-20",
+    "2026-11-10"
+   ],
    "branch": "serve-all9b",
-   "commits": ["a657bc5", "f1ed92d", "d78a6c9"],
+   "commits": [
+    "a657bc5",
+    "f1ed92d",
+    "d78a6c9"
+   ],
    "note": "the Mac runtime; made public with Fraser's confirmation on 2026-11-12"
   },
   {
@@ -55,7 +65,10 @@
    "repo": "bursar-solana",
    "url": "https://github.com/fraserbrownirl/bursar-solana",
    "window_commits": 13,
-   "dates": ["2026-11-08", "2026-11-10"],
+   "dates": [
+    "2026-11-08",
+    "2026-11-10"
+   ],
    "note": "the Solana prototype; built for the Solana hackathon, not a second NEAR Hackathon entry (Q-015)"
   },
   {
@@ -308,6 +321,73 @@
    "request_id": "ec4deaaa-5bb0-430d-88a8-90f2a4d5731c"
   },
   {
+   "date": "2026-11-13",
+   "kind": "x402",
+   "url": "https://x402.tbs-digital.com/weather/current?city=London",
+   "amount": "1000",
+   "display": "0.001",
+   "asset": "USDC",
+   "network": "eip155:8453",
+   "from": "0xE7369dD4F08fA5203B06F3E1Dccee00a11cCF152",
+   "payTo": "0xd6fCE15298Fc9D60f867d9455D497177Da9BFB0a",
+   "id": "0x6e7e357f2b9385c786cddbea5d51ffe06b89d38ef9503d10debe62e6c3a6570d",
+   "explorer": "https://basescan.org/tx/0x6e7e357f2b9385c786cddbea5d51ffe06b89d38ef9503d10debe62e6c3a6570d",
+   "request_id": "e3e849f8-1a3a-45fb-bf08-6d9094c8df5a",
+   "note": "First x402 payment from plain sentences: 'pay for one call of a weather API', then 'the tbs one, for London'. The find tool searched the Bazaar live and presented two payable options with prices."
+  },
+  {
+   "date": "2026-11-13",
+   "kind": "x402",
+   "url": "https://x402.tbs-digital.com/weather/current?city=London",
+   "amount": "1000",
+   "display": "0.001",
+   "asset": "USDC",
+   "network": "eip155:8453",
+   "from": "0xE7369dD4F08fA5203B06F3E1Dccee00a11cCF152",
+   "payTo": "0xd6fCE15298Fc9D60f867d9455D497177Da9BFB0a",
+   "id": "0x3767ed0624741658b9585ff3e78ddb88a1dbda3dfd9081b83de7ce5e7f6a46fa",
+   "explorer": "https://basescan.org/tx/0x3767ed0624741658b9585ff3e78ddb88a1dbda3dfd9081b83de7ce5e7f6a46fa",
+   "request_id": "c76eae89-a5ca-41d2-8f2c-e5be78505f70",
+   "note": "The owner's run in bursar: 'pay for one call of a weather API', then 'the tbs one, for London'. Two payable options were named with prices before the pick."
+  },
+  {
+   "date": "2026-11-13",
+   "kind": "x402",
+   "url": "https://x402.tbs-digital.com/weather/current?city=London",
+   "amount": "1000",
+   "display": "0.001",
+   "asset": "USDC",
+   "network": "eip155:8453",
+   "from": "0xE7369dD4F08fA5203B06F3E1Dccee00a11cCF152",
+   "payTo": "0xd6fCE15298Fc9D60f867d9455D497177Da9BFB0a",
+   "id": "0xecb8a4146d7f91377dad31463e2e19e4953ffa6a0bb155f747eb61544b7201a9",
+   "explorer": "https://basescan.org/tx/0xecb8a4146d7f91377dad31463e2e19e4953ffa6a0bb155f747eb61544b7201a9",
+   "note": "The canonical dialogue: 'what's the weather in London?', then 'one'. The service answers repeated city=London calls with its cached body."
+  },
+  {
+   "date": "2026-11-13",
+   "kind": "x402",
+   "url": "https://x402.tbs-digital.com/weather/current?city=London",
+   "amount": "1000",
+   "display": "0.001",
+   "asset": "USDC",
+   "network": "eip155:8453",
+   "from": "0xE7369dD4F08fA5203B06F3E1Dccee00a11cCF152",
+   "payTo": "0xd6fCE15298Fc9D60f867d9455D497177Da9BFB0a",
+   "id": "0xe7694d69da7f1721f4170dc796ae1395b81d50c890190458e84b487cb7f8d280",
+   "explorer": "https://basescan.org/tx/0xe7694d69da7f1721f4170dc796ae1395b81d50c890190458e84b487cb7f8d280",
+   "note": "The first run of the canonical dialogue ('what's the weather in London?', then 'one'), before the repeated-closing-sentence fix."
+  },
+  {
+   "date": "2026-11-13",
+   "kind": "bazaar",
+   "command": "bursar find weather",
+   "bazaar": 2,
+   "payable": 2,
+   "urls": ["https://x402.tbs-digital.com/weather/current", "https://x402tap.com/api/weather"],
+   "note": "The payable listing changed since the 2026-11-11 entry, which shows the search is live, not a fixture. A nonsense query ('bursar find zzqxw') the same day returned bazaar 0 payable 0."
+  },
+  {
    "date": "2026-11-12",
    "kind": "deadline-receipt",
    "hash": "001fcd5e3afa9beb89f41d805a0a66df9423a2017f54c49a55e6488d3bc22f40",
@@ -442,6 +522,37 @@
    "asset": "USDC",
    "id": "GuVNPesYiw4NqTuCTPJmEPUcQn1ttuWZRDsAWrTw6BKG",
    "url": "https://nearblocks.io/txns/GuVNPesYiw4NqTuCTPJmEPUcQn1ttuWZRDsAWrTw6BKG",
+   "amount_in": "107433",
+   "depositAddress": "f0107d939ab53e85125e74e12c46731937fd4b0617061da71dc242dabd1e2368"
+  },
+  {
+   "date": "2026-11-13",
+   "kind": "mpp-settlement",
+   "to": "frsrcom.near",
+   "amount": "100000",
+   "asset": "USDC",
+   "id": "2S5EFTZumZciXkNk54LzGt85w7xXBkaENjXF33zjdoLA",
+   "url": "https://nearblocks.io/txns/2S5EFTZumZciXkNk54LzGt85w7xXBkaENjXF33zjdoLA",
+   "amount_in": "107433"
+  },
+  {
+   "date": "2026-11-13",
+   "kind": "mpp-settlement",
+   "to": "frsrcom.near",
+   "amount": "100000",
+   "asset": "USDC",
+   "id": "HgiYtRLt1CkJ7wyhVp2AdT2j6WftL4E6BqLsztmLxfqP",
+   "url": "https://nearblocks.io/txns/HgiYtRLt1CkJ7wyhVp2AdT2j6WftL4E6BqLsztmLxfqP",
+   "amount_in": "107433"
+  },
+  {
+   "date": "2026-11-13",
+   "kind": "mpp-settlement",
+   "to": "frsrcom.near",
+   "amount": "100000",
+   "asset": "USDC",
+   "id": "58drsMQQYGxGZ97d3hc8hE5BKspv4jKgeV5Gdu71EH81",
+   "url": "https://nearblocks.io/txns/58drsMQQYGxGZ97d3hc8hE5BKspv4jKgeV5Gdu71EH81",
    "amount_in": "107433"
   }
  ],
@@ -599,6 +710,12 @@
   "https://nearblocks.io/txns/GuVNPesYiw4NqTuCTPJmEPUcQn1ttuWZRDsAWrTw6BKG",
   "9500264e1ebfbeaf5dc042f81de2d14514a2a0187bd801430092f4cbdda3d200",
   "e20e41752b61b87e7bc693dbd7aca347f6e7662c3a840a7d880873d52baae4de",
-  "46c477f4fd8b59dc6319d6bf98b16e1773a8ba2867955444cba4346d9c52476f"
+  "46c477f4fd8b59dc6319d6bf98b16e1773a8ba2867955444cba4346d9c52476f",
+  "bb8e930501a0a97b2f69e6d39ddf68c7f084ee9f2b1ed020ddf472d7b479a388",
+  "b5bebe97bccb5d741134d757bfaff74d953f266221c79b57a587fd1c443418f1",
+  "01cdef18ecc74e6b5419a9028f470d09204b9a2f3c5082ec479357b14e86544a",
+  "2S5EFTZumZciXkNk54LzGt85w7xXBkaENjXF33zjdoLA",
+  "HgiYtRLt1CkJ7wyhVp2AdT2j6WftL4E6BqLsztmLxfqP",
+  "58drsMQQYGxGZ97d3hc8hE5BKspv4jKgeV5Gdu71EH81"
  ]
 }

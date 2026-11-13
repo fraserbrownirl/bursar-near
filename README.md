@@ -130,9 +130,9 @@ Four scenes, run by the owner in `bursar` from plain sentences. The index is [de
 
 | # | Scene | Owner types | Result | Proof |
 | --- | --- | --- | --- | --- |
-| 1 | Shop sale | "a buyer will pay 0.15 USDC on Solana" | A QR in the terminal. The iPhone Bursar scanned it and the two checks ran on the Mac (receipts `ef55dfea92041cf97b34c8589dce3e946e427a6d465c78fbf384098fd01cc945`, `4e52f82c6e25673ad47e53b5aef4ca6b8ec3f66f43deeca54a5caf60c71c32aa`). The payment itself: not run — it waits for the owner's Face ID. | `demos/shop.md` |
-| 2 | Paid web page (MPP) | "pay http://127.0.0.1:8402/premium" | The official `@defuse-protocol/nearintents-mpp-sdk` example server, unmodified, returned the page. 0.101034 USDC in, 0.10 USDC to `frsrcom.near`. Receipts `9500264e1ebfbeaf5dc042f81de2d14514a2a0187bd801430092f4cbdda3d200`, `e20e41752b61b87e7bc693dbd7aca347f6e7662c3a840a7d880873d52baae4de`. | [settlement](https://nearblocks.io/txns/GuVNPesYiw4NqTuCTPJmEPUcQn1ttuWZRDsAWrTw6BKG), `demos/mpp.md` |
-| 3 | Paid API (x402) | "pay for one call of a weather API", then "the tbs one, for London" | Two payable weather APIs named with prices from a live Bazaar search; the weather for London, paid 0.001 USDC on Base from the float. | [transaction](https://basescan.org/tx/0x6e7e357f2b9385c786cddbea5d51ffe06b89d38ef9503d10debe62e6c3a6570d) |
+| 1 | Shop sale | "a buyer will pay 0.15 USDC on Solana" | A QR in the terminal. The iPhone Bursar scanned it and the two checks ran on the Mac (receipts `ef55dfea92041cf97b34c8589dce3e946e427a6d465c78fbf384098fd01cc945`, `4e52f82c6e25673ad47e53b5aef4ca6b8ec3f66f43deeca54a5caf60c71c32aa`). The payment itself: not run — it waits for the owner's Face ID. | `demos/shop/README.md` |
+| 2 | Paid web page (MPP) | "pay http://127.0.0.1:8402/premium" | The official `@defuse-protocol/nearintents-mpp-sdk` example server, unmodified, returned the page. 0.101034 USDC in, 0.10 USDC to `frsrcom.near`. Receipts `9500264e1ebfbeaf5dc042f81de2d14514a2a0187bd801430092f4cbdda3d200`, `e20e41752b61b87e7bc693dbd7aca347f6e7662c3a840a7d880873d52baae4de`. | [settlement](https://nearblocks.io/txns/GuVNPesYiw4NqTuCTPJmEPUcQn1ttuWZRDsAWrTw6BKG), `demos/mpp/README.md` |
+| 3 | Paid API (x402) | "what's the weather in London?", then "one" | Two payable weather APIs named with prices from a live Bazaar search; London weather in one sentence ("London: clear sky, 2.1 °C."), paid 0.001 USDC on Base from the float. | [transaction](https://basescan.org/tx/0xecb8a4146d7f91377dad31463e2e19e4953ffa6a0bb155f747eb61544b7201a9) |
 | 4 | Split bill | a restaurant receipt image, and "ask Maya for her half on Solana" | The share, 0.20 USDC of the 0.40 total, and a pay instruction Maya can paste into her own Bursar. A receive request, not a payment. | `demos/runsheet.md` |
 
 Scene 2 can be repeated by a judge: run the SDK's example server with your own NEAR account as `MERCHANT_RECIPIENT` and pay it with `npm run bursar -- pay http://127.0.0.1:8402/premium`. The 402 price and recipient print before the card; the transaction link prints after the body.
@@ -162,7 +162,7 @@ Phrases are from the snapshot of HACKATHON.md in `docs/hackathon/`. Rows the pro
 | agents | pay for APIs, compute or data | met | The x402 weather call, 0.001 USDC on Base (`src/x402-pay.ts`; the transaction is in Payment demos) |
 | agents | NEAR INTENTS | met | `src/quote.ts`, `src/intent.ts`; every payment in the demos is a 1Click quote |
 | agents | CHAIN SIGNATURES | n/a | Not used |
-| realworld | merchant payments | met | The MPP scene pays the official example merchant 0.10 USDC (`demos/mpp.md`) |
+| realworld | merchant payments | met | The MPP scene pays the official example merchant 0.10 USDC (`demos/mpp/README.md`) |
 | realworld | invoicing | met | A receive request is a deposit address plus an amount (`src/receive.ts`); the split bill produces the instruction the friend pays (`demos/runsheet.md`) |
 | realworld | stablecoin rails | met | USDC moves through NEAR Intents between Solana, Base, Arbitrum and NEAR (`src/assets.ts`; the demos) |
 | realworld | Something a normal company could use tomorrow | met | A page or API that answers 402 is paid from one sentence, and a third party replays the checks (Payment demos 2 and 3) |

@@ -30,7 +30,7 @@ Sentence: `a buyer will pay 0.15 USDC on Solana`.
 
 Mechanism: the agent calls the `receive` tool. Each Bursar account has one fixed deposit address per chain; the tool asks the Intents bridge for this account's Solana address and draws it as a QR in the terminal plus an amount. The QR is drawn with solid background-coloured cells, because half-block glyph QRs do not scan from a terminal screenshot (line leading cuts the grid; `src/code.ts`, `test/code.test.ts`). The shopper's iPhone scans it, and the app (which has no model) sends `/prepare` and `/check` to the model relay on the Mac (`src/model-relay.ts`); the relay runs the quote check and the intent check inside Bursar-9B and returns the card, which says `checked by Bursar-9B on the Mac`. Face ID signs one intent in the iPhone's Secure Enclave; the Mac watches the bridge and prints `Received`.
 
-Proof: check receipts `ef55dfea92041cf97b34c8589dce3e946e427a6d465c78fbf384098fd01cc945` (quote check) and `4e52f82c6e25673ad47e53b5aef4ca6b8ec3f66f43deeca54a5caf60c71c32aa` (intent check, signer `0x304e29ea3a04a8693d9b5ff362cee0016f586ff5`, the iPhone's account), both replayable with the verify commands above. The payment itself waits for the owner's Face ID at filming time; the page is `demos/shop.md`.
+Proof: check receipts `ef55dfea92041cf97b34c8589dce3e946e427a6d465c78fbf384098fd01cc945` (quote check) and `4e52f82c6e25673ad47e53b5aef4ca6b8ec3f66f43deeca54a5caf60c71c32aa` (intent check, signer `0x304e29ea3a04a8693d9b5ff362cee0016f586ff5`, the iPhone's account), both replayable with the verify commands above. The payment itself waits for the owner's Face ID at filming time; the page is `demos/shop/README.md`.
 
 ## Payment demo 2 — paid web page (MPP)
 
@@ -38,7 +38,7 @@ Sentence: `pay http://127.0.0.1:8402/premium`.
 
 Mechanism: MPP is a standard where a web page answers 402 with a price before serving content. The server here is the official `@defuse-protocol/nearintents-mpp-sdk` 0.4.1 example, unmodified. Bursar reads the 402 (0.10 USDC to the merchant), dry-quotes through 1Click, runs both in-model checks, the owner approves with Touch ID, and the payment settles cross-chain (Arbitrum USDC in, NEAR USDC out). The server sees its own quote execute on 1Click's public status API and serves the page.
 
-Proof: settlement https://nearblocks.io/txns/GuVNPesYiw4NqTuCTPJmEPUcQn1ttuWZRDsAWrTw6BKG (0.10 USDC to `frsrcom.near`; 0.101034 paid in including the route fee). In-model receipts from two runs: `9500264e1ebfbeaf5dc042f81de2d14514a2a0187bd801430092f4cbdda3d200`, `e20e41752b61b87e7bc693dbd7aca347f6e7662c3a840a7d880873d52baae4de` (2026-11-12), and `bb8e930501a0a97b2f69e6d39ddf68c7f084ee9f2b1ed020ddf472d7b479a388`, `b5bebe97bccb5d741134d757bfaff74d953f266221c79b57a587fd1c443418f1` (2026-11-13). A judge can repeat it with their own NEAR account as merchant; the page is `demos/mpp.md`, which includes a five-link cold-verification walkthrough. A film of the run is `demos/mpp-demo.mp4`.
+Proof: settlement https://nearblocks.io/txns/GuVNPesYiw4NqTuCTPJmEPUcQn1ttuWZRDsAWrTw6BKG (0.10 USDC to `frsrcom.near`; 0.101034 paid in including the route fee). In-model receipts from two runs: `9500264e1ebfbeaf5dc042f81de2d14514a2a0187bd801430092f4cbdda3d200`, `e20e41752b61b87e7bc693dbd7aca347f6e7662c3a840a7d880873d52baae4de` (2026-11-12), and `bb8e930501a0a97b2f69e6d39ddf68c7f084ee9f2b1ed020ddf472d7b479a388`, `b5bebe97bccb5d741134d757bfaff74d953f266221c79b57a587fd1c443418f1` (2026-11-13). A judge can repeat it with their own NEAR account as merchant; the page is `demos/mpp/README.md`, which includes a five-link cold-verification walkthrough. A film of the run is `demos/mpp/mpp-demo.mp4`.
 
 ## Payment demo 3 — paid API (x402)
 
@@ -46,7 +46,7 @@ Sentences: `pay for one call of a weather API`, then `the tbs one, for London`.
 
 Mechanism: the find tool searches Coinbase's x402 Bazaar live and marks each service payable when 1Click or the float can deliver its 402 (Base exact USDC is payable; other networks are listed as not payable). The 9B names the payable options with prices. The owner picks one and names a city; the float key (a Base key in the login Keychain, `0xE7369dD4F08fA5203B06F3E1Dccee00a11cCF152`) pays the exact 402 amount on Base via `src/x402-pay.ts`, and the service answers with the weather JSON.
 
-Proof: two Base mainnet settlements, https://basescan.org/tx/0x6e7e357f2b9385c786cddbea5d51ffe06b89d38ef9503d10debe62e6c3a6570d (2026-11-13, the sentence flow) and https://basescan.org/tx/0x50c5acc7a2de4fbcccde1fd4ab77ca5c6bd1bed2eb5f03ab9a18eff1529cbb70 (2026-11-12, the command form), each 0.001 USDC to `0xd6fCE15298Fc9D60f867d9455D497177Da9BFB0a`. No in-model receipts: this scene pays on Base, and the two in-model checks belong to the Intents flow. Note for agents: the sentence that routes is pay-shaped; `find me a weather API` calls no tool in most sampled runs. The page is `demos/x402.md`.
+Proof: two Base mainnet settlements, https://basescan.org/tx/0x6e7e357f2b9385c786cddbea5d51ffe06b89d38ef9503d10debe62e6c3a6570d (2026-11-13, the sentence flow) and https://basescan.org/tx/0x50c5acc7a2de4fbcccde1fd4ab77ca5c6bd1bed2eb5f03ab9a18eff1529cbb70 (2026-11-12, the command form), each 0.001 USDC to `0xd6fCE15298Fc9D60f867d9455D497177Da9BFB0a`. No in-model receipts: this scene pays on Base, and the two in-model checks belong to the Intents flow. Note for agents: the sentence that routes is pay-shaped; `find me a weather API` calls no tool in most sampled runs. The page is `demos/x402/README.md`.
 
 ## Payment demo 4 — split bill
 
@@ -54,7 +54,7 @@ Sentence: a restaurant receipt image plus `split this with Maya and ask her for 
 
 Mechanism: the image is read by macOS text recognition (`src/screenshot.ts`), not by the model. `src/bill.ts` computes the share in code from the recognized text (0.40 total, 2 guests → 0.20), never by the model. The agent returns one line of instruction — `pay 0.20 USDC to BHQBpzsUNHzhZfD2jrxwwcp1FcduvdLjTh5x4DkzvEkp on Solana` — which the owner texts to the friend; pasted into the friend's own Bursar it becomes a payment card (`test/phone-hear.test.ts`, "a pasted split instruction on Solana is a card"). There is deliberately no QR: the friend is not in the room.
 
-Proof: the run output is in `demos/runsheet.md` (Split bill); the page is `demos/split.md`. This scene produces a receive request, not a payment.
+Proof: the run output is in `demos/runsheet.md` (Split bill); the page is `demos/split/README.md`. This scene produces a receive request, not a payment.
 
 ## Attack 1 — tampered quote (stopped inside the model)
 
@@ -123,5 +123,5 @@ One line each; the scenario file is `attacks/<id>.yaml`, the STOP sentence and c
 - Proofs: `attacks/README.md` (attack table), `attacks/*.yaml` (scenarios), `demos/README.md` (scene index), `demos/<scene>.md` (scene pages), `receipts/` (replayable checks), `docs/hackathon/evidence.json` (the registry).
 - Verification: `src/verify.ts`, `scripts/verify_firmware.py`, `src/verify-weights.ts`, `scripts/computer_run.py`, `vendor/`, `firmware/`.
 - Gates: `scripts/check-readme.mjs`, `scripts/check-proofs.mjs`, `scripts/check-agents.mjs` (all run by `npm run check:readme`).
-- Films: `attacks/video/highlights-v6.mp4` (77 s), `attacks/video/attacks-v6.mp4` (full), `demos/mpp-demo.mp4` (MPP run).
+- Films: `attacks/video/highlights-v6.mp4` (77 s), `attacks/video/attacks-v6.mp4` (full), `demos/mpp/mpp-demo.mp4` (MPP run).
 - Model: https://huggingface.co/frsrcom/bursar-9b

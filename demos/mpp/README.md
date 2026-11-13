@@ -2,7 +2,7 @@
 
 ## Film
 
-`demos/mpp-demo.mp4` (59 s): the run end to end — the sentence, the 402, both in-model checks with their receipts, the card, the delivery, the page, and the settlement link, then the replay result. The three waits (the two checks and the delivery) play at real-time badges: 60 s, 68 s, 40 s. Built by `demos/film-mpp.py` from `demos/mpp-film/data.json` over the VHS take `demos/takes/v1-mpp-take.mp4` (a real run, 202 s, recorded headless in Terminal.app). No blank frame over 3 s; no local paths; every wait badged (`demos/mpp-film/timeline.json`).
+`demos/mpp/mpp-demo.mp4` (59 s): the run end to end — the sentence, the 402, both in-model checks with their receipts, the card, the delivery, the page, and the settlement link, then the replay result. The three waits (the two checks and the delivery) play at real-time badges: 60 s, 68 s, 40 s. Built by `demos/mpp/film-mpp.py` from `demos/mpp/film/data.json` over the VHS take `demos/mpp/takes/v1-mpp-take.mp4` (a real run, 202 s, recorded headless in Terminal.app). No blank frame over 3 s; no local paths; every wait badged (`demos/mpp/film/timeline.json`).
 
 ## How a judge verifies it end to end
 

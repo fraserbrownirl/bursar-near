@@ -1,9 +1,0 @@
-{
- "settlement": "https://nearblocks.io/txns/BPXfYv1rgs7geVUckSd24AmaupQL9VFxZ2TBe2QGC814",
- "quote_receipt": "1a57224113d7d3f4984ca1c9ed746d7e5a47cd2242c5e01bcd31dea489d511d9",
- "intent_receipt": "75c9b3315fe3dda8ea00e8a5989cf82e77045af6067cef767268bb7e24c4c772",
- "raw_line": "1click check @quote 0x197DDFFB0E0b1C78130dd27D3bDA6c06eB070cC9 0xbc77a1ef1ee04fc563ccb1d19e28dcc7385f136b nep141:arb-0xaf88d065e77c8cc2239327c5edb3a432268e5831.omft.near 101034 107433 1794558594 -",
- "page": "{\"premium\":true,\"insight\":\"The merchant was paid an exact amount on NEAR before you saw this.\",\"servedAt\":\"2026-11-13T08:33:05.066Z\"}",
- "run": "2026-11-13 12:32 +0400",
- "approval": "Touch ID was prompted at the card and approved by the owner. The in-model checks ran before the prompt."
-}

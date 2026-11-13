@@ -4,7 +4,7 @@ import test from "node:test";
 import { billShare, shareOf } from "../src/bill.js";
 import { readScreenshot } from "../src/screenshot.js";
 
-const receipt = fileURLToPath(new URL("../demos/harbour-lantern.png", import.meta.url));
+const receipt = fileURLToPath(new URL("../demos/split/harbour-lantern.png", import.meta.url));
 
 const read = `HARBOUR LANTERN
 Table 7 • 2 guests

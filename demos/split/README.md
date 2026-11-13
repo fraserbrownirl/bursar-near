@@ -6,7 +6,7 @@ The owner hands Bursar a restaurant receipt photo and asks a friend for their sh
 
 ## What's real
 
-- The reading: `demos/receipt-caffe.png` OCRs to TOTAL 0.40 with 2 GUESTS. The share Bursar states is 0.20 USDC — half, computed in code from the recognized text, not by the model.
+- The reading: `demos/split/receipt-caffe.png` OCRs to TOTAL 0.40 with 2 GUESTS. The share Bursar states is 0.20 USDC — half, computed in code from the recognized text, not by the model.
 - The instruction: `pay 0.20 USDC to BHQBpzsUNHzhZfD2jrxwwcp1FcduvdLjTh5x4DkzvEkp on Solana` — the owner's Solana deposit address, not an account id. Pasted into the phone Bursar it shows the card for 0.20 USDC (`test/phone-hear.test.ts`).
 - The money: when the friend pays, mainnet USDC on Solana arrives at the owner's deposit address.
 
@@ -18,4 +18,4 @@ The owner hands Bursar a restaurant receipt photo and asks a friend for their sh
 ## How it's proven
 
 - Run output is in `demos/runsheet.md` (Split bill): the sentence, the stated share, and the instruction line.
-- The scene's done condition is the stated share and the request; the friend's payment is the phone flow in `demos/shop.md`.
+- The scene's done condition is the stated share and the request; the friend's payment is the phone flow in `demos/shop/README.md`.

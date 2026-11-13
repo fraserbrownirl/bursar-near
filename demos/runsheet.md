@@ -54,19 +54,31 @@ https://basescan.org/tx/0x6e7e357f2b9385c786cddbea5d51ffe06b89d38ef9503d10debe62
 
 The on-chain transfer is 1000 atomic USDC from the float to `0xd6fCE15298Fc9D60f867d9455D497177Da9BFB0a`, status success. Request id `e3e849f8-1a3a-45fb-bf08-6d9094c8df5a`.
 
+The owner then ran the same two sentences in `bursar`: two options with prices, `the tbs one, for London`, London weather (clear sky, 2.1°C), and:
+
+https://basescan.org/tx/0x3767ed0624741658b9585ff3e78ddb88a1dbda3dfd9081b83de7ce5e7f6a46fa
+
+Same transfer shape on-chain, request id `c76eae89-a5ca-41d2-8f2c-e5be78505f70`. Camera note: type the answer after the question prints. Both lines typed ahead still process in order, but the question then appears below the answer on screen.
+
+The dialogue then settled into its final form. `what's the weather in London?` — two payable services with prices — then `one`. The weather JSON, the closing sentence `London: clear sky, 2.1 °C.`, and:
+
+https://basescan.org/tx/0xecb8a4146d7f91377dad31463e2e19e4953ffa6a0bb155f747eb61544b7201a9
+
+An earlier run of the same dialogue settled in https://basescan.org/tx/0xe7694d69da7f1721f4170dc796ae1395b81d50c890190458e84b487cb7f8d280 (its closing sentence printed five times before the turn loop was fixed to end on the model's answer). The question form routes five of five after the find playbook, the word-wise Bazaar filter, and USDC prices in the report; `find me a weather API` called no tool four of five.
+
 The pay-shaped sentence is the reliable one. `find me a weather API` is outside the 9B's fine-tuned classes: four of five sampled runs called no tool. `pay for one call of a weather API` routed to the find tool five of five. A bare-URL pay during testing reached the paid retry, the service answered `Invalid query parameters`, and no payment settled.
 
 # Split a receipt
 
 The 9B request in `src/model.ts` is text. It has no image. A receipt is read by macOS text recognition in `src/screenshot.ts` before the model is asked. `src/bill.ts` takes the total and the guest count from that text.
 
-`demos/harbour-lantern.png` reads as Harbour Lantern, `2 guests`, `TOTAL USD`, and `18.70`. Half is 9.35. The sentence is `split this with Maya and ask her for her half on Solana` with that image path. The owner sees `Maya owes 9.35 USDC` and a line Maya pastes into her own Bursar: `pay 9.35 USDC to BHQBpzsUNHzhZfD2jrxwwcp1FcduvdLjTh5x4DkzvEkp on Solana`. That is the Solana deposit address. The Intents account id is not used, and the line does not say near. There is no QR.
+`demos/split/harbour-lantern.png` reads as Harbour Lantern, `2 guests`, `TOTAL USD`, and `18.70`. Half is 9.35. The sentence is `split this with Maya and ask her for her half on Solana` with that image path. The owner sees `Maya owes 9.35 USDC` and a line Maya pastes into her own Bursar: `pay 9.35 USDC to BHQBpzsUNHzhZfD2jrxwwcp1FcduvdLjTh5x4DkzvEkp on Solana`. That is the Solana deposit address. The Intents account id is not used, and the line does not say near. There is no QR.
 
 # Split bill
 
 The scene is the restaurant receipt above: the owner gives the image and asks a friend for half, and Bursar states the share and shows a receive request. The less-common-chain version is dropped.
 
-Run on 2026-11-12 with `demos/receipt-caffe.png` (TOTAL 0.40, 2 GUESTS), `npm run bursar -- agent "split this with Maya and ask her for her half on Solana /Users/fraserbrown/Dev/bursar-near/demos/receipt-caffe.png"`. The share is 0.20 USDC and the instruction is a line Maya texts back from any messenger. There is no QR: the friend is not present.
+Run on 2026-11-12 with `demos/split/receipt-caffe.png` (TOTAL 0.40, 2 GUESTS), `npm run bursar -- agent "split this with Maya and ask her for her half on Solana /Users/fraserbrown/Dev/bursar-near/demos/receipt-caffe.png"`. The share is 0.20 USDC and the instruction is a line Maya texts back from any messenger. There is no QR: the friend is not present.
 
 ```
 pay 0.20 USDC to BHQBpzsUNHzhZfD2jrxwwcp1FcduvdLjTh5x4DkzvEkp on Solana
@@ -92,8 +104,8 @@ Self-test of the receive path. 0.15 USDC. Not a customer payment.
 
 | chain | amount | deposit address | QR file | payment request | phone wallet | result |
 | --- | --- | --- | --- | --- | --- | --- |
-| Base | 0.15 USDC | `0xcA7cb8405484Ca0E4C941a22Ed1399E401b378dB` | `demos/qr-base.png` | `ethereum:0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913@8453/transfer?address=0xcA7cb8405484Ca0E4C941a22Ed1399E401b378dB&uint256=150000` | not recorded | not scanned |
-| Solana | 0.15 USDC | `BHQBpzsUNHzhZfD2jrxwwcp1FcduvdLjTh5x4DkzvEkp` | `demos/qr-solana.png` | `solana:BHQBpzsUNHzhZfD2jrxwwcp1FcduvdLjTh5x4DkzvEkp?spl-token=EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v&amount=0.15` | Bursar test app on FRSR’s iPhone | 2026-11-12 14:19 Check showed `ReferenceError: Can't find variable: URLSearchParams`. No payment was sent. |
+| Base | 0.15 USDC | `0xcA7cb8405484Ca0E4C941a22Ed1399E401b378dB` | `demos/shop/qr-base.png` | `ethereum:0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913@8453/transfer?address=0xcA7cb8405484Ca0E4C941a22Ed1399E401b378dB&uint256=150000` | not recorded | not scanned |
+| Solana | 0.15 USDC | `BHQBpzsUNHzhZfD2jrxwwcp1FcduvdLjTh5x4DkzvEkp` | `demos/shop/qr-solana.png` | `solana:BHQBpzsUNHzhZfD2jrxwwcp1FcduvdLjTh5x4DkzvEkp?spl-token=EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v&amount=0.15` | Bursar test app on FRSR’s iPhone | 2026-11-12 14:19 Check showed `ReferenceError: Can't find variable: URLSearchParams`. No payment was sent. |
 
 Shop run on 2026-11-12. `npm run bursar` then the sentence `a buyer will pay 0.15 USDC on Solana`. `I am ready.` printed, then about 12 seconds later:
 

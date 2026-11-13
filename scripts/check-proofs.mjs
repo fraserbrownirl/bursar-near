@@ -35,8 +35,8 @@ const SECTIONS = ["## What it is", "## What's real", "## What's staged", "## How
 const INDEX = readFileSync(join(root, "demos/README.md"), "utf8");
 
 const scenePages = [];
-for (const match of INDEX.matchAll(/\]\((?!http)([a-z0-9-]+\.md)\)/g)) {
-  if (match[1] !== "runsheet.md") scenePages.push(match[1]);
+for (const match of INDEX.matchAll(/\]\((?!http)([a-z0-9-]+\/README\.md)\)/g)) {
+  scenePages.push(match[1]);
 }
 for (const page of scenePages) {
   const file = `demos/${page}`;
@@ -54,13 +54,21 @@ for (const page of scenePages) {
   }
 }
 
-import { readdirSync } from "node:fs";
+import { readdirSync, statSync } from "node:fs";
 for (const name of readdirSync(join(root, "demos"))) {
-  if (!name.endsWith(".md") || name === "README.md" || name === "runsheet.md") continue;
-  if (!scenePages.includes(name)) failures.push(`demos/${name} is a proof page but is not in the index`);
+  const dir = join(root, "demos", name);
+  if (name.endsWith(".md") && name !== "README.md" && name !== "runsheet.md") {
+    failures.push(`demos/${name} is a loose proof page; scenes are folders with a README.md`);
+    continue;
+  }
+  if (!statSync(dir).isDirectory() || name === "takes") continue;
+  const page = `${name}/README.md`;
+  if (existsSync(join(dir, "README.md")) && !scenePages.includes(page)) {
+    failures.push(`demos/${page} is a scene page but is not in the index`);
+  }
 }
 
-const proofFiles = ["attacks/README.md", "demos/README.md", "llms.txt", ...scenePages.map((page) => `demos/${page}`)].filter((file) => existsSync(join(root, file)));
+const proofFiles = ["attacks/README.md", "demos/README.md", "llms.txt", "demos/runsheet.md", ...scenePages.map((page) => `demos/${page}`)].filter((file) => existsSync(join(root, file)));
 
 const attacks = readFileSync(join(root, "attacks/README.md"), "utf8");
 let rowNumber = 0;
