@@ -39,8 +39,8 @@ From a fresh clone. Steps 1–3 need Node 20 or newer and nothing else. Steps 4�
 npm test
 ```
 ```output
-ℹ tests 149
-ℹ pass 149
+ℹ tests 148
+ℹ pass 148
 ℹ fail 0
 ```
 
