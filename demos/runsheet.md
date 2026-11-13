@@ -48,6 +48,14 @@ https://basescan.org/tx/0x50c5acc7a2de4fbcccde1fd4ab77ca5c6bd1bed2eb5f03ab9a18ef
 
 The body starts `{"request_id":"ec4deaaa-5bb0-430d-88a8-90f2a4d5731c"...}` and the payer is `0xE7369dD4F08fA5203B06F3E1Dccee00a11cCF152`.
 
+Run on 2026-11-13, the sentence flow. `pay for one call of a weather API`, then `the tbs one, for London`. The 9B named two payable services from the live Bazaar search — x402.tbs-digital.com at 0.001 USDC and x402tap.com at 0.01 USDC — then paid 0.001 USDC from the Base float. The London weather JSON came back with:
+
+https://basescan.org/tx/0x6e7e357f2b9385c786cddbea5d51ffe06b89d38ef9503d10debe62e6c3a6570d
+
+The on-chain transfer is 1000 atomic USDC from the float to `0xd6fCE15298Fc9D60f867d9455D497177Da9BFB0a`, status success. Request id `e3e849f8-1a3a-45fb-bf08-6d9094c8df5a`.
+
+The pay-shaped sentence is the reliable one. `find me a weather API` is outside the 9B's fine-tuned classes: four of five sampled runs called no tool. `pay for one call of a weather API` routed to the find tool five of five. A bare-URL pay during testing reached the paid retry, the service answered `Invalid query parameters`, and no payment settled.
+
 # Split a receipt
 
 The 9B request in `src/model.ts` is text. It has no image. A receipt is read by macOS text recognition in `src/screenshot.ts` before the model is asked. `src/bill.ts` takes the total and the guest count from that text.
@@ -57,6 +65,18 @@ The 9B request in `src/model.ts` is text. It has no image. A receipt is read by 
 # Split bill
 
 The scene is the restaurant receipt above: the owner gives the image and asks a friend for half, and Bursar states the share and shows a receive request. The less-common-chain version is dropped.
+
+Run on 2026-11-12 with `demos/receipt-caffe.png` (TOTAL 0.40, 2 GUESTS), `npm run bursar -- agent "split this with Maya and ask her for her half on Solana /Users/fraserbrown/Dev/bursar-near/demos/receipt-caffe.png"`. The share is 0.20 USDC and the instruction is a line Maya texts back from any messenger. There is no QR: the friend is not present.
+
+```
+pay 0.20 USDC to BHQBpzsUNHzhZfD2jrxwwcp1FcduvdLjTh5x4DkzvEkp on Solana
+Maya, please paste this into your Solana Bursar:
+pay 0.20 USDC to BHQBpzsUNHzhZfD2jrxwwcp1FcduvdLjTh5x4DkzvEkp on Solana
+```
+
+Pasted into the phone Bursar, that line shows the card for 0.20 USDC to the owner's Solana deposit address (`test/phone-hear.test.ts`, "a pasted split instruction on Solana is a card").
+
+Note: with the clause form "she uses solana" the 9B asked which chain instead of reading it. The inline form "for her half on Solana" is the sentence that works.
 
 Dropped run, 2026-11-12, `npm run bursar -- agent "a friend says I owe my share, 0.15 USDT on Gnosis"`.
 
@@ -87,4 +107,10 @@ The terminal then drew the QR. `bursar-code.png` from that run decodes to:
 solana:BHQBpzsUNHzhZfD2jrxwwcp1FcduvdLjTh5x4DkzvEkp?spl-token=EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v&amount=0.15
 ```
 
-That is 0.15 USDC to this account’s Solana deposit address. A phone camera was not used for this check. `Received` did not print. No 0.15 USDC was sent. The Base float holds USDC and 0 ETH, so the transfer that would deliver it could not pay gas.
+That is 0.15 USDC to this account’s Solana deposit address.
+
+2026-11-12, later the same day. The phone bundle no longer uses `URLSearchParams` (it threw `ReferenceError` under JavaScriptCore at 14:19); the app on FRSR’s iPhone parses the Solana code to a card. The terminal QR is now solid background cells, not glyphs: a screenshot of the terminal decodes to the full payload, amount included. Half-block glyphs did not scan in Terminal.app — line leading cuts the module grid — and AGENTS.md’s QR rule now says so.
+
+Both in-model checks pass for this payment from the phone: `/prepare` returns the unsigned intent, `/check` returns quote receipt `ef55dfea92041cf97b34c8589dce3e946e427a6d465c78fbf384098fd01cc945` and intent receipt `4e52f82c6e25673ad47e53b5aef4ca6b8ec3f66f43deeca54a5caf60c71c32aa`. The relay also takes `/submit` now: the phone signs the checked payload in its Secure Enclave and the relay submits that WebAuthn intent to 1Click.
+
+`Received` has not printed yet. The first scan stopped at `STOP: in-model check` while the model server was saturated; the second at `Bursar on the Mac is not reachable` when the phone left the network mid-flow. The next attempt is on the iOS Simulator: its own enclave account `0x3602b546589a8fcafdce7fad64a46f91db0e4d50`, funded 0.5 USDC from the Mac account.
