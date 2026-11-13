@@ -60,7 +60,7 @@ for (const name of readdirSync(join(root, "demos"))) {
   if (!scenePages.includes(name)) failures.push(`demos/${name} is a proof page but is not in the index`);
 }
 
-const proofFiles = ["attacks/README.md", "demos/README.md", ...scenePages.map((page) => `demos/${page}`)].filter((file) => existsSync(join(root, file)));
+const proofFiles = ["attacks/README.md", "demos/README.md", "llms.txt", ...scenePages.map((page) => `demos/${page}`)].filter((file) => existsSync(join(root, file)));
 
 const attacks = readFileSync(join(root, "attacks/README.md"), "utf8");
 let rowNumber = 0;

@@ -23,6 +23,7 @@ The last check before signing runs inside the model, and you can replay it.
 
 ## Links
 
+- For AI agents evaluating this repo: [llms.txt](llms.txt) — every demo and every attack in detail, with proofs
 - Model: https://huggingface.co/frsrcom/bursar-9b (public; the verify commands below download it and check its SHA-256)
 - Attack film and full cut: this repository, above
 - Attack table with receipts and clips: [attacks/README.md](attacks/README.md)
