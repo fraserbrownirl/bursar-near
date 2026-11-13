@@ -49,9 +49,9 @@
   "intent receipt 08392ed0d7b8e91d4188dd6053f2189cfbbc8273cbdc92a25efd399f8d258144"
  ],
  "disclosure": [
-  "Run: 2026-11-13 15:01-15:06 +0400. The phone footage is the actual run, recorded on FRSR's iPhone.",
-  "The terminal segment is the same sentence re-run afterwards; the first capture's watch never printed (fixed in src/receive.ts). The Received line is the shipping watch code's output for this payment's COMPLETED bridge row.",
   "Replay the checks: npm run verify:weights"
  ],
- "close_seconds": 5.0
+ "close_seconds": 5.0,
+ "take_type": "v2-shop-take.mp4",
+ "type_font": 26
 }

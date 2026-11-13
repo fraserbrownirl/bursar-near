@@ -4,18 +4,21 @@
  "segments": [
   {
    "kind": "take",
+   "take": "v2-shop-take.mp4",
    "from": 0,
    "to": 2.2,
    "badge": null
   },
   {
    "kind": "take",
+   "take": "v2-shop-take.mp4",
    "from": 2.2,
    "to": 4.0,
    "badge": "real wait 6 s"
   },
   {
    "kind": "take",
+   "take": "v3-shop-take.mp4",
    "from": 7.75,
    "to": 10.48,
    "badge": null

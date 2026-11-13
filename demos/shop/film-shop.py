@@ -127,25 +127,35 @@ def build(data):
             t += 0.25
         return end
 
-    def take_seg(name, t0, t1, badge=None, hold=0.0):
+    def take_seg(name, t0, t1, badge=None, hold=0.0, path=None, box=None, font=None, cap=None):
         if t1 - t0 < 0.2:
             return
+        src = path or take
+        sbox = box or F.content_box(src, min(t1, F.duration(src) - 0.5))
+        sfont = font or take_font
+        scap = cap if cap is not None else min(0.85, F.WH * sfont / (46.0 * sbox[3]) * 0.99)
         base = work / "base.png"
         if not base.exists() or badge:
             top = film_mpp.top(work, data, badge=badge) if badge else film_mpp.top(work, data)
             base = F.base_frame(chrome, top, work / f"base-{name}.png" if badge else base)
-        F.encode_take(take, work / f"s-{name}.mp4", F.take_chain(box, take_font, trim=f"{t0:.3f}:{t1:.3f}", hold=hold, cap=cap), base)
+        F.encode_take(src, work / f"s-{name}.mp4", F.take_chain(sbox, sfont, trim=f"{t0:.3f}:{t1:.3f}", hold=hold, cap=scap), base)
         pieces.append(work / f"s-{name}.mp4")
-        data_out["segments"].append({"kind": "take", "from": round(t0, 2), "to": round(t1, 2), "badge": badge})
+        data_out["segments"].append({"kind": "take", "take": src.name, "from": round(t0, 2), "to": round(t1, 2), "badge": badge})
 
     qe = qr_time(take, dur)
-    type_end = min(data.get("type_seconds", 2.2), qe)
+    # Typing and the wait come from the big-font take; the full-QR tail from the
+    # tall-canvas take. The wait is measured on the QR take.
+    take_type = ROOT / "demos" / "shop" / "takes" / data.get("take_type", data["take"])
+    dur_t = F.duration(take_type)
+    type_end = min(data.get("type_seconds", 2.2), dur_t)
+    box_t = F.content_box(take_type, min(type_end, dur_t - 0.5))
+    type_font = data.get("type_font", 26)
     wait = qe - type_end
     if wait >= 4.0:
-        take_seg("pre", 0, type_end)
-        take_seg("badge", type_end, min(type_end + 1.8, dur), badge=f"real wait {round(wait)} s")
+        take_seg("pre", 0, type_end, path=take_type, box=box_t, font=type_font)
+        take_seg("badge", type_end, min(type_end + 1.8, dur_t), badge=f"real wait {round(wait)} s", path=take_type, box=box_t, font=type_font)
     else:
-        take_seg("pre", 0, qe)
+        take_seg("pre", 0, qe, path=take_type, box=box_t, font=type_font)
     take_seg("tail", qe, dur, hold=1.2)
 
     # The QR card, when a scene asks for it: the code the buyer scans, shown whole.
