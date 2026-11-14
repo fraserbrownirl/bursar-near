@@ -304,7 +304,7 @@
    "chain": "solana",
    "quote_receipt": "ef55dfea92041cf97b34c8589dce3e946e427a6d465c78fbf384098fd01cc945",
    "intent_receipt": "4e52f82c6e25673ad47e53b5aef4ca6b8ec3f66f43deeca54a5caf60c71c32aa",
-   "note": "iPhone shop QR through the model relay: /prepare and /check ran on Bursar-9B on the Mac. The payment itself is pending the owner's scan."
+   "note": "iPhone shop QR through the model relay: /prepare and /check ran on Bursar-9B on the Mac. The payment itself settled on 2026-11-13 (the two phone-payment rows below)."
   },
   {
    "date": "2026-11-13",

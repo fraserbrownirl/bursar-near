@@ -94,7 +94,7 @@ for (const name of readdirSync(join(root, "attacks"))) {
   if (!attacks.includes(`(${name})`)) failures.push(`attacks/${name} has no row in attacks/README.md`);
 }
 
-const TX_URL = /https:\/\/(?:nearblocks\.io|testnet\.nearblocks\.io|explorer\.solana\.com|basescan\.org|arbiscan\.io)\/tx(?:ns)?\/[A-Za-z0-9x]+/g;
+const TX_URL = /https:\/\/(?:nearblocks\.io|testnet\.nearblocks\.io|explorer\.solana\.com|solscan\.io|basescan\.org|arbiscan\.io)\/tx(?:ns)?\/[A-Za-z0-9x]+/g;
 for (const file of proofFiles) {
   const text = readFileSync(join(root, file), "utf8");
   for (const hash of text.match(/\b[0-9a-f]{64}\b/g) ?? []) {
