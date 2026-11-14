@@ -31,7 +31,7 @@ The last check before signing runs inside the model, and you can replay it.
 - Attack film and full cut: this repository, above
 - Attack table with receipts and clips: [attacks/README.md](attacks/README.md)
 - Mainnet transactions: [Mainnet record](#mainnet-record)
-- Hosted demo: planned. The page in `web/` is not yet published.
+- Hosted demo: n/a. The model is downloaded and run on the verifier's machine; there is no service to host. The demo is the replay in "Do this, see that" below.
 
 ## Do this, see that
 
@@ -327,7 +327,6 @@ Each item is planned.
 - Playbooks in the weights. The 9B firmware has no `files` command, so `skills/` is read from disk (`src/skills.ts`).
 - A Mac app with the key in the Secure Enclave and Touch ID for new payees, top-ups, and limit changes. It is not in this repository.
 - Bursar-2B on the phone, replacing the Mac's Bursar-9B for the quote check and the intent check. Until then the phone sends those two checks to Bursar-9B on the Mac, and the card says `checked by Bursar-9B on the Mac`.
-- The hosted demo, from `web/`.
 
 ## Licence
 

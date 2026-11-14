@@ -16,7 +16,7 @@ Snapshot fetched 2026-11-12T15:15:15Z. The body hash is unchanged from 10:16:00Z
 | Q-009 | "Public RPC free" | The check reads `https://rpc.mainnet.near.org`. | `src/decide.ts` | met |
 | Q-010 | "Testnet-only projects eligible?" | This project reads mainnet. | README Mainnet record | n/a |
 | Q-011 | "Own contract on NEAR that fits the track is enough." | `contract/` is the blocklist contract. | `contract/src/lib.rs` | met |
-| Q-012 | "Hosted demo is a plus; keep it up to 2026-11-18, ideally 2026-11-25." | The page exists in `web/` and is not published (the URL 404s today). No X post. | README Links | open |
+| Q-012 | "Hosted demo is a plus; keep it up to 2026-11-18, ideally 2026-11-25." | Hosted demo n/a: the model is downloaded and run on the verifier's machine; there is no service to host (README Links). No X post yet. | README Links | open |
 | Q-013 | "Team keeps all rights" | No rights assignment is in the repo. | LICENSE is MIT | n/a |
 | Q-014 | "add a LICENSE file." | MIT licence file. | `LICENSE` | met |
 | Q-015 | "One person, several projects?" | There is no second NEAR Hackathon entry. bursar-solana was built for the Solana hackathon and is not a NEAR Hackathon entry. | README What is not NEAR | n/a |
