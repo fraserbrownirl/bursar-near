@@ -7,7 +7,7 @@ Snapshot fetched 2026-11-12T15:15:15Z. The body hash is unchanged from 10:16:00Z
 | Q-000 | "NEAR AI credits?" | This repo does not use a NEAR AI API key. | `src/model.ts` default URL is local | n/a |
 | Q-001 | "Code before 2026-11-01? Yes, from the announcement on 2026-10-19" | Every day from 2026-10-20 has commits: ethereus-mac 164, ethereus 379, bursar-solana 13, bursar-near 52+, all in the window; ethereus and bursar-solana are public, ethereus-mac is being made public. | README Build log; `docs/hackathon/history.md` | met |
 | Q-002 | "Existing product on another chain? Allowed." | What is not NEAR names the Solana payment, `mppx`, the Base destination, and that the guard modules do not call a chain. | README What is not NEAR | met |
-| Q-003 | "Dedicated branch, or tags pre-hackathon and hackathon-submission, plus a README section linking the diff." | Tag `pre-hackathon` exists. The diff link is `pre-hackathon...main`. `hackathon-submission` is not tagged. | README Hackathon diff | open |
+| Q-003 | "Dedicated branch, or tags pre-hackathon and hackathon-submission, plus a README section linking the diff." | Both tags exist. The README links `pre-hackathon...hackathon-submission`. | README Hackathon diff | met |
 | Q-004 | "New feature in the window: yes, if separated per Q-003." | The NEAR commits are 2026-11-10, after the tag `14b88e4`. | `git log` | met |
 | Q-005 | "List in README; own old libs count as baseline." | Libraries and Code written with AI. | README | met |
 | Q-006 | "1Click JWT? Not required. Without it, 0.2% fee." | `bursar merchant --mpp` passes `ONE_CLICK_JWT` only when it is set. When it is unset, the process writes that the 0.2% unauthenticated fee applies. | `src/merchant.ts`, `test/mpp.test.ts` | met |

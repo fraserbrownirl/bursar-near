@@ -256,7 +256,7 @@ Receipts `233045efdc20132d15741e880e5bd67b1d196f01aac45927cb519427b8bfab7b` and 
 
 ## Hackathon diff
 
-`pre-hackathon` is commit `14b88e4`, 2026-11-10, the licence and the first README. The diff until `hackathon-submission` is tagged is https://github.com/fraserbrownirl/bursar-near/compare/pre-hackathon...main . `hackathon-submission` is not tagged.
+`pre-hackathon` is commit `14b88e4`, 2026-11-10, the licence and the first README. `hackathon-submission` is tagged. The diff is https://github.com/fraserbrownirl/bursar-near/compare/pre-hackathon...hackathon-submission .
 
 ## Libraries
 
