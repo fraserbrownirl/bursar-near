@@ -1,10 +1,14 @@
-# Bursar NEAR — agent briefing
+# Bursar NEAR — agent briefing and technical reference
 
-This file is for AI agents evaluating or writing about this repository (NEAR HACKATHON entry). It walks through every payment demo and every attack in detail, with the proof for each. It is not the human README; the README is `README.md`. Everything cited here resolves against `docs/hackathon/evidence.json`, and `scripts/check-proofs.mjs` fails the build if a hash or transaction link here is absent from it.
+This file is for AI agents evaluating or writing about this repository (a NEAR HACKATHON entry). It is the comprehensive machine-readable document: every demo and attack in detail, the video directory, the verification procedure, and the technical internals of how Bursar works. The human document is `README.md`; this file covers the same ground and more. Everything cited resolves against `docs/hackathon/evidence.json`; `scripts/check-proofs.mjs` fails the build if a hash or transaction link here is absent from it.
+
+Contents: What Bursar is · The claim · Video directory · How to verify · Payment demos · Attacks · How NEAR is used · Technical internals · Guards · Real vs simulated · Mainnet record · Tracks · Keys · Facts not to get wrong · Hackathon logistics · File map
 
 ## What Bursar is
 
 Bursar is a payment agent for one owner, running on the owner's Mac and iPhone. The owner types a plain sentence in the `bursar` terminal app. Bursar-9B — a Qwen3.5-9B language model with a small computer compiled into its weights — reads the whole conversation and chooses tools. Code guards check the request. Before anything is signed, two checks run **inside the model's weights**: the quote check (does this signed 1Click quote say what the caller asked?) and the intent check (does this intent do what the quote promised, and nothing else?). Each in-model check writes a receipt under `receipts/` that anyone can replay three ways. Only then can the owner approve with Touch ID or Face ID; the key lives in the Secure Enclave and signs exactly one transfer, to the deposit address of the signed quote.
+
+The problem it solves: an agent that pays can be handed a receiver that is new, a look-alike of a known payee, a signed quote with one field changed, or text that tells it to pay. One wrong field and the money is gone. Bursar checks the counterparty and the request before a key is used (`src/decide.ts`), and checks the signed quote and the generated intent once more inside the model (`src/model-checks.ts`).
 
 ## The claim, and its exact scope
 
@@ -33,12 +37,19 @@ Every film is in this repository and plays without any account. What each shows,
 
 ## How to verify (all commands in this repo)
 
-Offline, no setup: `npm test` (148 tests, exit 0), `npm run demo` (13 attack stops printed), `npm run verify` (level 1: every tracked receipt matches the TypeScript reference; exits non-zero on any MISMATCH).
+Offline, no setup beyond Node 20+:
 
-Levels 2 and 3 need Python 3.11+ and one-time `npm run setup:verify` (builds `.venv-verify` from the pinned `requirements-verify.txt`):
+- `npm install` — exits 0 and leaves `package-lock.json` byte-identical.
+- `npm test` — 148 tests, exit 0, no network, no stray files written.
+- `npm run demo` — prints 13 attack stops, exactly the lines the README lists.
+- `npm run verify` — level 1: every tracked receipt matches the TypeScript reference, one `match` line each; exits non-zero on any `MISMATCH`.
 
-- Level 2, `npm run verify:firmware -- <receipt-hash>`: checks the committed `firmware/eth-bridge.elf` against its pinned SHA-256, runs it in the vendored RV32IM emulator (`vendor/`) on the receipt's input, compares output. Seconds.
-- Level 3, `npm run verify:weights -- <receipt-hash>`: downloads the pack (about 218 MB) and Qwen3.5 tokenizer from Hugging Face (public repo `frsrcom/bursar-9b`, hash-checked), replays the receipt on CPU, compares output and the trace hash. About 1 minute for the README's example; 30–40 minutes for the attack receipts below.
+Levels 2 and 3 need Python 3.11+ and one-time `npm run setup:verify` (builds `.venv-verify` from the pinned `requirements-verify.txt`; prints `setup:verify ok`):
+
+- Level 2, `npm run verify:firmware -- <receipt-hash>`: checks the committed `firmware/eth-bridge.elf` against its pinned SHA-256, runs it in the vendored RV32IM emulator (`vendor/`) on the receipt's input, compares output. Seconds. Proves the committed firmware produces the receipt's output; does not prove the weights ran it.
+- Level 3, `npm run verify:weights -- <receipt-hash>`: downloads the pack (about 218 MB) and Qwen3.5's tokenizer (about 20 MB) from Hugging Face (public repo `frsrcom/bursar-9b`, hash-checked against the pins in `scripts/computer_run.py`), replays the receipt on CPU, compares output **and** the trace hash. About 1 minute for the README's 5,279-token example; 30–40 minutes for the attack receipts below. Proves the published weights compute the receipt; does not prove the language model chose to call the computer.
+
+Determinism, precisely: the **output** of a check is semantic and robust across hosts. The **trace hash** depends on the exact host code that presented the call (the server was rebuilt during the hackathon); when it changes, affected receipts are regenerated with identical outputs and the fossils stay in git history, never cited. Every receipt cited in this file replays today.
 
 ## Payment demo 1 — shop sale (Mac is the vendor, iPhone is the customer)
 
@@ -114,7 +125,110 @@ One line each; the scenario file is `attacks/<id>.yaml`, the STOP sentence and c
 - Payments: NEAR Intents (1Click). Dry quote, signed quote, one transfer to the quote's deposit address; deposits from Solana, Base, Arbitrum settle as USDC on NEAR (`nep141:17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1`).
 - Signing: NEP-413 intents for ed25519 implicit accounts; P-256 WebAuthn for the `0x` implicit accounts behind the Secure Enclave (Mac `0xbc77a1ef1ee04fc563ccb1d19e28dcc7385f136b`, iPhone `0x304e29ea3a04a8693d9b5ff362cee0016f586ff5`).
 - Contract `bursar-reports.near`: the shared blocklist (`report`) and the receipt-ledger `anchor`, called by a function-call key with deposit 0 and a 0.05 NEAR allowance — it cannot move money.
-- On-chain record (every id also in `docs/hackathon/evidence.json`): contract deploy, blocklist report, ledger anchor, and USDC payments of 0.25, 0.10 (MPP), 0.02 (control), 0.02 (from the enclave account), and 0.001 on Base (x402).
+- On-chain record (every id also in `docs/hackathon/evidence.json`): contract deploy, blocklist report, ledger anchor, and USDC payments of 0.25, 0.10 (MPP), 0.02 (control), 0.02 (from the enclave account), 0.15 twice on Solana (iPhone), and 0.001 on Base (x402).
+
+## Technical internals
+
+### The computer in the weights
+
+Bursar-9B is Qwen3.5-9B with an RV32IM computer compiled into 12 layers ahead of Qwen's. The published pack (`frsrcom/bursar-9b` on Hugging Face, pinned to revision `74eae8ef09d0d4508c60b17724a5c491bd0e3e68`) holds:
+
+- `chip.safetensors` (197,966,000 bytes, SHA-256 `7d756fd40e9b6c4bd36ec3f4afea44f2d04d7269c27bc841e6f4aff96007a216`): the computer's weights.
+- `snapshot.safetensors` (19,792,784 bytes): the recurrent states of the parked firmware — the machine's state after loading, so a call starts from a booted machine.
+- `chip.json`: the layout, including `chip_token_offset` 248320 (token id above which chip tokens live) and the head index.
+- `eth-bridge.elf`: the firmware image the pack was built with (an earlier revision than the repo's pin).
+
+A tool call flows like this: the harness presents `Call the eth tool once… <cmd>`; the weights emit a `<tool_call>` envelope; the firmware executes the command **inside the forward pass**; the output appears in a `<tool_response>`; the token ids in generation order are the trace. `trace_sha256` is the SHA-256 of those ids as uint32 little-endian. The model server is an OpenAI-compatible endpoint (`http://127.0.0.1:8000/v1/chat/completions`) whose responses carry a `computer[]` array with `trace_tokens`, `trace_sha256`, `wall_ms`, and the firmware and weights hashes (`src/model.ts`).
+
+### The firmware
+
+`firmware/eth-bridge.elf` (468,000 bytes, SHA-256 `8cb34279eb5d0528800beebb618b750c52bbddd792f61742dd1b01480523a2be`; loadable segments `e3c2f204f05f45986fdbfaffb9e464cb99dd23dd7aabfae6079af8c6a7da32f5`) is a RISC-V (rv32im) bridge implementing the chain codecs and checks the computer offers: keccak, ABI encode/decode, u256, the NEAR intents message format, and the `1click check`, `intents dec`, and `sol ui` commands. Long arguments use a spill protocol: an `@file` reference reads from a buffer spliced into the firmware image, and an over-window call is passed through `eth_in` memory instead of the token capture (`vendor/chipformer/rv/spill.py`, `vendor/locals/models/eth_spill.py`).
+
+### The two in-model checks, field by field
+
+`1click check @quote <recipient> <refundTo> <destinationAsset> <minAmountOut> <amount> <nowSec> <memo>` compares, against the signed quote: the signature (in code first — `STOP: bad signature`), then recipient, refund, destination asset, `amountIn` against the stated amount, `minAmountOut` at least the stated floor, and the deadline still ahead. The caller states the deposit amount whatever the swap type: for an EXACT_OUTPUT quote the stated amount is the quote's `amountIn` and the floor is the exact output (`statedRequest` in `src/model-checks.ts`). Outputs are `ok` or `fail` plus the fields that differ (`fail recipient refund`, `fail amount`, `fail min_out`, `fail deadline`).
+
+`intents dec @payload` decodes the NEP-413 payload: signer, verifying contract, deadline, nonce, and each intent as `intent[i]: transfer receiver=… tokens=…`. Any intent that is not a plain transfer, and any missing field, is the single line `error (unsupported intent)` — nothing downstream can mistake a drainer for a transfer. A payment stops unless the model actually ran the check and wrote the receipt (`requireLive` in `src/model-checks.ts`).
+
+### The receipt format
+
+A receipt is canonical JSON, and its file name is the SHA-256 of those bytes: `cmd`, `inputs` (name → SHA-256 of the input bytes, stored under `receipts/inputs/<hash>`), `firmware_elf_sha256`, `chip_weights_sha256`, `output`, `trace_tokens`, `trace_sha256`, `wall_ms`, `runtime` (`locals-mac`), `date`. `receipts/ledger.txt` is the append-only hash log; its head at one line was anchored on-chain (see the Mainnet record). Receipts are never edited or deleted once cited; when the host code changes enough that a trace no longer reproduces, the check is re-run and the new receipt is cited with the old one named in `docs/hackathon/evidence.json`.
+
+### The guarded signer
+
+`BursarGuardedSigner` (`src/signer.ts`) accepts exactly one shape: a single `transfer` intent whose receiver is the signed quote's `depositAddress`, whose deadline equals the signed quote's deadline. Everything else throws before the inner signer is touched. ed25519 implicit accounts sign NEP-413; the `0x` P-256 implicit accounts (keccak-derived, high-S folded) sign WebAuthn messages inside the Secure Enclave. `sendGuardedUsdc` refuses anything else with `STOP: the enclave key signs intents`.
+
+### The phone relay
+
+The iPhone app holds no model. For a scanned receive QR it calls the Mac relay (`src/model-relay.ts`): `/prepare` turns the QR into a quote and returns the card fields (including the quote's `amountIn`, so the phone shows the real cost); `/check` runs the in-model checks — a `stage` of `quote` or `intent` runs one, unset runs both — and the phone shows each check passing before Face ID. The card says `checked by Bursar-9B on the Mac`.
+
+## Guards (the code-stop machinery)
+
+Beyond the nineteen filmed attacks: a shared on-chain blocklist with trusted reporters (`src/blocklist.ts`, `fromTrusted` in `src/decide.ts`); look-alike names within two edits of a saved payee (`editDistance`, `src/guard/memory.ts`); an injection scan over any pasted, QR-, invoice-, email-, or 402-carried text; inflated-amount comparison against the agreed amount; switched-wallet and address-poisoning checks against payment history; merchant pressure patterns; a persistent hash-chained payment ledger verified against the on-chain anchor (`src/guard/ledger.ts`); per-payment and MCP limits; and the receive-shape rule (an account id is never a deposit address). `decide` returns allow, warn, or block; a warn asks the human once and records the answer in the ledger.
+
+## What is real and what is simulated
+
+| Piece | Real | Simulated |
+| --- | --- | --- |
+| Quote signature | `verifyQuoteSignature` from `@defuse-protocol/one-click-sdk-typescript` 0.1.26 on captured 1Click responses | The attack quotes are those captures with one field changed |
+| Quote fields | Compared in TypeScript, including `swapType` `EXACT_INPUT` and `slippageTolerance` 100 | `npm test` and `npm run demo` do not call the model |
+| Chain age and code | NEAR RPC and NearBlocks, read on 2026-11-10, saved under `test/fixtures/` | Tests replay those files |
+| Blocklist | `get` on the contract in `BURSAR_BLOCKLIST_CONTRACT` through mainnet RPC when set | `npm test` and `npm run demo` use `fixtures/blocklist.json` |
+| Payments | The transactions in the Mainnet record were submitted on mainnet | `npm test` and `npm run demo` do not submit |
+| MPP merchant | The official SDK example server, unmodified | The merchant account is the owner's own `frsrcom.near`; no public MPP merchant accepts NEAR Intents yet |
+
+## Mainnet record
+
+Every id below is also in `docs/hackathon/evidence.json`.
+
+- Contract `bursar-reports.near`, 2026-11-10: created with 1.6 NEAR ([tx](https://nearblocks.io/txns/C12N4A7vPip2DY1nnJrF2VgfwUo6Mjuc7gcBvWxuNrWB)), deployed ([tx](https://nearblocks.io/txns/GBrPAhSGRP2YnqEp5bWvR6DgNDyUJi6ha8J7Tn5KwQKj)), reporter funded ([tx](https://nearblocks.io/txns/HW2icJkQNkQkmej5T2VEEFQGKg181zhJTp3bixKo7rxD)), storage deposit ([tx](https://nearblocks.io/txns/8aQptjNus43Yy8ECcobyGmYDLohTh5wAzTsmS8bK5PpP)), function-call key for `report` and `anchor` ([tx](https://nearblocks.io/txns/7VWsx2Z5p8H96cdLJRAix1ExnT4t4YYkqHZ5ywyUC2rz)).
+- Blocklist report on `bad1794304962694.near`, evidence `13cfb0baf872fa2ed72d01fc1b7bc4813663db3b929f3a0182b7595464c2953a`, by the full-access key ([tx](https://nearblocks.io/txns/BvySKjNJ3rvqM5xQL5q4gke49oCfhRd2uCDVQeWvhyjC)) and the function-call key ([tx](https://nearblocks.io/txns/8Y9JSyJdSZvMRrWWG1HV9j5K319Y5dJvefhHi1QbEQWu)).
+- Ledger anchor of head `13cfb0baf872fa2ed72d01fc1b7bc4813663db3b929f3a0182b7595464c2953a` at block 223922998 ([tx](https://nearblocks.io/txns/Ds99qAExPLWfowBnChqU9NrsvzqkgabUbTpjHgtZDngp)).
+
+Payments, all USDC:
+
+| Date | What | Amount | Transaction | In-model receipts |
+| --- | --- | --- | --- | --- |
+| 2026-11-10 | To `frsrcom.near` | 0.25 | [tx](https://nearblocks.io/txns/8iEQeRWP1GTKvdHVUmGTiZvsPrd6DCCitrNCF3CQXYCb) | `1b2437a38474673dc25662f41dcaf40bbcfec35369e896208bad5e4b7dfc1307`, `afcd5ebbced6c6a72b8b21344382c58df00c8d04bea95e5c5d972f71891cfb3d`, `233045efdc20132d15741e880e5bd67b1d196f01aac45927cb519427b8bfab7b`, `93b52051b20720e817cfc6eeb37dc40c0e779ca2463d741d0ae0310834302ca2` |
+| 2026-11-11 | MPP `/premium`, Arbitrum in | 0.101034 | [deposit](https://arbiscan.io/tx/0x9a7a379e88c4e704d1e9638e868d951b4befbdb930e90a756c09fbb83b525599), [settlement](https://nearblocks.io/txns/yTnoP1oA2Yb92xen7fQGd7XP6ws4hhw6EGiHB9utp2z) | |
+| 2026-11-12 | Control payment | 0.02 | [tx](https://nearblocks.io/txns/Ck8wGNBwD8Y1TJZjKW3Nn7opX8Wz2tkoiGPYF3ajuGvp) | `1633b1032bc055660069f9c06efcd771b048b74c12e195056d04abcfa863eb74` |
+| 2026-11-12 | Enclave payment | 0.02 | [tx](https://nearblocks.io/txns/6dHJgrwAXxc9u4BBntdkAH9qjHkDPkzi1WxacwjWQ44Z) | `f4dbd0c978d1cbff9e3b7a31a32696f4176e77ab96796d17f3649923a995951c`, `2d8fd3df35c2ac93e6c1a372f55db737aa9dc964862fee8ca6018dd2b551ab53` |
+| 2026-11-12 | MPP re-run | 0.101034 | [tx](https://nearblocks.io/txns/GuVNPesYiw4NqTuCTPJmEPUcQn1ttuWZRDsAWrTw6BKG) | `9500264e1ebfbeaf5dc042f81de2d14514a2a0187bd801430092f4cbdda3d200`, `e20e41752b61b87e7bc693dbd7aca347f6e7662c3a840a7d880873d52baae4de` |
+| 2026-11-12 | x402 weather call, on Base | 0.001 | [tx](https://basescan.org/tx/0x50c5acc7a2de4fbcccde1fd4ab77ca5c6bd1bed2eb5f03ab9a18eff1529cbb70) | |
+| 2026-11-13 | Shop QR payment (iPhone), twice | 0.15 each | [first](https://solscan.io/tx/56jCodLweyqEkKWAZmjvgyAqcYSLevyc2quB6ZzFjQDxwvcgoyZkQiiS4dpzhz3HmF1M8dWFz7WmyWWDbCfaefdm), [second](https://solscan.io/tx/LpHrDJiW3d8mgZDoNcnYi3EnNreWkqAowxSUXoHkxxUYuXD65qLmoQsCZ97ofSx3uPFTCGPEUhy8ZT5Pc1DXM1C) | `88b2ebf9684e6be2d764c17c0cd77991cdd33bacb7b5c63d21a612b1b26a67e3`, `dcd107e653c56d902209399882e3b21c4cffaa6d5a642e839bb950756c1c4bb3`, `c4c807adf149059b8a49a8cc15709d5dc2a92c94dc50d301ce7e282c438b146f`, `08392ed0d7b8e91d4188dd6053f2189cfbbc8273cbdc92a25efd399f8d258144` |
+| 2026-11-13 | MPP sentence re-run | 0.101034 | [tx](https://nearblocks.io/txns/2S5EFTZumZciXkNk54LzGt85w7xXBkaENjXF33zjdoLA) | `bb8e930501a0a97b2f69e6d39ddf68c7f084ee9f2b1ed020ddf472d7b479a388`, `b5bebe97bccb5d741134d757bfaff74d953f266221c79b57a587fd1c443418f1` |
+| 2026-11-13 | x402 weather call, sentences | 0.001 | [tx](https://basescan.org/tx/0x6e7e357f2b9385c786cddbea5d51ffe06b89d38ef9503d10debe62e6c3a6570d) | |
+
+## Tracks
+
+Phrases from the hackathon's track table. Rows the project does not meet are omitted, except the two NEAR-named alternatives.
+
+| Track | Phrase | Status | Evidence |
+| --- | --- | --- | --- |
+| security | spending limits | met | A payment above 1 USDC is refused (`withinDemoCap` in `src/swap-intent.ts`); `reviewMpp` stops a challenge above 1000000 (`src/mpp.ts`) |
+| security | policy engines | met | `decide` returns allow, warn or block (`src/decide.ts`); the thirteen stops print in `npm run demo` |
+| security | sandboxed wallets | met | The guarded signer signs one transfer shape, to the signed quote's deposit address, after the checks (`src/signer.ts`, `test/signer.test.ts`) |
+| security | reputation | met | Shared on-chain blocklist, `bursar-reports.near` (`src/blocklist.ts`) |
+| security | scam detection | met | Sixteen code stops in `attacks/README.md`, `src/guard/` |
+| security | Give AI money without giving it the keys to everything | met | Device-bound passkeys in the Secure Enclave, not exportable, one signature per biometric approval, one transfer shape (`signer/EnclaveSigner.swift`, `src/signer.ts`) |
+| security | AGENT SECURITY | met | The rows above |
+| security | FUNCTION CALL KEYS | met | `report` and `anchor` by a function-call key, deposit 0, allowance 0.05 NEAR (`src/report.ts`) |
+| security | TEE attestation | n/a — verifiable computation instead | Levels 1–3 recompute the check from the reference, the firmware, or the weights. No trusted hardware |
+| agents | spend | met | The four payment demos |
+| agents | pay for APIs, compute or data | met | The x402 weather call, 0.001 USDC on Base (`src/x402-pay.ts`) |
+| agents | NEAR INTENTS | met | `src/quote.ts`, `src/intent.ts`; every Intents payment is a 1Click quote |
+| agents | CHAIN SIGNATURES | n/a | Not used |
+| realworld | merchant payments | met | The MPP scene pays the official example merchant 0.10 USDC (`demos/mpp/README.md`) |
+| realworld | invoicing | met | A receive request is a deposit address plus an amount (`src/receive.ts`); the split bill produces the instruction the friend pays (`demos/split/README.md`) |
+| realworld | stablecoin rails | met | USDC moves through NEAR Intents between Solana, Base, Arbitrum and NEAR (`src/assets.ts`; the demos) |
+| realworld | Something a normal company could use tomorrow | met | A page or API that answers 402 is paid from one sentence, and a third party replays the checks (Payment demos 2 and 3) |
+| realworld | STABLECOINS | met | Native USDC `nep141:17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1`, 6 decimals (`test/fixtures/tokens.json`) |
+| realworld | NEAR INTENTS | met | `src/quote.ts` |
+| realworld | META TRANSACTIONS | n/a | Not used |
+| privacy | AI that protects sensitive data | met | The model runs on the owner's machine (`src/model.ts`). Keys stay in the Secure Enclave or the login Keychain; never in the repo, a command line, a log, or the model's context |
+| privacy | Private AI | met | No inference provider: receipts record runtime `locals-mac` |
+| privacy | TEE | n/a | No trusted execution environment; the check is the three verify levels |
+| privacy | NEAR AI Cloud | n/a | The model is served locally, not there |
 
 ## Keys
 
@@ -129,14 +243,24 @@ One line each; the scenario file is `attacks/<id>.yaml`, the STOP sentence and c
 - The computer is compiled into the model's weights; it is not a separate service, a coprocessor, or a TEE. There is no TEE attestation anywhere in this project; verification is by replay (levels 1–3), not by trusted hardware.
 - The phone has no model. Never write that it runs the checks itself.
 - Three attacks stop inside the model; sixteen stop in code. Never attribute the sixteen to the model.
-- The model pack is public on Hugging Face (`frsrcom/bursar-9b`) and hash-pinned; the emulator and computer are vendored in `vendor/`; nothing outside the repository is needed to verify except Python 3.11+, Node 20+, and network access to Hugging Face.
+- The base model is Qwen3.5-9B; Bursar-9B's pack is public on Hugging Face (`frsrcom/bursar-9b`) and hash-pinned. The emulator and computer are vendored in `vendor/`; nothing outside the repository is needed to verify except Python 3.11+, Node 20+, and network access to Hugging Face.
 - `npm test` is offline (148 tests). Live runs write receipts; the suite does not.
 - Receipts are append-only evidence: the file name is the SHA-256 of its bytes, inputs are stored by content hash in `receipts/inputs/`, and a receipt that no longer replays is regenerated or uncited, never edited.
+- A receipt's trace hash is host-versioned; its output is the stable, meaningful part. A regenerated receipt always carries the identical output.
+
+## Hackathon logistics
+
+- Window: work counts from 2026-10-19 (Q-001). Every day from 2026-10-20 onward has commits across the source repos: ethereus-mac 164, ethereus 379 (the computer in the weights and the firmware), bursar-solana 13, this repo 50+. The dated record is `docs/hackathon/history.md`, regenerated mechanically by `scripts/history.sh`; the build-log table is in `README.md`.
+- Diff: `pre-hackathon` (commit `14b88e4`, 2026-11-10) to `hackathon-submission`, linked in the README's Hackathon diff section.
+- What is not NEAR: the model pack is on Hugging Face; the Base float key pays x402 on Base; `mppx` is the Stripe/Tempo payment-auth library; the Swift signer sources are in the repo, the compiled binary is not; `src/guard/` calls no chain.
+- Libraries (all in `package-lock.json` / `contract/Cargo.lock`; Python in `requirements-verify.txt`): `@defuse-protocol/one-click-sdk-typescript` 0.1.26, `@defuse-protocol/nearintents-mpp-sdk` 0.4.1, `@defuse-protocol/intents-sdk` 0.95.0, `mppx` 0.17.0, `viem` 2.57.1, `near-api-js` 5.1.1, `qrcode` 1.5.4, `jsqr` 1.4.0, `pngjs` 7.0.0, `tsx` 4.23.15, `typescript` 5.9.3, `near-sdk` 5.30.1; Python: numpy 2.5.4, torch 2.14.1, safetensors 0.8.0, tokenizers 0.23.3, huggingface_hub 2.2.0.
+- Code written with AI: `src/guard/` with Claude Code; the rest of the repository, including `signer/` and this file, with Cursor.
+- License: MIT (`LICENSE`).
 
 ## File map
 
-- The product: `src/cli.ts` (entry), `src/agent.ts` (conversation and tools), `skills/` (playbooks), `src/decide.ts` and `src/guard/` (allow, warn, block), `src/model-checks.ts` (the two in-model checks), `src/signer.ts` (guarded signer), `src/pay.ts` (submits only after both checks and `signIntent`).
-- Proofs: `attacks/README.md` (attack table), `attacks/*.yaml` (scenarios), `demos/README.md` (scene index), `demos/<scene>.md` (scene pages), `receipts/` (replayable checks), `docs/hackathon/evidence.json` (the registry).
+- The product: `src/cli.ts` (entry), `src/agent.ts` (conversation and tools), `skills/` (playbooks), `src/decide.ts` and `src/guard/` (allow, warn, block), `src/model-checks.ts` (the two in-model checks), `src/signer.ts` (guarded signer), `src/pay.ts` (submits only after both checks and `signIntent`), `src/model-relay.ts` (the phone relay).
+- Proofs: `attacks/README.md` (attack table), `attacks/*.yaml` (scenarios), `demos/README.md` (scene index), `demos/<scene>/README.md` (scene pages), `receipts/` (replayable checks), `docs/hackathon/evidence.json` (the registry), `docs/hackathon/history.md` (dated commit record).
 - Verification: `src/verify.ts`, `scripts/verify_firmware.py`, `src/verify-weights.ts`, `scripts/computer_run.py`, `vendor/`, `firmware/`.
 - Gates: `scripts/check-readme.mjs`, `scripts/check-proofs.mjs`, `scripts/check-agents.mjs` (all run by `npm run check:readme`).
 - Films: see the Video directory. `demos/full-demo.mp4` is the single link to hand someone; per-scene films are in each `demos/<scene>/` folder; attack films are under `attacks/video/`.
