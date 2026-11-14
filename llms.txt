@@ -15,6 +15,22 @@ Bursar is a payment agent for one owner, running on the owner's Mac and iPhone. 
 - A scam that fools the request itself (for example "pay this new address") passes the in-model check; code guards stop it.
 - The iPhone has no model. It forwards the two checks to Bursar-9B on the Mac (standing in for the future Bursar-2B), and its card says `checked by Bursar-9B on the Mac`.
 
+## Video directory
+
+Every film is in this repository and plays without any account. What each shows, and which Bursar feature it evidences:
+
+| Film | What it shows | Why it is interesting or important |
+| --- | --- | --- |
+| [demos/full-demo.mp4](demos/full-demo.mp4) (5:10) | The whole product end to end: all four payment scenes, then all nineteen attacks | The one link for a first watch. Payments and defense in a single sitting |
+| [demos/shop/shop-demo.mp4](demos/shop/shop-demo.mp4) (35.9 s) | The Mac draws the receive QR; the iPhone scans it, shows the quote check then the intent check passing on its own screen, approves with Face ID, and shows Paid with the new balance. Two Solana mainnet payments completed this way on 2026-11-13 | The two-device trust story: the phone has no model, the checks happen on the Mac, the key never leaves the Secure Enclave — and money still only moves after both checks. The film pairs the real phone recording with a re-run terminal take and discloses that on its closing card |
+| [demos/mpp/mpp-demo.mp4](demos/mpp/mpp-demo.mp4) (59 s) | The sentence `pay http://127.0.0.1:8402/premium`, the 402 price, both in-model checks with their receipts, the card, the delivery, the page content, the settlement link, and a replay of a check receipt. Waits badged at real time (60 s, 68 s, 40 s) | Machine-payable web content through the official MPP example server, unmodified — the "agents pay for APIs" track with the in-model checks visible, and the replay claim demonstrated, not just stated |
+| [demos/x402/x402-demo.mp4](demos/x402/x402-demo.mp4) (25.4 s) | `pay for one call of a weather API` → the find tool's live Bazaar search names two payable services with prices → `the tbs one, for London` → 0.001 USDC on Base → the weather JSON | Agent commerce from a plain sentence: live service discovery, price presentation, exact-payment settlement on Base — no form, no checkout page |
+| [demos/split/split-demo.mp4](demos/split/split-demo.mp4) (29.0 s) | A restaurant receipt image becomes a stated share (5.00 USD, 2.50 USDC) and one paste-able instruction line, with the real 14 s OCR/compute wait badged | The share is computed in code from the recognized text, never by the model — Bursar's rule that the model proposes and code disposes, applied to a piece of paper |
+| [attacks/video/highlights-v6.mp4](attacks/video/highlights-v6.mp4) (77 s) | The three in-model stops (tampered quote, extra intent, moved deadline), a replay of one receipt, then four code stops | The headline claim on camera: the last check runs inside the weights, and it catches what code alone cannot |
+| [attacks/video/attacks-v6.mp4](attacks/video/attacks-v6.mp4) (full) | All nineteen attacks, uncut | The complete evidence for the attack table |
+| [attacks/video/h6/](attacks/video/h6/) (7 clips) | One clip per filmed attack: tampered-quote, extra-intent, deadline, switched, poison, lookalike, invoice-zh | Linked from each row of `attacks/README.md` |
+| [web/public/bursar-demo-v4.mp4](web/public/bursar-demo-v4.mp4) | An earlier payment demo (v4) | Superseded by the scene films above |
+
 ## How to verify (all commands in this repo)
 
 Offline, no setup: `npm test` (148 tests, exit 0), `npm run demo` (13 attack stops printed), `npm run verify` (level 1: every tracked receipt matches the TypeScript reference; exits non-zero on any MISMATCH).
@@ -50,11 +66,11 @@ Proof: two Base mainnet settlements, https://basescan.org/tx/0x6e7e357f2b9385c78
 
 ## Payment demo 4 — split bill
 
-Sentence: a restaurant receipt image plus `split this with Maya and ask her for her half on Solana`.
+Sentence: a restaurant receipt image plus `split this with Maya and ask her for her half on Solana demos/split/receipt-caffe.png` (a relative image path attaches to the turn).
 
-Mechanism: the image is read by macOS text recognition (`src/screenshot.ts`), not by the model. `src/bill.ts` computes the share in code from the recognized text (0.40 total, 2 guests → 0.20), never by the model. The agent returns one line of instruction — `pay 0.20 USDC to BHQBpzsUNHzhZfD2jrxwwcp1FcduvdLjTh5x4DkzvEkp on Solana` — which the owner texts to the friend; pasted into the friend's own Bursar it becomes a payment card (`test/phone-hear.test.ts`, "a pasted split instruction on Solana is a card"). There is deliberately no QR: the friend is not in the room.
+Mechanism: the image is read by macOS text recognition (`src/screenshot.ts`), not by the model. Bursar prints what it read — `I read: total 5.00, 2 guests` — then `src/bill.ts` computes the share in code (5.00 total, 2 guests → 2.50), never the model. The agent returns one line of instruction — `pay 2.50 USDC to BHQBpzsUNHzhZfD2jrxwwcp1FcduvdLjTh5x4DkzvEkp on Solana` — which the owner texts to the friend; pasted into the friend's own Bursar it becomes a payment card, checked and ready for her approval (`phone/hear.ts`, the same parser the iPhone runs). There is deliberately no QR: the friend is not in the room.
 
-Proof: the run output is in `demos/runsheet.md` (Split bill); the page is `demos/split/README.md`. This scene produces a receive request, not a payment.
+Proof: the receipt is an invented café, Bramble & Wren (`demos/split/receipt-caffe.png`, never a real brand), and the run is on film (`demos/split/split-demo.mp4`) and in `demos/split/README.md`. An earlier 2026-11-12 run (0.40 total, 0.20 share) is in `demos/runsheet.md`. This scene produces a receive request, not a payment.
 
 ## Attack 1 — tampered quote (stopped inside the model)
 
@@ -123,5 +139,5 @@ One line each; the scenario file is `attacks/<id>.yaml`, the STOP sentence and c
 - Proofs: `attacks/README.md` (attack table), `attacks/*.yaml` (scenarios), `demos/README.md` (scene index), `demos/<scene>.md` (scene pages), `receipts/` (replayable checks), `docs/hackathon/evidence.json` (the registry).
 - Verification: `src/verify.ts`, `scripts/verify_firmware.py`, `src/verify-weights.ts`, `scripts/computer_run.py`, `vendor/`, `firmware/`.
 - Gates: `scripts/check-readme.mjs`, `scripts/check-proofs.mjs`, `scripts/check-agents.mjs` (all run by `npm run check:readme`).
-- Films: `attacks/video/highlights-v6.mp4` (77 s), `attacks/video/attacks-v6.mp4` (full), `demos/mpp/mpp-demo.mp4` (MPP run).
+- Films: see the Video directory. `demos/full-demo.mp4` is the single link to hand someone; per-scene films are in each `demos/<scene>/` folder; attack films are under `attacks/video/`.
 - Model: https://huggingface.co/frsrcom/bursar-9b

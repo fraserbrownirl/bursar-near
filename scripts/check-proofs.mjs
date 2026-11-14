@@ -58,7 +58,11 @@ import { readdirSync, statSync } from "node:fs";
 for (const name of readdirSync(join(root, "demos"))) {
   const dir = join(root, "demos", name);
   if (name.endsWith(".md") && name !== "README.md" && name !== "runsheet.md") {
-    failures.push(`demos/${name} is a loose proof page; scenes are folders with a README.md`);
+    const scene = name.replace(/\.md$/, "");
+    const redirect = `The scene lives in [${scene}/README.md](${scene}/README.md).`;
+    if (readFileSync(dir, "utf8").trim() !== redirect) {
+      failures.push(`demos/${name} is a loose proof page; scenes are folders with a README.md`);
+    }
     continue;
   }
   if (!statSync(dir).isDirectory() || name === "takes") continue;
