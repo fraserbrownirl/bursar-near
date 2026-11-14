@@ -35,7 +35,7 @@ The last check before signing runs inside the model, and you can replay it.
 
 ## Do this, see that
 
-From a fresh clone. Steps 1–3 need Node 20 or newer and nothing else. Steps 4–5 need Python 3.11 or newer (on a Mac: `brew install python@3.13`).
+From a fresh clone. Steps 1–3 need Node 20 or newer and nothing else. Steps 4–5 need Python 3.12 or newer (on a Mac: `brew install python@3.13`).
 
 1. Run the offline test suite. It does not call the network.
 
@@ -43,8 +43,8 @@ From a fresh clone. Steps 1–3 need Node 20 or newer and nothing else. Steps 4�
 npm test
 ```
 ```output
-ℹ tests 152
-ℹ pass 152
+ℹ tests 151
+ℹ pass 151
 ℹ fail 0
 ```
 

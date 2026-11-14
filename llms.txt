@@ -44,7 +44,7 @@ Offline, no setup beyond Node 20+:
 - `npm run demo` — prints 13 attack stops, exactly the lines the README lists.
 - `npm run verify` — level 1: every tracked receipt matches the TypeScript reference, one `match` line each; exits non-zero on any `MISMATCH`.
 
-Levels 2 and 3 need Python 3.11+ and one-time `npm run setup:verify` (builds `.venv-verify` from the pinned `requirements-verify.txt`; prints `setup:verify ok`):
+Levels 2 and 3 need Python 3.12+ and one-time `npm run setup:verify` (builds `.venv-verify` from the pinned `requirements-verify.txt`; prints `setup:verify ok`):
 
 - Level 2, `npm run verify:firmware -- <receipt-hash>`: checks the committed `firmware/eth-bridge.elf` against its pinned SHA-256, runs it in the vendored RV32IM emulator (`vendor/`) on the receipt's input, compares output. Seconds. Proves the committed firmware produces the receipt's output; does not prove the weights ran it.
 - Level 3, `npm run verify:weights -- <receipt-hash>`: downloads the pack (about 218 MB) and Qwen3.5's tokenizer (about 20 MB) from Hugging Face (public repo `frsrcom/bursar-9b`, hash-checked against the pins in `scripts/computer_run.py`), replays the receipt on CPU, compares output **and** the trace hash. About 1 minute for the README's 5,279-token example; 30–40 minutes for the attack receipts below. Proves the published weights compute the receipt; does not prove the language model chose to call the computer.
@@ -243,7 +243,7 @@ Phrases from the hackathon's track table. Rows the project does not meet are omi
 - The computer is compiled into the model's weights; it is not a separate service, a coprocessor, or a TEE. There is no TEE attestation anywhere in this project; verification is by replay (levels 1–3), not by trusted hardware.
 - The phone has no model. Never write that it runs the checks itself.
 - Three attacks stop inside the model; sixteen stop in code. Never attribute the sixteen to the model.
-- The base model is Qwen3.5-9B; Bursar-9B's pack is public on Hugging Face (`frsrcom/bursar-9b`) and hash-pinned. The emulator and computer are vendored in `vendor/`; nothing outside the repository is needed to verify except Python 3.11+, Node 20+, and network access to Hugging Face.
+- The base model is Qwen3.5-9B; Bursar-9B's pack is public on Hugging Face (`frsrcom/bursar-9b`) and hash-pinned. The emulator and computer are vendored in `vendor/`; nothing outside the repository is needed to verify except Python 3.12+, Node 20+, and network access to Hugging Face.
 - `npm test` is offline (148 tests). Live runs write receipts; the suite does not.
 - Receipts are append-only evidence: the file name is the SHA-256 of its bytes, inputs are stored by content hash in `receipts/inputs/`, and a receipt that no longer replays is regenerated or uncited, never edited.
 - A receipt's trace hash is host-versioned; its output is the stable, meaningful part. A regenerated receipt always carries the identical output.
