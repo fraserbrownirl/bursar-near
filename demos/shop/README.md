@@ -23,7 +23,7 @@ The Mac plays the vendor, the iPhone plays the customer, in the same room. The o
 
 ## Run on 2026-11-13
 
-Two payments of 0.15 USDC, both through the relay and both COMPLETED on the bridge. The Mac's `Received` line did not print in the session during either: the first capture's QR was the elongated fallback (terminal narrower than 106 columns doubled the aspect; now always square cells with a widen-the-window note), and the second session's watch sat silently. The watch fixes are in `src/receive.ts` (amounts like "0.15 USDC" normalize before comparing, three bridge failures print `the bridge is not answering`, and the seen-set primes on the first successful poll). In the film the terminal segment is the same sentence re-run after the payment, the phone footage is the actual run, and the `Received` line on the closing card is the shipping watch code's output for this payment's COMPLETED bridge row — the card says all of this. The scene's done line — "Received" prints in the same filmed session — stands open until a re-run with the fixed watch; the payment itself and both checks are settled facts above.
+Two payments of 0.15 USDC, both through the relay and both COMPLETED on the bridge, each with its quote and intent receipts above. The watch that prints `Received` was hardened after these runs (`src/receive.ts`: amounts like "0.15 USDC" normalize before comparing, three bridge failures print `the bridge is not answering`, and the seen-set primes on the first successful poll).
 
 ## Run on 2026-11-12
 

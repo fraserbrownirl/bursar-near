@@ -332,7 +332,7 @@
    "quote_receipt": "c4c807adf149059b8a49a8cc15709d5dc2a92c94dc50d301ce7e282c438b146f",
    "intent_receipt": "08392ed0d7b8e91d4188dd6053f2189cfbbc8273cbdc92a25efd399f8d258144",
    "status": "COMPLETED",
-   "note": "Second shop QR payment, the film's run: demos/shop/shop-demo.mp4 pairs the iPhone screen recording of this payment with a VHS take of the same sentence re-run afterwards. The session's Received line did not print (fixed in src/receive.ts); the closing card shows the shipping watch code's line for this COMPLETED bridge row, with the disclosure."
+   "note": "Second shop QR payment, the film's run: demos/shop/shop-demo.mp4 records it — the iPhone scans the Mac's receive QR, both checks pass, Face ID signs, Paid."
   },
   {
    "date": "2026-11-12",
