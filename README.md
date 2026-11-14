@@ -1,5 +1,7 @@
 # Bursar NEAR
 
+**[Demo video (YouTube)](https://youtu.be/uNJsN67hZ2E)** · **[llms.txt — the agent briefing](https://github.com/fraserbrownirl/bursar-near/blob/main/llms.txt)** · [Model on Hugging Face](https://huggingface.co/frsrcom/bursar-9b)
+
 Bursar is a payment agent for one owner. The owner types a plain sentence; Bursar-9B, a Qwen3.5-9B with a small computer compiled into its weights, reads it and calls a tool; code guards check the request; and the last two checks before anything is signed run inside the model's weights. Each in-model check writes a receipt that anyone can replay.
 
 ## The problem
@@ -23,6 +25,7 @@ The last check before signing runs inside the model, and you can replay it.
 
 ## Links
 
+- Demo video: https://youtu.be/uNJsN67hZ2E
 - For AI agents evaluating this repo: [llms.txt](llms.txt) — every demo and every attack in detail, with proofs
 - Model: https://huggingface.co/frsrcom/bursar-9b (public; the verify commands below download it and check its SHA-256)
 - Attack film and full cut: this repository, above
