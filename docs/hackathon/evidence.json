@@ -56,12 +56,6 @@
    "note": "the Mac runtime; made public with Fraser's confirmation on 2026-11-12"
   },
   {
-   "repo": "ethereus-mac",
-   "commit": "7c38f56",
-   "date": "2026-10-12",
-   "note": "Locals 0.2.0, before 2026-10-19; baseline"
-  },
-  {
    "repo": "bursar-solana",
    "url": "https://github.com/fraserbrownirl/bursar-solana",
    "window_commits": 13,

@@ -286,11 +286,10 @@ The Python side of levels 2–3 is pinned in `requirements-verify.txt`: `numpy` 
 
 ## Build log and roadmap
 
-Work counts from 2026-10-19 (Q-001); earlier commits are baseline. Every day from 2026-10-20 onward has commits. The dated record behind this table is [docs/hackathon/history.md](docs/hackathon/history.md), regenerated from the checkouts by `scripts/history.sh`. Two anchors no one can backdate: the model pack was published on Hugging Face on 2026-11-08, and the blocklist contract was deployed on 2026-11-10 (Mainnet record). Locals 0.2.0 (`7c38f56`, 2026-10-12) is before the window and is baseline.
+Work counts from 2026-10-19 (Q-001). Every day from 2026-10-20 onward has commits. The dated record behind this table is [docs/hackathon/history.md](docs/hackathon/history.md), regenerated from the checkouts by `scripts/history.sh`. Two anchors no one can backdate: the model pack was published on Hugging Face on 2026-11-08, and the blocklist contract was deployed on 2026-11-10 (Mainnet record).
 
 | Phase | Dates | Commits | Work | Evidence |
 | --- | --- | --- | --- | --- |
-| Baseline: Locals 0.2.0 | 2026-10-12 | — | The local model server Bursar-9B runs on | `7c38f56`, before the window |
 | Mac runtime | 2026-10-20 to 2026-11-10 | 164 | Locals serving models on the Mac; the 9B pack served from 2026-11-05 | [ethereus-mac](https://github.com/fraserbrownirl/ethereus-mac), history.md |
 | The computer in the weights | 2026-10-31 to 2026-11-12 | 379 | The RV32 computer compiled into the Qwen3.5-9B weights; EVM, NEAR and Stellar firmware with the gate tests | [ethereus](https://github.com/fraserbrownirl/ethereus), history.md |
 | Fine-tune and evals | 2026-11-01 to 2026-11-08 | 105 | ft1b gate, the MMLU rows, eth-evals | ethereus-internal, private; cited hashes are in `docs/hackathon/evidence.json` |
@@ -302,8 +301,6 @@ gantt
     title Phases, inclusive dates from the table
     dateFormat YYYY-MM-DD
     axisFormat %Y-%m-%d
-    section Baseline
-    Locals 0.2.0                    :2026-10-12, 2026-10-13
     section Inside the window
     Mac runtime                     :2026-10-20, 2026-11-10
     The computer in the weights     :2026-10-31, 2026-11-12

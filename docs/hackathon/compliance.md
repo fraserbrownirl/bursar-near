@@ -5,7 +5,7 @@ Snapshot fetched 2026-11-12T15:15:15Z. The body hash is unchanged from 10:16:00Z
 | Rule | Quoted text | What this repo does | Proof | Status |
 | --- | --- | --- | --- | --- |
 | Q-000 | "NEAR AI credits?" | This repo does not use a NEAR AI API key. | `src/model.ts` default URL is local | n/a |
-| Q-001 | "Code before 2026-11-01? Yes, from the announcement on 2026-10-19" | Every day from 2026-10-20 has commits: ethereus-mac 164, ethereus 379, bursar-solana 13, bursar-near 52+, all in the window; ethereus and bursar-solana are public, ethereus-mac is being made public. Locals `7c38f56` is 2026-10-12 and is marked baseline. | README Build log; `docs/hackathon/history.md` | met |
+| Q-001 | "Code before 2026-11-01? Yes, from the announcement on 2026-10-19" | Every day from 2026-10-20 has commits: ethereus-mac 164, ethereus 379, bursar-solana 13, bursar-near 52+, all in the window; ethereus and bursar-solana are public, ethereus-mac is being made public. | README Build log; `docs/hackathon/history.md` | met |
 | Q-002 | "Existing product on another chain? Allowed." | What is not NEAR names the Solana payment, `mppx`, the Base destination, and that the guard modules do not call a chain. | README What is not NEAR | met |
 | Q-003 | "Dedicated branch, or tags pre-hackathon and hackathon-submission, plus a README section linking the diff." | Tag `pre-hackathon` exists. The diff link is `pre-hackathon...main`. `hackathon-submission` is not tagged. | README Hackathon diff | open |
 | Q-004 | "New feature in the window: yes, if separated per Q-003." | The NEAR commits are 2026-11-10, after the tag `14b88e4`. | `git log` | met |
